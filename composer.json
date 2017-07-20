@@ -1,0 +1,11 @@
+{
+    "name":        "hostnet/bundler",
+    "type":        "hostnet-lib",
+    "description": "Tool for finding all dependencies given a set of input files.",
+    "license":     "proprietary",
+
+    "require":     {},
+    "require-dev": {
+        "phpunit/phpunit": "^6.2"
+    }
+}

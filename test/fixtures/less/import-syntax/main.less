@@ -1,0 +1,12 @@
+@import "double_quote";
+@import 'single_quote';
+@import "./relative";
+@import "../relative";
+@import (optional, reference) "options.less";
+@import url("print.css") print;
+@import url("print-tv.css") projection, tv;
+@import 'base.css';
+@import url("chrome://communicator/skin/"); // will be skipped
+@import "non-url.css" screen, projection;
+@import url('media-print.css') screen and (orientation:landscape);
+@import url("media-print-extra.css") handheld and (max-width: 400px);
