@@ -70,39 +70,66 @@ func resolveAsIndex(file string) (string, bool) {
 }
 
 func resolveAsDir(dir string, ext string) (string, bool) {
-	// If X/package.json is a file,
+	// 1. If X/package.json is a file,
 	if  s, err := os.Stat(dir + "/package.json"); !os.IsNotExist(err) && s.Mode().IsRegular() {
+		// a. Parse X/package.json, and look for "main" field.
 		var m package_json
 		buf, _ := ioutil.ReadFile(dir + "/package.json")
 		json.Unmarshal(buf, &m)
 
+		// b. let M = X + (json main field)
+		// c. LOAD_AS_FILE(M)
 		file, e := resolveAsFile(filepath.Clean(dir + "/" + m.Main), ext)
 		if !e {
 			return file, false
 		}
+		// d. LOAD_INDEX(M)
 		return resolveAsIndex(filepath.Clean(dir + "/" + m.Main))
 	}
 
+	// 2. LOAD_INDEX(X)
 	return resolveAsIndex(dir)
 }
 
-func resolveImport(file string, cwd string, ext string) (string, bool) {
-	// is relative?
-	if file[0] == '/' {
-		return resolveAsFile(filepath.Clean(file), ext)
-	} else if file[0] == '.' && (file[1] == '/' || (file[1] == '.' && file[2] == '/')){
-		return resolveAsFile(filepath.Clean(cwd + "/" + file), ext)
-	} else {
-		module := filepath.Clean("./node_modules/" + file)
-
-		file, e := resolveAsFile(module, ".js")
-		if e {
-			return resolveAsDir(module, ".js")
-		}
-
+func resolveAsNodeModule(file string) (string, bool) {
+	// 1. let DIRS=NODE_MODULES_PATHS(START)
+	module := filepath.Clean("./node_modules/" + file)
+	// 2. for each DIR in DIRS:
+	// a. LOAD_AS_FILE(DIR/X)
+	file, e := resolveAsFile(module, ".js")
+	if !e {
 		return file, false
 	}
+	// b. LOAD_AS_DIRECTORY(DIR/X)
+	return resolveAsDir(module, ".js")
+}
 
+func resolveImport(file string, cwd string, ext string) (string, bool) {
+	// 1. If X is a core module,
+	if file[0] == '/' {
+		// 2. If X begins with '/'
+		// a. LOAD_AS_FILE(Y + X)
+		file, e := resolveAsFile(filepath.Clean(file), ext)
+		if !e {
+			return file, false
+		}
+		// b. LOAD_AS_DIRECTORY(Y + X)
+		return resolveAsDir(filepath.Clean(file), ext)
+	} else if file[0] == '.' && (file[1] == '/' || (file[1] == '.' && file[2] == '/')){
+		// 3. If X begins with './' or '/' or '../'
+		// a. LOAD_AS_FILE(Y + X)
+		file, e := resolveAsFile(filepath.Clean(cwd + "/" + file), ext)
+		if !e {
+			return file, false
+		}
+		// b. LOAD_AS_DIRECTORY(Y + X)
+		return resolveAsDir(filepath.Clean(cwd + "/" + file), ext)
+	} else {
+		// 4. LOAD_NODE_MODULES(X, dirname(Y))
+		return resolveAsNodeModule(file)
+	}
+
+	// 5. THROW "not found"
 	return "", true
 }
 
@@ -118,7 +145,8 @@ func dependenciesLess(file string, buf []byte, r regex) []string {
 			path = m[5]
 		}
 
-		if strings.ContainsAny(path, ":") {
+		// there can be :// which indicates a transport protocol, it (should) never be to a file.
+		if strings.Contains(path, "://") {
 			continue
 		}
 
@@ -200,7 +228,7 @@ func dependencies(file string, r regex) []string {
 }
 
 func main() {
-	re_less := regexp.MustCompile(`@import (\([a-z\,\s]*\)\s*)?(url\()?('([^']+)'|"([^"]+)")`)
+	re_less := regexp.MustCompile(`@import (\([a-z,\s]*\)\s*)?(url\()?('([^']+)'|"([^"]+)")`)
 	re_ts := regexp.MustCompile(`import(.*from)?\s+["'](.*)["'];`)
 	re_js := regexp.MustCompile(`[^a-z0-9_]require\(([']([^']+)[']|["]([^"]+)["])\)`)
 
