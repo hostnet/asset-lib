@@ -4,4 +4,4 @@ THIS PROJECT IS WORK IN PROGRESS, NOTHING IS FINAL! USE AT OWN RISK.
 Resolver for assets
 
 ## Assumptions:
- - `node_modules` folder is alway at ./, so: `./node_modules`
+ - `node_modules` folder is always at ./, so: `./node_modules`
