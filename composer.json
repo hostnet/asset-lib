@@ -1,8 +1,8 @@
 {
-    "name":        "hostnet/bundler",
+    "name":        "hostnet/resolver-lib",
     "type":        "hostnet-lib",
     "description": "Tool for finding all dependencies given a set of input files.",
-    "license":     "proprietary",
+    "license":     "MIT",
 
     "require":     {},
     "require-dev": {
