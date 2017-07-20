@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"encoding/json"
+	"strings"
 )
 
 type regex struct {
@@ -115,6 +116,10 @@ func dependenciesLess(file string, buf []byte, r regex) []string {
 		path := m[4]
 		if len(path) == 0 {
 			path = m[5]
+		}
+
+		if strings.ContainsAny(path, ":") {
+			continue
 		}
 
 		ext := filepath.Ext(path)

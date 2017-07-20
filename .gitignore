@@ -1,3 +1,6 @@
+.idea/
+.vagrant/
+bin/
 vendor/
 composer.lock
-bin/bundler
+composer.phar
