@@ -11,8 +11,8 @@ import (
 )
 
 type regex struct {
-	re_less *regexp.Regexp;
-	re_ts *regexp.Regexp;
+	re_less *regexp.Regexp
+	re_ts *regexp.Regexp
 	re_js *regexp.Regexp
 }
 
