@@ -29,14 +29,18 @@ func in_array(needle string, haystack []string) bool {
 	return false
 }
 
-func resolveAsFile(file string, ext string) (string, bool) {
+func resolveAsFile(file string, ext []string) (string, bool) {
 	// 1. If X is a file, load X as JavaScript text.  STOP
 	if  s, err := os.Stat(file); !os.IsNotExist(err) && s.Mode().IsRegular() {
 		return file, false
 	}
+
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
-	if s, err := os.Stat(file + ext); !os.IsNotExist(err) && s.Mode().IsRegular() {
-		return file + ext, false
+	// This is generalized to a list of base extensions
+	for _, e := range ext {
+		if s, err := os.Stat(file + e); !os.IsNotExist(err) && s.Mode().IsRegular() {
+			return file + e, false
+		}
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
 	if s, err := os.Stat(file + ".json"); !os.IsNotExist(err) && s.Mode().IsRegular() {
@@ -69,7 +73,7 @@ func resolveAsIndex(file string) (string, bool) {
 	return "", true
 }
 
-func resolveAsDir(dir string, ext string) (string, bool) {
+func resolveAsDir(dir string, ext []string) (string, bool) {
 	// 1. If X/package.json is a file,
 	if  s, err := os.Stat(dir + "/package.json"); !os.IsNotExist(err) && s.Mode().IsRegular() {
 		// a. Parse X/package.json, and look for "main" field.
@@ -96,15 +100,15 @@ func resolveAsNodeModule(file string) (string, bool) {
 	module := filepath.Clean("./node_modules/" + file)
 	// 2. for each DIR in DIRS:
 	// a. LOAD_AS_FILE(DIR/X)
-	file, e := resolveAsFile(module, ".js")
+	file, e := resolveAsFile(module, []string {".js"})
 	if !e {
 		return file, false
 	}
 	// b. LOAD_AS_DIRECTORY(DIR/X)
-	return resolveAsDir(module, ".js")
+	return resolveAsDir(module, []string {".js"})
 }
 
-func resolveImport(file string, cwd string, ext string) (string, bool) {
+func resolveImport(file string, cwd string, ext []string) (string, bool) {
 	// 1. If X is a core module,
 	if file[0] == '/' {
 		// 2. If X begins with '/'
@@ -165,21 +169,16 @@ func dependenciesLess(file string, buf []byte, r regex) []string {
 func dependenciesTs(file string, buf []byte, r regex) []string {
 	matches := r.re_ts.FindAllStringSubmatch(string(buf), -1)
 
+	tests := []string {".ts", ".d.ts"}
 	// First get all the regular requires
-	result := dependenciesJs(file, buf, r, ".ts")
+	result := dependenciesJs(file, buf, r, tests)
 	cwd := filepath.Dir(file)
-	tests := []string {".ts", ".d.ts", ""}
 
 	for _, m := range matches {
-		var file string
-		var e bool
+		file, e := resolveImport(m[2], cwd, tests)
 
-		for _, t := range tests {
-			file, e = resolveImport(m[2] + t, cwd, ".ts")
-
-			if !e {
-				break
-			}
+		if e {
+			continue
 		}
 
 		result = append(result, file)
@@ -188,7 +187,7 @@ func dependenciesTs(file string, buf []byte, r regex) []string {
 	return result
 }
 
-func dependenciesJs(file string, buf []byte, r regex, ext string) []string {
+func dependenciesJs(file string, buf []byte, r regex, ext []string) []string {
 	matches := r.re_js.FindAllStringSubmatch(string(buf), -1)
 
 	result := []string{}
@@ -205,7 +204,6 @@ func dependenciesJs(file string, buf []byte, r regex, ext string) []string {
 		if e {
 			continue
 		}
-
 
 		result = append(result, file)
 	}
@@ -224,7 +222,7 @@ func dependencies(file string, r regex) []string {
 		return dependenciesTs(file, buf, r)
 	}
 
-	return dependenciesJs(file, buf, r, ".js")
+	return dependenciesJs(file, buf, r, []string {".js"})
 }
 
 func main() {

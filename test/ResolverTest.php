@@ -20,7 +20,7 @@ class ResolverTest extends TestCase
 
         self::assertTrue($process->isSuccessful(), $process->getErrorOutput());
         self::assertEquals(
-            $this->fixLineEndings(file_get_contents(__DIR__ . '/' . $expected_file)),
+            $this->fixLineEndings(file_get_contents(__DIR__ . '/expected/' . $expected_file)),
             $this->fixLineEndings($process->getOutput())
         );
     }
@@ -28,9 +28,10 @@ class ResolverTest extends TestCase
     public function commandProvider()
     {
         return [
-            ['expected.less-import-syntax.txt', 'less/import-syntax/main.less'],
-            ['expected.js-require-syntax.txt', 'js/require-syntax/main.js'],
-            ['expected.ts-import-syntax.txt', 'ts/import-syntax/main.ts'],
+            ['less-import-syntax.txt', 'less/import-syntax/main.less'],
+            ['js-require-syntax.txt', 'js/require-syntax/main.js'],
+            ['ts-import-syntax.txt', 'ts/import-syntax/main.ts'],
+            ['dts-module.txt', 'ts/dts-module/main.ts'],
         ];
     }
 
