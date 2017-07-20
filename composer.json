@@ -4,7 +4,9 @@
     "description": "Tool for finding all dependencies given a set of input files.",
     "license":     "MIT",
 
-    "require":     {},
+    "require":     {
+        "php": ">=7.0"
+    },
     "require-dev": {
         "phpunit/phpunit": "^6.2",
         "symfony/process": "^3.3"
