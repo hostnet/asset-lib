@@ -1,7 +1,13 @@
-all: bin/resolver
+ifeq ($(OS),Windows_NT)
+    TARGET := bin\resolver.exe
+else
+    TARGET := bin/resolver
+endif
 
-bin/resolver: src/hostnet/resolver.go
-	@cd ./bin; go build ../$<
+all: $(TARGET)
+
+$(TARGET): src/hostnet/resolver.go
+	go build -o $@ $<
 
 clean:
-	@rm -rf bin/resolver bin/resolver.exe
+	@$(RM) $(TARGET)
