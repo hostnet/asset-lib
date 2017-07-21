@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"encoding/json"
 	"strings"
+	"strconv"
+	"flag"
 )
 
 type regex struct {
@@ -20,13 +22,17 @@ type package_json struct {
 	Main string `json:"main"`
 }
 
-func in_array(needle string, haystack []string) bool {
-	for _, b := range haystack {
-		if b == needle {
-			return true
-		}
-	}
-	return false
+type Dependency struct {
+	name string
+	file string
+}
+
+type Cache struct {
+	file string
+	deps map[string][]Dependency
+	module map[string]string
+	mtime map[string]int64
+	changed bool
 }
 
 func resolveAsFile(file string, ext []string) (string, bool) {
@@ -137,10 +143,10 @@ func resolveImport(file string, cwd string, ext []string) (string, bool) {
 	return "", true
 }
 
-func dependenciesLess(file string, buf []byte, r regex) []string {
+func dependenciesLess(file string, buf []byte, r regex) []Dependency {
 	matches := r.re_less.FindAllStringSubmatch(string(buf), -1)
 
-	result := []string{}
+	result := []Dependency{}
 	cwd := filepath.Dir(file)
 
 	for _, m := range matches {
@@ -160,13 +166,13 @@ func dependenciesLess(file string, buf []byte, r regex) []string {
             path = path + ".less"
         }
 
-		result = append(result, filepath.Clean(cwd + string(os.PathSeparator) + path))
+		result = append(result, Dependency{path, filepath.Clean(cwd + string(os.PathSeparator) + path)})
 	}
 
 	return result
 }
 
-func dependenciesTs(file string, buf []byte, r regex) []string {
+func dependenciesTs(file string, buf []byte, r regex) []Dependency {
 	matches := r.re_ts.FindAllStringSubmatch(string(buf), -1)
 
 	tests := []string {".ts", ".d.ts"}
@@ -181,16 +187,16 @@ func dependenciesTs(file string, buf []byte, r regex) []string {
 			continue
 		}
 
-		result = append(result, file)
+		result = append(result, Dependency{m[2], file})
 	}
 
 	return result
 }
 
-func dependenciesJs(file string, buf []byte, r regex, ext []string) []string {
+func dependenciesJs(file string, buf []byte, r regex, ext []string) []Dependency {
 	matches := r.re_js.FindAllStringSubmatch(string(buf), -1)
 
-	result := []string{}
+	result := []Dependency{}
 	cwd := filepath.Dir(file)
 
 	for _, m := range matches {
@@ -205,13 +211,13 @@ func dependenciesJs(file string, buf []byte, r regex, ext []string) []string {
 			continue
 		}
 
-		result = append(result, file)
+		result = append(result, Dependency{path, file})
 	}
 
 	return result
 }
 
-func dependencies(file string, r regex) []string {
+func dependencies(file string, r regex) []Dependency {
 	buf, _ := ioutil.ReadFile(file)
 	ext := filepath.Ext(file)
 
@@ -225,43 +231,157 @@ func dependencies(file string, r regex) []string {
 	return dependenciesJs(file, buf, r, []string {".js"})
 }
 
-func main() {
+func dependenciesCached(file Dependency, r regex, c *Cache) []Dependency {
+	filestat, _ := os.Stat(file.file)
+	fmktime := filestat.ModTime().Unix()
+
+	if mtime, has := c.mtime[file.file]; has && fmktime <= mtime  {
+		return c.deps[file.file]
+	}
+
+	deps := dependencies(file.file, r)
+	c.deps[file.file] = deps
+	c.mtime[file.file] = fmktime
+	c.module[file.file] = file.name
+	c.changed = true
+
+	return deps
+}
+
+func seen(needle Dependency, total []Dependency, queue []Dependency) bool {
+	for _, b := range total {
+		if b.file == needle.file {
+			return true
+		}
+	}
+	for _, b := range queue {
+		if b.file == needle.file {
+			return true
+		}
+	}
+	return false
+}
+
+func readCache(file string) *Cache {
+	c := Cache {file: file, deps:make(map[string][]Dependency), module:make(map[string]string), mtime:make(map[string]int64), changed: true}
+
+	if  s, err := os.Stat(c.file); !os.IsNotExist(err) && s.Mode().IsRegular() {
+		buf, _ := ioutil.ReadFile(file)
+
+		for _, file := range strings.Split(string(buf), "\n") {
+			if len(file) == 0 {
+				continue
+			}
+
+			// filename, mtime, deps
+			values := strings.Split(file, ";")
+			name := strings.Split(values[0], "=")
+			formatted_deps := strings.Split(values[2], ",")
+			deps := make([]Dependency, len(formatted_deps))
+
+			mtime, err := strconv.ParseInt(values[1], 10, 64)
+			if err != nil {
+				panic(err)
+			}
+
+			for i, d := range formatted_deps {
+				if len(d) == 0 {
+					continue
+				}
+
+				data := strings.Split(d, "=")
+				deps[i] = Dependency{data[0], data[1]}
+			}
+
+			c.mtime[name[1]] = mtime
+			c.module[name[1]] = name[0]
+			c.deps[name[1]] = deps
+		}
+
+		c.changed = false
+	}
+
+	return &c
+}
+
+func writeCache(c *Cache) {
+	data := ""
+
+	for file, deps := range c.deps {
+		formatted_deps := ""
+
+		for _, d := range deps {
+			if len(formatted_deps) > 0 {
+				formatted_deps += ","
+			}
+			formatted_deps += d.name + "=" + d.file
+		}
+
+		data += fmt.Sprintf("%s=%s;%d;%s\n", c.module[file], file, c.mtime[file], formatted_deps)
+	}
+
+	ioutil.WriteFile(c.file, []byte(data), 0644)
+}
+
+func resolveTree(input_files []string) {
 	re_less := regexp.MustCompile(`@import (\([a-z,\s]*\)\s*)?(url\()?('([^']+)'|"([^"]+)")`)
 	re_ts := regexp.MustCompile(`import(.*from)?\s+["'](.*)["'];`)
 	re_js := regexp.MustCompile(`[^a-z0-9_]require\(([']([^']+)[']|["]([^"]+)["])\)`)
 
 	r := regex{re_less, re_ts, re_js}
 
-	queue := []string{}
-	files := []string{}
+	queue := []Dependency{}
+	files := []Dependency{}
+	cache := readCache(".deps")
 
 	// Add input element to input
-	for _, f := range os.Args[1:] {
-		queue = append(queue, filepath.Clean(f))
+	for _, f := range input_files {
+		queue = append(queue, Dependency{f, filepath.Clean(f)})
 	}
 
 	for {
+		if len(queue) == 0 {
+			break
+		}
+
 		file := queue[0] // shift
 		queue = queue[1:] // replace queue
 
-		_, err := os.Stat(file)
+		_, err := os.Stat(file.file)
 
 		if !os.IsNotExist(err) {
 			files = append(files, file)
 
-			for _, dep := range dependencies(file, r) {
-				if !in_array(dep, files) && !in_array(dep, queue) {
+			for _, dep := range dependenciesCached(file, r, cache) {
+				if !seen(dep, files, queue) {
 					queue = append(queue, dep)
 				}
 			}
 		}
+	}
 
-		if len(queue) == 0 {
-			break
-		}
+	if cache.changed {
+		writeCache(cache)
 	}
 
 	for _, f := range files {
-		fmt.Println(f)
+		fmt.Println(f.file)
+	}
+}
+
+func resolveImports(input_files []string) {
+	fmt.Println(input_files)
+}
+
+func main() {
+	simple := flag.Bool("s", false, "Simple, this only output the contents of the requires.")
+
+	flag.Parse()
+	files := flag.Args()
+
+	if *simple {
+		resolveImports(files)
+	} else {
+		resolveTree(files)
 	}
 }
