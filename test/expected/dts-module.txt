@@ -1,3 +1,0 @@
-ts/dts-module/main.ts
-ts/dts-module/JQuery.d.ts
-ts/dts-module/Foo.ts

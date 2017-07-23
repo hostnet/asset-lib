@@ -3,10 +3,11 @@ ifeq ($(OS),Windows_NT)
 else
     TARGET := bin/resolver
 endif
+SRC=$(shell find ./src/ -name '*.go')
 
 all: $(TARGET)
 
-$(TARGET): src/hostnet/resolver.go
+$(TARGET): src/hostnet/main.go $(SRC)
 	go build -o $@ $<
 
 clean:

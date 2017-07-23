@@ -1,7 +1,0 @@
-js/require-syntax/main.js
-js/require-syntax/double_quote.js
-node_modules/module_index/index.js
-node_modules/module_package/main.js
-node_modules/module_package_dir/src/index.js
-js/require-syntax/relative.js
-js/relative.js

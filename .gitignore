@@ -2,5 +2,6 @@
 .vagrant/
 bin/
 vendor/
+test/fixtures/.deps
 composer.lock
 composer.phar
