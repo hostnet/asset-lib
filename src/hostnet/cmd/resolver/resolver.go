@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"../../dependency"
 	"../../cache"
+	"strings"
 )
 
 func dependencies(file dependency.File) []dependency.File {
@@ -44,7 +45,13 @@ func resolveTree(input_files []string) []dependency.File {
 
 	// Add input element to input
 	for _, f := range input_files {
-		queue = append(queue, dependency.File{Name: f, File: filepath.Clean(f)})
+		_, err := os.Stat(f)
+
+		if !os.IsNotExist(err) {
+			queue = append(queue, dependency.File{Name: f, File: filepath.Clean(f)})
+		} else {
+			panic("FILE NOT FOUND")
+		}
 	}
 
 	for {
@@ -59,12 +66,14 @@ func resolveTree(input_files []string) []dependency.File {
 
 		if !os.IsNotExist(err) {
 			files = append(files, file)
-
 			for _, dep := range dependenciesCached(file, c) {
+
 				if !dependency.In(dep, files, queue) {
 					queue = append(queue, dep)
 				}
 			}
+		} else {
+			panic("FILE NOT FOUND!")
 		}
 	}
 
@@ -73,8 +82,35 @@ func resolveTree(input_files []string) []dependency.File {
 	return files
 }
 
-func Init(files []string) {
+func Init(files []string, output_file string, print_name bool, exclude string) {
+	out := ""
+
 	for _, f := range resolveTree(files) {
-		fmt.Println(f.File)
+		if len(exclude) > 0 && strings.HasPrefix(f.File, exclude) {
+			continue
+		}
+
+		if print_name {
+			out += f.Name + "\n"
+		} else {
+			out += f.File + "\n"
+		}
+	}
+
+	if len(output_file) > 0 {
+		// check if there are differences
+		_, err := os.Stat(output_file)
+
+		if !os.IsNotExist(err) {
+			buf, _ := ioutil.ReadFile(output_file)
+
+			if string(buf) == out {
+				return
+			}
+		}
+
+		ioutil.WriteFile(output_file, []byte(out), 0644)
+	} else {
+		fmt.Print(out)
 	}
 }

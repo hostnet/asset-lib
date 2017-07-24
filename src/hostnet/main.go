@@ -9,6 +9,10 @@ import (
 )
 
 func main() {
+	exclude := flag.String("e", "", "Directory to exclude")
+	output := flag.String("o", "", "Output file")
+	names := flag.Bool("n", false, "Use the package name instead of the file name")
+
 	flag.Parse()
 	args := flag.Args()
 
@@ -16,10 +20,10 @@ func main() {
 		command := args[0]
 
 		if "bundle" == command {
-			bundler.Init(args[1:])
+			bundler.Init(args[1:], *names)
 			return
 		} else if "resolve" == command {
-			resolver.Init(args[1:])
+			resolver.Init(args[1:], *output, *names, *exclude)
 			return
 		}
 	}

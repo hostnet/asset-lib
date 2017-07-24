@@ -12,6 +12,7 @@ type regex struct {
 	re_less *regexp.Regexp
 	re_ts *regexp.Regexp
 	re_js *regexp.Regexp
+	re_boundry *regexp.Regexp
 }
 
 type File struct {
@@ -38,7 +39,8 @@ func In(needle File, total ...[]File) bool {
 var regex_init = regex{
 	re_less: regexp.MustCompile(`@import (\([a-z,\s]*\)\s*)?(url\()?('([^']+)'|"([^"]+)")`),
 	re_ts: regexp.MustCompile(`import(.*from)?\s+["'](.*)["'];`),
-	re_js: regexp.MustCompile(`[^a-z0-9_]require\(([']([^']+)[']|["]([^"]+)["])\)`),
+	re_js: regexp.MustCompile(`(.?)require\(([']([^']+)[']|["]([^"]+)["])\)`),
+	re_boundry: regexp.MustCompile(`[a-zA-Z_0-9.]`),
 }
 
 func Less(file FileContent) []File {
@@ -98,9 +100,14 @@ func Js(file FileContent, ext []string) []File {
 	cwd := filepath.Dir(file.Meta.File)
 
 	for _, m := range matches {
-		path := m[2]
+		path := m[3]
 		if len(path) == 0 {
-			path = m[3]
+			path = m[4]
+		}
+
+		// do we have a valid require?
+		if regex_init.re_boundry.MatchString(m[1]) {
+			continue
 		}
 
 		file, e := resolve.File(path, cwd, ext)
@@ -109,7 +116,13 @@ func Js(file FileContent, ext []string) []File {
 			continue
 		}
 
-		result = append(result, File{Name: path, File: file})
+		module_name := path
+
+		if module_name[0] == '.' && (module_name[1] == '/' || (module_name[1] == '.' && module_name[2] == '/')) {
+			module_name = filepath.Clean(cwd + "/" + module_name)
+		}
+
+		result = append(result, File{Name: module_name, File: file})
 	}
 
 	return result

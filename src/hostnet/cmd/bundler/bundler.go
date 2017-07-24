@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"../../dependency"
 	"../../cache"
+	"../../resolve"
 )
 
 func dependencies(file dependency.FileContent) []dependency.File {
@@ -24,11 +25,21 @@ func dependenciesCached(file dependency.FileContent, c *cache.Cache) []dependenc
 	return cache.Put(c, file.Meta, dependencies(file), fmktime)
 }
 
-func bundle(input_files []string) {
+func bundle(input_files []string, use_names bool) {
 	c := cache.Load()
 
 	// Add input element to input
 	for _, f := range input_files {
+		if use_names {
+			module_file, e := resolve.File(f, filepath.Dir("."), []string {"js"})
+
+			if e {
+				panic("File not found!")
+			}
+
+			f = module_file
+		}
+
 		path := filepath.Clean(f)
 		buf, _ := ioutil.ReadFile(path)
 
@@ -38,7 +49,6 @@ func bundle(input_files []string) {
 		js := "System.registerDynamic(["
 
 		// dependencies
-
 		for i, dep := range deps {
 			if i > 0 {
 				js += ", "
@@ -58,8 +68,10 @@ func bundle(input_files []string) {
 
 		fmt.Println(js)
 	}
+
+	cache.Save(c)
 }
 
-func Init(files []string) {
-	bundle(files)
+func Init(files []string, use_names bool) {
+	bundle(files, use_names)
 }
