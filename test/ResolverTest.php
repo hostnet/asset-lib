@@ -40,8 +40,6 @@ class ResolverTest extends TestCase
 
     private function fixLineEndings(string $input, string $desired = "\n"): string
     {
-        $input = implode($desired, array_map('trim', explode("\n", $input)));
-
-        return str_replace("\\", '/', $input);
+        return implode($desired, array_map('trim', explode("\n", $input)));
     }
 }
