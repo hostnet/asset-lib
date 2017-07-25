@@ -11,7 +11,7 @@ import (
 )
 
 func dependencies(file dependency.FileContent) []dependency.File {
-	return dependency.Js(file, []string {".js"})
+	return dependency.Js(file, []string {".js"}, false)
 }
 
 func dependenciesCached(file dependency.FileContent, c *cache.Cache) []dependency.File {
@@ -29,37 +29,25 @@ func bundle(input_files []string, use_names bool) {
 	c := cache.Load()
 
 	// Add input element to input
-	for _, f := range input_files {
+	for _, name := range input_files {
+		file_loc := name
+
 		if use_names {
-			module_file, e := resolve.File(f, filepath.Dir("."), []string {"js"})
+			module_file, e := resolve.File(file_loc, filepath.Dir("."), []string {"js"})
 
 			if e {
 				panic("File not found!")
 			}
 
-			f = module_file
+			file_loc = module_file
 		}
 
-		path := filepath.Clean(f)
+		path := filepath.Clean(file_loc)
 		buf, _ := ioutil.ReadFile(path)
 
-		file := dependency.FileContent{Meta: dependency.File{Name: f, File: path}, Content: buf}
-		deps := dependenciesCached(file, c)
+		file := dependency.FileContent{Meta: dependency.File{Name: name, File: path}, Content: buf}
 
-		js := "System.registerDynamic(["
-
-		// dependencies
-		for i, dep := range deps {
-			if i > 0 {
-				js += ", "
-			}
-
-			js += "'"
-			js += dep.Name
-			js += "'"
-		}
-
-		js += "], true, function(require, exports, module) {\n"
+		js := "define('"+ file.Meta.Name + "', function (require, exports, module) {\n"
 
 		// module
 		js += string(file.Content)

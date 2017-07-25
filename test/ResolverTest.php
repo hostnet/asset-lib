@@ -30,7 +30,7 @@ class ResolverTest extends TestCase
         return [
             ['resolver.less-import-syntax.txt', 'resolver/less/import-syntax/main.less'],
             ['resolver.js-require-syntax.txt', 'resolver/js/require-syntax/main.js'],
-            ['resolver.js-require-module.txt', 'node_modules/module_package/main.js', '-n'],
+            ['resolver.js-require-module.txt', 'resolver/js/require-syntax/main.js', '-n'],
             ['resolver.js-red-haring.txt', 'resolver/js/require-syntax/red_haring.js'],
             ['resolver.ts-import-syntax.txt', 'resolver/ts/import-syntax/main.ts'],
             ['resolver.ts-import-syntax-exclude.txt', 'resolver/ts/import-syntax/main.ts', '-e resolver/ts/'],

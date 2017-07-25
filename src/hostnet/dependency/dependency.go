@@ -18,6 +18,7 @@ type regex struct {
 type File struct {
 	Name string
 	File string
+	Import string
 }
 
 type FileContent struct {
@@ -61,12 +62,13 @@ func Less(file FileContent) []File {
 		}
 
 		ext := filepath.Ext(path)
+		module_name := path
 
 		if "" == ext {
-			path = path + ".less"
+			module_name = module_name + ".less"
 		}
 
-		result = append(result, File{Name: path, File: filepath.Clean(cwd + string(os.PathSeparator) + path)})
+		result = append(result, File{Name: module_name, File: filepath.Clean(cwd + string(os.PathSeparator) + module_name), Import: path})
 	}
 
 	return result
@@ -77,7 +79,7 @@ func Ts(file FileContent) []File {
 
 	exts := []string {".ts", ".d.ts"}
 	// First get all the regular requires
-	result := Js(file, exts)
+	result := Js(file, exts, false)
 	cwd := filepath.Dir(file.Meta.File)
 
 	for _, m := range matches {
@@ -87,13 +89,13 @@ func Ts(file FileContent) []File {
 			continue
 		}
 
-		result = append(result, File{Name: m[2], File: file})
+		result = append(result, File{Name: m[2], File: file, Import: m[2]})
 	}
 
 	return result
 }
 
-func Js(file FileContent, ext []string) []File {
+func Js(file FileContent, ext []string, raw bool) []File {
 	matches := regex_init.re_js.FindAllStringSubmatch(string(file.Content), -1)
 
 	result := []File{}
@@ -118,11 +120,11 @@ func Js(file FileContent, ext []string) []File {
 
 		module_name := path
 
-		if module_name[0] == '.' && (module_name[1] == '/' || (module_name[1] == '.' && module_name[2] == '/')) {
+		if !raw && (module_name[0] == '.' && (module_name[1] == '/' || (module_name[1] == '.' && module_name[2] == '/'))) {
 			module_name = filepath.Clean(cwd + "/" + module_name)
 		}
 
-		result = append(result, File{Name: module_name, File: file})
+		result = append(result, File{Name: module_name, File: file, Import: path})
 	}
 
 	return result

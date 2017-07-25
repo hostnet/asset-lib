@@ -12,7 +12,7 @@ class BundlerTest extends TestCase
     public function testImportTypes(string $expected_file, string $input)
     {
         $process = new Process(
-            'resolver bundle ' . $input,
+            'resolver -n bundle ' . $input,
             __DIR__ . '/fixtures',
             ['PATH' => realpath(__DIR__ . '/../bin')]
         );
@@ -28,7 +28,7 @@ class BundlerTest extends TestCase
     public function commandProvider()
     {
         return [
-            ['bundler.simple.js', 'bundler/simple/input.js'],
+            ['bundler.simple.js', 'module_package'],
         ];
     }
 

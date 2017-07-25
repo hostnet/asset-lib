@@ -64,7 +64,7 @@ func Load() *Cache {
 				}
 
 				data := strings.Split(d, "=")
-				deps = append(deps, dependency.File{Name: data[0], File: data[1]})
+				deps = append(deps, dependency.File{Name: data[0], File: data[1], Import: data[2]})
 			}
 
 			c.mtime[name[1]] = mtime
@@ -93,7 +93,7 @@ func Save(c *Cache) {
 				if len(formatted_deps) > 0 {
 					formatted_deps += ","
 				}
-				formatted_deps += d.Name + "=" + d.File
+				formatted_deps += d.Name + "=" + d.File + "=" + d.Import
 			}
 		}
 

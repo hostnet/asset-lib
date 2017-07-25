@@ -1,3 +1,3 @@
-System.registerDynamic(['jquery'], true, function(require, exports, module) {
-module.exports = require('jquery');
+define('module_package', function (require, exports, module) {
+require("./subpackage/main")
 });

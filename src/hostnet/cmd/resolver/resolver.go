@@ -23,7 +23,7 @@ func dependencies(file dependency.File) []dependency.File {
 		return dependency.Ts(content)
 	}
 
-	return dependency.Js(content, []string {".js"})
+	return dependency.Js(content, []string {".js"}, false)
 }
 
 func dependenciesCached(file dependency.File, c *cache.Cache) []dependency.File {
@@ -50,7 +50,7 @@ func resolveTree(input_files []string) []dependency.File {
 		if !os.IsNotExist(err) {
 			queue = append(queue, dependency.File{Name: f, File: filepath.Clean(f)})
 		} else {
-			panic("FILE NOT FOUND")
+			panic("FILE NOT FOUND: " + f)
 		}
 	}
 
@@ -73,7 +73,7 @@ func resolveTree(input_files []string) []dependency.File {
 				}
 			}
 		} else {
-			panic("FILE NOT FOUND!")
+			panic("FILE NOT FOUND: " + file.Name)
 		}
 	}
 
@@ -90,11 +90,18 @@ func Init(files []string, output_file string, print_name bool, exclude string) {
 			continue
 		}
 
+		name := f.File
+
 		if print_name {
-			out += f.Name + "\n"
-		} else {
-			out += f.File + "\n"
+			name = f.Name
+
+			// does it start with node_modules?
+			if strings.HasPrefix(name, "node_modules/") {
+				name = name[13:]
+			}
 		}
+
+		out += name + "\n"
 	}
 
 	if len(output_file) > 0 {
