@@ -86,14 +86,14 @@ func Init(files []string, output_file string, print_name bool, exclude string) {
 	out := ""
 
 	for _, f := range resolveTree(files) {
-		if len(exclude) > 0 && strings.HasPrefix(f.File, exclude) {
+		name := filepath.ToSlash(f.File)
+
+		if len(exclude) > 0 && strings.HasPrefix(name, exclude) {
 			continue
 		}
 
-		name := f.File
-
 		if print_name {
-			name = f.Name
+			name = filepath.ToSlash(f.Name)
 
 			// does it start with node_modules?
 			if strings.HasPrefix(name, "node_modules/") {
