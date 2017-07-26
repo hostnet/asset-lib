@@ -34,12 +34,14 @@ func bundle(input_files []string, use_names bool) {
 
 		if use_names {
 			module_file, e := resolve.File(file_loc, filepath.Dir("."), []string {"js"})
-
 			if e {
-				panic("File not found!")
+				// fallback to file location...
+				if  s, err := os.Stat(file_loc); os.IsNotExist(err) || !s.Mode().IsRegular() {
+					panic("File not found: " + file_loc)
+				}
+			} else {
+				file_loc = module_file
 			}
-
-			file_loc = module_file
 		}
 
 		path := filepath.Clean(file_loc)
