@@ -37,7 +37,7 @@ func bundle(input_files []string, use_names bool) {
 			if e {
 				// fallback to file location...
 				if  s, err := os.Stat(file_loc); os.IsNotExist(err) || !s.Mode().IsRegular() {
-					file_loc += ".js";
+					file_loc += ".js"
 					if  s, err := os.Stat(file_loc); os.IsNotExist(err) || !s.Mode().IsRegular() {
 						panic("File not found: " + file_loc)
 					}
@@ -51,8 +51,18 @@ func bundle(input_files []string, use_names bool) {
 		buf, _ := ioutil.ReadFile(path)
 
 		file := dependency.FileContent{Meta: dependency.File{Name: name, File: path}, Content: buf}
+		deps := dependenciesCached(file, c)
 
-		js := "define('"+ file.Meta.Name + "', function (require, exports, module) {\n"
+		js := "define(\""+ file.Meta.Name + "\", [\"require\", \"exports\", \"module\""
+		args := "require, exports, module"
+
+		// dependencies
+		for i, dep := range deps {
+			js += ", \"" + dep.Import + "\""
+			args += fmt.Sprintf(", arg_%d", i + 1)
+		}
+
+		js += "], function (" + args + ") {\n"
 
 		// module
 		js += string(file.Content)
