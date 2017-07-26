@@ -37,7 +37,10 @@ func bundle(input_files []string, use_names bool) {
 			if e {
 				// fallback to file location...
 				if  s, err := os.Stat(file_loc); os.IsNotExist(err) || !s.Mode().IsRegular() {
-					panic("File not found: " + file_loc)
+					file_loc += ".js";
+					if  s, err := os.Stat(file_loc); os.IsNotExist(err) || !s.Mode().IsRegular() {
+						panic("File not found: " + file_loc)
+					}
 				}
 			} else {
 				file_loc = module_file
