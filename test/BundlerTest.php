@@ -28,7 +28,10 @@ class BundlerTest extends TestCase
     public function commandProvider()
     {
         return [
-            ['bundler.simple.js', 'module_package'],
+            ['bundler.jquery.js', 'jquery'],
+            ['bundler.module_index.js', 'module_index'],
+            ['bundler.module_package.js', 'module_package'],
+            ['bundler.module_package_dir.js', 'module_package_dir'],
         ];
     }
 
