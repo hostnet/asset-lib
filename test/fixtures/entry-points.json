@@ -1,0 +1,11 @@
+{
+  "files": [
+    "resolver/ts/import-syntax/main.ts",
+    "resolver/less/import-syntax/main.less"
+  ],
+  "output-folder": "web",
+  "config": {
+    "tsc-bin" : "../../node_modules/.bin/tsc",
+    "lessc-bin" : "../../node_modules/.bin/lessc"
+  }
+}

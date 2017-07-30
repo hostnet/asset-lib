@@ -5,3 +5,5 @@ require('module_package');
 require('module_package_dir');
 require('./relative');
 require('../relative');
+
+// HENK

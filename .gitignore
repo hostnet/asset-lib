@@ -2,6 +2,10 @@
 .vagrant/
 bin/
 vendor/
+var/
+node_modules/
 test/fixtures/.deps
+test/fixtures/web/
 composer.lock
+yarn.lock
 composer.phar

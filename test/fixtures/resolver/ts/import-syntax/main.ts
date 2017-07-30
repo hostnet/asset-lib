@@ -10,4 +10,3 @@ import "module_package";
 import "module_package_dir";
 import $ from "jquery";
 import i = require("./Import");
-import Spy = jasmine.Spy;

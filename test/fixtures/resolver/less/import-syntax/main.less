@@ -3,10 +3,15 @@
 @import "./relative";
 @import "../relative";
 @import (optional, reference) "options.less";
-@import url("print.css") print;
-@import url("print-tv.css") projection, tv;
-@import 'base.css';
-@import url("chrome://communicator/skin/"); // will be skipped
-@import "non-url.css" screen, projection;
-@import url('media-print.css') screen and (orientation:landscape);
-@import url("media-print-extra.css") handheld and (max-width: 400px);
+@import (less) url("print.css") print;
+@import (less) url("print-tv.css") projection, tv;
+@import (less) 'base.css';
+@import (less) "non-url.css" screen, projection;
+@import (less) url('media-print.css') screen and (orientation:landscape);
+@import (less) url("media-print-extra.css") handheld and (max-width: 400px);
+
+body {
+    div {
+        color: red;
+    }
+}
