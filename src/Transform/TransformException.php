@@ -1,9 +1,7 @@
 <?php
-
 namespace Hostnet\Component\Resolver\Transform;
 
-
-class TransformException extends \RuntimeException
+final class TransformException extends \RuntimeException
 {
     private $error_output;
 

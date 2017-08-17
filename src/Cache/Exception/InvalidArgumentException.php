@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Cache\Exception;
 
-class InvalidArgumentException extends \InvalidArgumentException implements \Psr\SimpleCache\InvalidArgumentException
-{
+use Psr\SimpleCache\InvalidArgumentException as PsrInvalidArgumentException;
 
+/**
+ * Exception thrown when the cache key string is not a legal value.
+ */
+final class InvalidArgumentException extends \InvalidArgumentException implements PsrInvalidArgumentException
+{
 }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Transpile;
+namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
@@ -24,26 +24,26 @@ class JsModuleWrapper implements JsModuleWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function wrapModule(string $file_name, string $alias, string $content): string
+    public function wrapModule(string $file_name, string $module_name, string $content): string
     {
         $file = $this->nodejs_resolver->asImport($file_name);
 
         return $this->formatJs(
-            $alias,
+            $module_name,
             $this->import_finder->get($file->getImportedFile()),
             $content
         );
     }
 
     /**
-     * @param string $name
+     * @param string       $module_name
      * @param Dependency[] $dependencies
-     * @param string $content
+     * @param string       $content
      * @return string
      */
-    private function formatJs(string $name, array $dependencies, string $content): string
+    private function formatJs(string $module_name, array $dependencies, string $content): string
     {
-        $js = 'define("' . $name . '", ["require", "exports", "module"';
+        $js = 'define("' . $module_name . '", ["require", "exports", "module"';
         $args = 'require, exports, module';
 
         // dependencies

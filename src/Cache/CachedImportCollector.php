@@ -8,7 +8,7 @@ use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Psr\SimpleCache\CacheInterface;
 
-class CachedImportCollector implements ImportCollectorInterface
+final class CachedImportCollector implements ImportCollectorInterface
 {
     private $inner;
     private $cache;
@@ -19,11 +19,17 @@ class CachedImportCollector implements ImportCollectorInterface
         $this->cache = $cache;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supports(File $file): bool
     {
         return $this->inner->supports($file);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
         if ($this->cache->has($file->getPath())) {

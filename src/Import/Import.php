@@ -5,7 +5,7 @@ use Hostnet\Component\Resolver\File;
 /**
  * An import represents an import statement inside another file.
  */
-class Import
+final class Import
 {
     private $as;
     private $import;

@@ -4,7 +4,6 @@ namespace Hostnet\Component\Resolver\Bundler;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Transform\TransformerInterface;
-use Hostnet\Component\Resolver\Transpile\JsModuleWrapperInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
 use Hostnet\Component\Resolver\Transpile\TranspilerInterface;
@@ -93,7 +92,7 @@ class Bundler
             $this->logger->debug('Checking asset {name}', ['name' => $entry_point->getFile()->getPath()]);
 
             $this->compileAsset(array_map(function (Dependency $d) {
-                return $d->getImport();
+                return $d->getFile();
             }, array_filter($entry_point->getBundleFiles(), function (Dependency $d) {
                 return !$d->isVirtual();
             })));
@@ -114,9 +113,8 @@ class Bundler
                 $base_dir = '';
             }
 
-            $output_file = new File(
-                $output_folder . $base_dir . '/' . $asset_file->getBaseName() . '.' . $this->transpiler->getExtensionFor($asset_file)
-            );
+            $output_file_name = $asset_file->getBaseName() . '.' . $this->transpiler->getExtensionFor($asset_file);
+            $output_file      = new File($output_folder . $base_dir . '/' . $output_file_name);
 
             if (!file_exists($this->cwd . '/' . $output_file->getDirectory())) {
                 mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
@@ -155,7 +153,7 @@ class Bundler
                     continue;
                 }
 
-                $file = $dependency->getImport();
+                $file = $dependency->getFile();
 
                 $result = $this->getCompiledContentForCached($file);
 
@@ -180,6 +178,13 @@ class Bundler
         file_put_contents($this->cwd . '/' . $output_file->getPath(), $output_content);
     }
 
+    /**
+     * Return the TranspileResult for a given file. This can also return a
+     * cached output to speed things up.
+     *
+     * @param File $file
+     * @return TranspileResult
+     */
     private function getCompiledContentForCached(File $file): TranspileResult
     {
         $new_ext     = $this->transpiler->getExtensionFor($file);
@@ -189,7 +194,7 @@ class Bundler
             return $this->getCompiledContentFor($file, $output_file);
         }
 
-        $cache_key = substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace('/', '.', $output_file->getPath());
+        $cache_key = $this->createFileCacheKey($output_file);
 
         if ($this->checkIfChanged(
             $this->cache_dir . '/' . $cache_key,
@@ -215,6 +220,13 @@ class Bundler
         return new TranspileResult($module_name, $content);
     }
 
+    /**
+     * Return the TranspileResult for a given file.
+     *
+     * @param File $file
+     * @param File $output_file
+     * @return TranspileResult
+     */
     private function getCompiledContentFor(File $file, File $output_file): TranspileResult
     {
         $this->logger->debug('  - Emitting {name}', ['name' => $file->getPath()]);
@@ -253,6 +265,8 @@ class Bundler
     }
 
     /**
+     * Check if the output file is newer than the input files.
+     *
      * @param File         $output_file
      * @param Dependency[] $input_files
      * @return bool
@@ -261,14 +275,10 @@ class Bundler
     {
         if ($this->use_cacheing) {
             // did the sources change?
-            $sources_file = $this->cache_dir . '/' . substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace(
-                    '/',
-                    '.',
-                    $output_file->getPath()
-                ) . '.sources';
+            $sources_file = $this->cache_dir . '/' . $this->createFileCacheKey($output_file) . '.sources';
             $input_sources = array_map(
                 function (Dependency $d) {
-                    return $d->getImport()->getPath();
+                    return $d->getFile()->getPath();
                 },
                 $input_files
             );
@@ -299,7 +309,7 @@ class Bundler
         }
 
         foreach ($input_files as $input_file) {
-            if ($mtime < filemtime($this->cwd . '/' . $input_file->getImport()->getPath())) {
+            if ($mtime < filemtime($this->cwd . '/' . $input_file->getFile()->getPath())) {
                 return true;
             }
         }
@@ -307,6 +317,13 @@ class Bundler
         return false;
     }
 
+    /**
+     * Check if the output file is newer than the input file.
+     *
+     * @param string $output_file
+     * @param string $input_file
+     * @return bool
+     */
     private function checkIfChanged(string $output_file, string $input_file): bool
     {
         $mtime = file_exists($output_file) ? filemtime($output_file) : -1;
@@ -316,5 +333,18 @@ class Bundler
         }
 
         return $mtime < filemtime($input_file);
+    }
+
+    /**
+     * Create a cache key for a file. This must be unique for a file, but
+     * always the same for each file and it's location. The same file in a
+     * different folder should have a different key.
+     *
+     * @param File $output_file
+     * @return string
+     */
+    private function createFileCacheKey(File $output_file): string
+    {
+        return substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace('/', '.', $output_file->getPath());
     }
 }

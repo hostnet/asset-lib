@@ -3,7 +3,7 @@ namespace Hostnet\Component\Resolver\Import;
 
 use Hostnet\Component\Resolver\File;
 
-class ImportCollection
+final class ImportCollection
 {
     private $imports = [];
     private $resources = [];

@@ -7,7 +7,7 @@ use Hostnet\Component\Resolver\File;
  * Transpiler which supports multiple extensions. It can only have one
  * sub-transpiler per extension registered.
  */
-class Transpiler implements TranspilerInterface
+final class Transpiler implements TranspilerInterface
 {
     private $cwd;
 

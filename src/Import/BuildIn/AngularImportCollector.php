@@ -10,7 +10,7 @@ use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 /**
  * Angular asset resolver.
  */
-class AngularImportCollector implements ImportCollectorInterface
+final class AngularImportCollector implements ImportCollectorInterface
 {
     /**
      * {@inheritdoc}

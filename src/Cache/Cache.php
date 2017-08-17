@@ -7,7 +7,7 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Module;
 use Psr\SimpleCache\CacheInterface;
 
-class Cache implements CacheInterface
+final class Cache implements CacheInterface
 {
     private $file;
     private $data;

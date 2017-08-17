@@ -4,7 +4,7 @@ namespace Hostnet\Component\Resolver\Transpile;
 /**
  * Exception thrown when transpiling has failed.
  */
-class TranspileException extends \RuntimeException
+final class TranspileException extends \RuntimeException
 {
     private $error_output;
 

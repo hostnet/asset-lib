@@ -8,7 +8,7 @@ use Hostnet\Component\Resolver\Transpile\TranspileException;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
 use Symfony\Component\Process\Process;
 
-class TsFileTranspiler implements FileTranspilerInterface
+final class TsFileTranspiler implements FileTranspilerInterface
 {
     private $nodejs;
 

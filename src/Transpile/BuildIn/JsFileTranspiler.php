@@ -5,7 +5,7 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
 
-class JsFileTranspiler implements FileTranspilerInterface
+final class JsFileTranspiler implements FileTranspilerInterface
 {
     public function getSupportedExtension(): string
     {

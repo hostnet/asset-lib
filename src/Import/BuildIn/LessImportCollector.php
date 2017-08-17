@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 /**
  * Import resolver for LESS files.
  */
-class LessImportCollector implements ImportCollectorInterface
+final class LessImportCollector implements ImportCollectorInterface
 {
     /**
      * {@inheritdoc}

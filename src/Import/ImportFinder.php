@@ -51,7 +51,7 @@ class ImportFinder implements ImportFinderInterface
             $dep = array_shift($queue);
             $files[] = $dep;
 
-            $imports = $this->findImports($dep->getImport());
+            $imports = $this->findImports($dep->getFile());
 
             foreach ($imports->getImports() as $import) {
                 if (!$this->inArray($import->getImportedFile(), $queue, $files)) {
@@ -106,7 +106,7 @@ class ImportFinder implements ImportFinderInterface
     {
         foreach ($lists as $list) {
             foreach ($list as $f) {
-                if ($file->equals($f->getImport())) {
+                if ($file->equals($f->getFile())) {
                     return true;
                 }
             }

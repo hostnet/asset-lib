@@ -30,8 +30,8 @@ class EntryPoint
 
         foreach ($dependencies as $dependency) {
             if ($dependency->isStatic()) {
-                $this->asset_files[] = $dependency->getImport();
-            } elseif (0 === strpos($dependency->getImport()->getPath(), 'node_modules/')) {
+                $this->asset_files[] = $dependency->getFile();
+            } elseif (0 === strpos($dependency->getFile()->getPath(), 'node_modules/')) {
                 $this->vendor_files[] = $dependency;
             } else {
                 $this->bundle_files[] = $dependency;

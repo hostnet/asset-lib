@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 /**
  * Import resolver for JS files.
  */
-class TsImportCollector implements ImportCollectorInterface
+final class TsImportCollector implements ImportCollectorInterface
 {
     private $js_import_collector;
     private $nodejs_resolver;

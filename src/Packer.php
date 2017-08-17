@@ -4,6 +4,7 @@ namespace Hostnet\Component\Resolver;
 
 use Hostnet\Component\Resolver\Bundler\Bundler;
 use Hostnet\Component\Resolver\Bundler\EntryPoint;
+use Hostnet\Component\Resolver\Bundler\JsModuleWrapper;
 use Hostnet\Component\Resolver\Import\BuildIn\AngularImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\LessImportCollector;
@@ -19,7 +20,6 @@ use Hostnet\Component\Resolver\Transpile\BuildIn\HtmlFileTranspiler;
 use Hostnet\Component\Resolver\Transpile\BuildIn\JsFileTranspiler;
 use Hostnet\Component\Resolver\Transpile\BuildIn\LessFileTranspiler;
 use Hostnet\Component\Resolver\Transpile\BuildIn\TsFileTranspiler;
-use Hostnet\Component\Resolver\Transpile\JsModuleWrapper;
 use Hostnet\Component\Resolver\Transpile\Transpiler;
 use Psr\Log\LoggerInterface;
 

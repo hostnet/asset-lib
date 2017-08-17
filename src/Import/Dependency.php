@@ -8,7 +8,7 @@ use Hostnet\Component\Resolver\File;
  *
  * @see Import
  */
-class Dependency
+final class Dependency
 {
     private $import;
     private $virtual;
@@ -21,7 +21,7 @@ class Dependency
         $this->static = $static;
     }
 
-    public function getImport(): File
+    public function getFile(): File
     {
         return $this->import;
     }
@@ -39,6 +39,12 @@ class Dependency
         return $this->virtual;
     }
 
+    /**
+     * Return if the dependency was on a static file. This means that it is not
+     * a javascript module but an asset.
+     *
+     * @return bool
+     */
     public function isStatic(): bool
     {
         return $this->static;

@@ -1,7 +1,10 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile;
 
-class TranspileResult
+/**
+ * Transpile result contains the transpiled content and the module name of the file.
+ */
+final class TranspileResult
 {
     private $module_name;
     private $content;

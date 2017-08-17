@@ -4,7 +4,7 @@ namespace Hostnet\Component\Resolver\Transform;
 
 use Hostnet\Component\Resolver\File;
 
-class Transformer implements TransformerInterface
+final class Transformer implements TransformerInterface
 {
     public const POST_TRANSPILE = 'post_transpile';
     public const PRE_WRITE = 'pre_write';
