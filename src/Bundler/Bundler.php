@@ -97,7 +97,9 @@ class Bundler
 
             $this->compileAsset(array_map(function (Dependency $d) {
                 return $d->getImport();
-            }, $entry_point->getBundleFiles()));
+            }, array_filter($entry_point->getBundleFiles(), function (Dependency $d) {
+                return !$d->isVirtual();
+            })));
         }
     }
 
@@ -109,7 +111,6 @@ class Bundler
         $output_folder = $this->web_root . '/' . $this->output_dir;
 
         foreach ($asset_files as $asset_file) {
-
             if (false !== ($i = strpos($asset_file->getDirectory(), '/'))) {
                 $base_dir = substr($asset_file->getDirectory(), $i);
             } else {
@@ -261,6 +262,38 @@ class Bundler
      */
     private function checkIfChangedForAll(ImportInterface $output_file, array $input_files): bool
     {
+        if ($this->use_cacheing) {
+            // did the sources change?
+            $sources_file = $this->cache_dir . '/' . substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace(
+                    '/',
+                    '.',
+                    $output_file->getPath()
+                ) . '.sources';
+            $input_sources = array_map(
+                function (Dependency $d) {
+                    return $d->getImport()->getPath();
+                },
+                $input_files
+            );
+
+            sort($input_sources);
+
+            if (!file_exists($sources_file)) {
+                file_put_contents($sources_file, serialize($input_sources));
+
+                return true;
+            }
+
+            $sources = unserialize(file_get_contents($sources_file), []);
+
+            if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
+                file_put_contents($sources_file, serialize($input_sources));
+
+                return true;
+            }
+        }
+
+        // Did the files change?
         $file_path = $this->cwd . '/' . $output_file->getPath();
         $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
 
@@ -272,32 +305,6 @@ class Bundler
             if ($mtime < filemtime($this->cwd . '/' . $input_file->getImport()->getPath())) {
                 return true;
             }
-        }
-
-        if (!$this->use_cacheing) {
-            return false;
-        }
-
-        // did the sources change?
-        $sources_file = $this->cache_dir . '/' . substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace('/', '.', $output_file->getPath()) . '.sources';
-        $input_sources = array_map(function (Dependency $d) {
-            return $d->getImport()->getPath();
-        }, $input_files);
-
-        sort($input_sources);
-
-        if (!file_exists($sources_file)) {
-            file_put_contents($sources_file, serialize($input_sources));
-
-            return true;
-        }
-
-        $sources = unserialize(file_get_contents($sources_file), []);
-
-        if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
-            file_put_contents($sources_file, serialize($input_sources));
-
-            return true;
         }
 
         return false;

@@ -2,16 +2,19 @@
 namespace Hostnet\Component\Resolver\Transform\BuildIn;
 
 use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transform\ContentTransformerInterface;
 use Hostnet\Component\Resolver\Transform\TransformException;
 use Symfony\Component\Process\Process;
 
 class UglifyJsTransformer implements ContentTransformerInterface
 {
+    private $nodejs;
     private $cache_dir;
 
-    public function __construct(string $cache_dir)
+    public function __construct(Executable $nodejs, string $cache_dir)
     {
+        $this->nodejs = $nodejs;
         $this->cache_dir = $cache_dir;
     }
 
@@ -33,8 +36,8 @@ class UglifyJsTransformer implements ContentTransformerInterface
         try {
             file_put_contents($tmp, $content);
 
-            $process = new Process($cwd . '/vendor/bin/node ' . __DIR__ . '/js/uglify.js ' . $tmp, null, [
-                'NODE_PATH' => $cwd . '/node_modules'
+            $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/uglify.js ' . $tmp, null, [
+                'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
             ]);
             $process->run();
 

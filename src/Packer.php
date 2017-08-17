@@ -10,6 +10,7 @@ use Hostnet\Component\Resolver\Import\BuildIn\TsImportCollector;
 use Hostnet\Component\Resolver\Import\EntryPoint;
 use Hostnet\Component\Resolver\Import\File;
 use Hostnet\Component\Resolver\Import\ImportFinder;
+use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 use Hostnet\Component\Resolver\Transform\BuildIn\AngularHtmlTransformer;
 use Hostnet\Component\Resolver\Transform\BuildIn\UglifyJsTransformer;
@@ -32,6 +33,11 @@ final class Packer
     public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false)
     {
         $config = new Config($project_root . '/resolve.config.json');
+
+        $nodejs = new Executable(
+            $config->cwd() . '/' . $config->get('node-bin'),
+            $config->cwd() . '/' . $config->get('node_modules')
+        );
 
         $js_collector = new JsImportCollector(
             new FileResolver($config->cwd(), ['.js', '.json', '.node'])
@@ -56,8 +62,8 @@ final class Packer
         $transpiler->addTranspiler(new CssFileTranspiler());
         $transpiler->addTranspiler(new HtmlFileTranspiler());
         $transpiler->addTranspiler(new JsFileTranspiler());
-        $transpiler->addTranspiler(new LessFileTranspiler($config->get('lessc-bin')));
-        $transpiler->addTranspiler(new TsFileTranspiler());
+        $transpiler->addTranspiler(new LessFileTranspiler($nodejs));
+        $transpiler->addTranspiler(new TsFileTranspiler($nodejs));
 
         $transformer = new Transformer($config->cwd());
         $transformer->addTransformer(Transformer::POST_TRANSPILE, new AngularHtmlTransformer());
@@ -65,7 +71,7 @@ final class Packer
         if (!$dev) {
             $transformer->addTransformer(
                 Transformer::PRE_WRITE,
-                new UglifyJsTransformer($project_root . '/var/assets')
+                new UglifyJsTransformer($nodejs, $project_root . '/var/assets')
             );
         }
 

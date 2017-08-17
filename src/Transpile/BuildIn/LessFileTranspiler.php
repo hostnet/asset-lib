@@ -2,6 +2,7 @@
 namespace Hostnet\Component\Resolver\Transpile\BuildIn;
 
 use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
@@ -9,11 +10,11 @@ use Symfony\Component\Process\Process;
 
 class LessFileTranspiler implements FileTranspilerInterface
 {
-    private $lessc_location;
+    private $nodejs;
 
-    public function __construct(string $lessc_location)
+    public function __construct(Executable $nodejs)
     {
-        $this->lessc_location = $lessc_location;
+        $this->nodejs = $nodejs;
     }
 
     public function getSupportedExtension(): string
@@ -28,7 +29,9 @@ class LessFileTranspiler implements FileTranspilerInterface
 
     public function transpile(string $cwd, ImportInterface $file): TranspileResult
     {
-        $process = new Process($cwd . '/vendor/bin/node ' . $cwd . '/' . $this->lessc_location . ' --source-map-less-inline ' . $cwd . '/' .$file->getPath());
+        $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/lessc.js ' . $cwd . '/' . $file->getPath(), null, [
+            'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
+        ]);
         $process->run();
 
         if (!$process->isSuccessful()) {
