@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\BuildIn;
 
+use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
-use Hostnet\Component\Resolver\Import\ImportInterface;
-use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 
 /**
  * Import resolver for JS files.
@@ -15,7 +15,7 @@ class JsImportCollector implements ImportCollectorInterface
 {
     private $nodejs_resolver;
 
-    public function __construct(FileResolver $nodejs_resolver)
+    public function __construct(FileResolverInterface $nodejs_resolver)
     {
         $this->nodejs_resolver = $nodejs_resolver;
     }
@@ -23,7 +23,7 @@ class JsImportCollector implements ImportCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(ImportInterface $file): bool
+    public function supports(File $file): bool
     {
         return $file->getExtension() === 'js';
     }
@@ -31,7 +31,7 @@ class JsImportCollector implements ImportCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(string $cwd, ImportInterface $file, ImportCollection $imports)
+    public function collect(string $cwd, File $file, ImportCollection $imports)
     {
         $content = file_get_contents($cwd . '/' . $file->getPath());
         $n = preg_match_all('/(.?)require\(([\']([^\']+)[\']|["]([^"]+)["])\)/', $content, $matches);

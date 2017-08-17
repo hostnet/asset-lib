@@ -3,8 +3,8 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Cache;
 
 use Hostnet\Component\Resolver\Cache\Exception\InvalidArgumentException;
-use Hostnet\Component\Resolver\Import\File;
-use Hostnet\Component\Resolver\Import\Module;
+use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Module;
 use Psr\SimpleCache\CacheInterface;
 
 class Cache implements CacheInterface

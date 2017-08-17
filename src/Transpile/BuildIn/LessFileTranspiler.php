@@ -1,7 +1,7 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile\BuildIn;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
@@ -27,7 +27,7 @@ class LessFileTranspiler implements FileTranspilerInterface
         return 'css';
     }
 
-    public function transpile(string $cwd, ImportInterface $file): TranspileResult
+    public function transpile(string $cwd, File $file): TranspileResult
     {
         $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/lessc.js ' . $cwd . '/' . $file->getPath(), null, [
             'NODE_PATH' => $this->nodejs->getNodeModulesLocation()

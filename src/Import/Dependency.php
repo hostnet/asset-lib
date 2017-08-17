@@ -1,6 +1,7 @@
 <?php
 
 namespace Hostnet\Component\Resolver\Import;
+use Hostnet\Component\Resolver\File;
 
 /**
  * A dependency represent a link to another file.
@@ -13,14 +14,14 @@ class Dependency
     private $virtual;
     private $static;
 
-    public function __construct(ImportInterface $import, bool $virtual = false, bool $static = false)
+    public function __construct(File $import, bool $virtual = false, bool $static = false)
     {
         $this->import = $import;
         $this->virtual = $virtual;
         $this->static = $static;
     }
 
-    public function getImport(): ImportInterface
+    public function getImport(): File
     {
         return $this->import;
     }

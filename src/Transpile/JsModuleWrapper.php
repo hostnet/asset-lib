@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Transpile;
 
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
-use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 
 /**
  * Wrap a javascript file such that can be used as a module.
@@ -15,7 +15,7 @@ class JsModuleWrapper implements JsModuleWrapperInterface
     private $import_finder;
     private $nodejs_resolver;
 
-    public function __construct(ImportFinderInterface $import_finder, FileResolver $nodejs_resolver)
+    public function __construct(ImportFinderInterface $import_finder, FileResolverInterface $nodejs_resolver)
     {
         $this->import_finder = $import_finder;
         $this->nodejs_resolver = $nodejs_resolver;

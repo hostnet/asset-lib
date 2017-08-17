@@ -1,7 +1,11 @@
 <?php
 namespace Hostnet\Component\Resolver\Import\Nodejs;
 
-class Executable
+/**
+ * Data wrapper for the NodeJS executable information. This should contain the
+ * path the node binary and the location of the node_modules folder.
+ */
+final class Executable
 {
     private $node_bin;
     private $node_modules_location;

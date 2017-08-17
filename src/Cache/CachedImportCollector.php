@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Cache;
 
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
-use Hostnet\Component\Resolver\Import\ImportInterface;
 use Psr\SimpleCache\CacheInterface;
 
 class CachedImportCollector implements ImportCollectorInterface
@@ -19,12 +19,12 @@ class CachedImportCollector implements ImportCollectorInterface
         $this->cache = $cache;
     }
 
-    public function supports(ImportInterface $file): bool
+    public function supports(File $file): bool
     {
         return $this->inner->supports($file);
     }
 
-    public function collect(string $cwd, ImportInterface $file, ImportCollection $imports)
+    public function collect(string $cwd, File $file, ImportCollection $imports)
     {
         if ($this->cache->has($file->getPath())) {
             $item = $this->cache->get($file->getPath());

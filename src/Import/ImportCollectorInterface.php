@@ -1,6 +1,7 @@
 <?php
 
 namespace Hostnet\Component\Resolver\Import;
+use Hostnet\Component\Resolver\File;
 
 /**
  * Implementations of this interface allow for finding imports of a file.
@@ -10,17 +11,17 @@ interface ImportCollectorInterface
     /**
      * Check if this resolver is able to find imports for this file.
      *
-     * @param ImportInterface $file
+     * @param File $file
      * @return bool
      */
-    public function supports(ImportInterface $file): bool;
+    public function supports(File $file): bool;
 
     /**
      * Return all imports for the given file.
      *
      * @param string           $cwd
-     * @param ImportInterface  $file
+     * @param File             $file
      * @param ImportCollection $imports
      */
-    public function collect(string $cwd, ImportInterface $file, ImportCollection $imports);
+    public function collect(string $cwd, File $file, ImportCollection $imports);
 }

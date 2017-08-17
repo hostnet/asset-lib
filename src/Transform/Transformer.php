@@ -2,7 +2,7 @@
 
 namespace Hostnet\Component\Resolver\Transform;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 
 class Transformer implements TransformerInterface
 {
@@ -37,7 +37,7 @@ class Transformer implements TransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function onPostTranspile(ImportInterface $file, string $content, string $output_dir): string
+    public function onPostTranspile(File $file, string $content, string $output_dir): string
     {
         return $this->on(self::POST_TRANSPILE, $file, $content, $output_dir);
     }
@@ -45,7 +45,7 @@ class Transformer implements TransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function onPreWrite(ImportInterface $file, string $content, string $output_dir): string
+    public function onPreWrite(File $file, string $content, string $output_dir): string
     {
         return $this->on(self::PRE_WRITE, $file, $content, $output_dir);
     }
@@ -53,13 +53,13 @@ class Transformer implements TransformerInterface
     /**
      * Call an event to trigger to transform on.
      *
-     * @param string          $action
-     * @param ImportInterface $file
-     * @param string          $content
-     * @param string          $output_dir
+     * @param string $action
+     * @param File   $file
+     * @param string $content
+     * @param string $output_dir
      * @return string
      */
-    private function on(string $action, ImportInterface $file, string $content, string $output_dir): string
+    private function on(string $action, File $file, string $content, string $output_dir): string
     {
         foreach ($this->transformers[$action] as $transformer) {
             if ($transformer->supports($file)) {

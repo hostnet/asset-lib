@@ -1,5 +1,6 @@
 <?php
 namespace Hostnet\Component\Resolver\Import;
+use Hostnet\Component\Resolver\File;
 
 /**
  * An import represents an import statement inside another file.
@@ -10,7 +11,7 @@ class Import
     private $import;
     private $virtual;
 
-    public function __construct(string $as, ImportInterface $import, bool $virtual = false)
+    public function __construct(string $as, File $import, bool $virtual = false)
     {
         $this->as = $as;
         $this->import = $import;
@@ -31,9 +32,9 @@ class Import
     /**
      * Return the imported file.
      *
-     * @return ImportInterface
+     * @return File
      */
-    public function getImportedFile(): ImportInterface
+    public function getImportedFile(): File
     {
         return $this->import;
     }

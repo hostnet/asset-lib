@@ -2,7 +2,7 @@
 
 namespace Hostnet\Component\Resolver\Transpile;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 
 
 /**
@@ -14,17 +14,17 @@ interface TranspilerInterface
     /**
      * Return the extension of the file which will be the outputted result.
      *
-     * @param ImportInterface $file
+     * @param File $file
      * @return string
      */
-    public function getExtensionFor(ImportInterface $file): string;
+    public function getExtensionFor(File $file): string;
 
     /**
      * Transpile a file into browser usable code and return it.
      *
-     * @param ImportInterface $file
+     * @param File $file
      * @throw \InvalidArgumentException when file was given that was not supported.
      * @return TranspileResult
      */
-    public function transpile(ImportInterface $file): TranspileResult;
+    public function transpile(File $file): TranspileResult;
 }

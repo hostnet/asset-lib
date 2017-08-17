@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import;
+use Hostnet\Component\Resolver\File;
 
 /**
  * Import finder which uses ImportCollectorInterface to find imports.
@@ -23,7 +24,7 @@ class ImportFinder implements ImportFinderInterface
     /**
      * {@inheritdoc}
      */
-    public function get(ImportInterface $file): array
+    public function get(File $file): array
     {
         $imports = $this->findImports($file);
         $results = [];
@@ -40,7 +41,7 @@ class ImportFinder implements ImportFinderInterface
     /**
      * {@inheritdoc}
      */
-    public function all(ImportInterface $file): array
+    public function all(File $file): array
     {
         /* @var Dependency[] $queue */
         $queue = $this->get($file);
@@ -80,10 +81,10 @@ class ImportFinder implements ImportFinderInterface
     /**
      * Return all imports for a given file as a generator.
      *
-     * @param ImportInterface $file
+     * @param File $file
      * @return ImportCollection
      */
-    private function findImports(ImportInterface $file): ImportCollection
+    private function findImports(File $file): ImportCollection
     {
         $imports = new ImportCollection();
 
@@ -97,11 +98,11 @@ class ImportFinder implements ImportFinderInterface
     }
 
     /**
-     * @param ImportInterface        $file
+     * @param File                   $file
      * @param array[]|Dependency[][] ...$lists
      * @return bool
      */
-    private function inArray(ImportInterface $file, array ...$lists): bool
+    private function inArray(File $file, array ...$lists): bool
     {
         foreach ($lists as $list) {
             foreach ($list as $f) {

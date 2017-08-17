@@ -1,7 +1,7 @@
 <?php
 namespace Hostnet\Component\Resolver\Transform\BuildIn;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Transform\ContentTransformerInterface;
 
 class AngularHtmlTransformer implements ContentTransformerInterface
@@ -9,7 +9,7 @@ class AngularHtmlTransformer implements ContentTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(ImportInterface $file): bool
+    public function supports(File $file): bool
     {
         return $file->getExtension() === 'js' && 1 === preg_match('/\.component\.js$/', $file->getPath());
     }
@@ -17,7 +17,7 @@ class AngularHtmlTransformer implements ContentTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform(ImportInterface $file, string $content, string $cwd, string $output_dir): string
+    public function transform(File $file, string $content, string $cwd, string $output_dir): string
     {
         $content = preg_replace_callback('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', function ($match) use ($file, $output_dir) {
             $file_path = $match[2];

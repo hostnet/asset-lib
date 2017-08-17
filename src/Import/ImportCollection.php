@@ -1,6 +1,8 @@
 <?php
 namespace Hostnet\Component\Resolver\Import;
 
+use Hostnet\Component\Resolver\File;
+
 class ImportCollection
 {
     private $imports = [];

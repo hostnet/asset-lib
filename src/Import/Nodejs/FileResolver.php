@@ -3,60 +3,68 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\Nodejs;
 
-use Hostnet\Component\Resolver\Import\File;
+use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
-use Hostnet\Component\Resolver\Import\ImportInterface;
-use Hostnet\Component\Resolver\Import\Module;
+use Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException;
+use Hostnet\Component\Resolver\Module;
 
-class FileResolver
+/**
+ * NodeJS implementation for resolving files. This follows the NodeJS require
+ * logic.
+ *
+ * @see https://nodejs.org/api/modules.html#modules_all_together
+ */
+final class FileResolver implements FileResolverInterface
 {
     private $cwd;
     private $extensions;
 
+    /**
+     * @param string   $cwd
+     * @param string[] $extensions
+     */
     public function __construct(string $cwd, array $extensions)
     {
         $this->cwd = $cwd;
         $this->extensions = $extensions;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function asImport(string $name): Import
     {
         try {
             return new Import($name, new File($this->asFile($name)));
-        } catch (\RuntimeException $e) {
-            // do nothing
+        } catch (FileNotFoundException $e) {
+            try {
+                return new Import($name, new File($this->asDir($name)));
+            } catch (FileNotFoundException $e) {
+                return new Import($name, new Module($name, $this->asModule($name)));
+            }
         }
-
-        try {
-            return new Import($name, new File($this->asDir($name)));
-        } catch (\RuntimeException $e) {
-            // do nothing
-        }
-
-        return new Import($name, new Module($name, new File($this->asModule($name))));
     }
 
-    public function asRequire(string $name, ImportInterface $parent): Import
+    /**
+     * {@inheritdoc}
+     */
+    public function asRequire(string $name, File $parent): Import
     {
         // 1. If X is a core module,
-        if ($name[0] === '/') {
+        if ($this->isAbsolutePath($name)) {
             // 2. If X begins with '/'
             // a. LOAD_AS_FILE(Y + X)
             try {
                 return new Import($name, new File($this->asFile($name)));
-            } catch (\RuntimeException $e) {
-                // do nothing
+            } catch (FileNotFoundException $e) {
+                // b. LOAD_AS_DIRECTORY(Y + X)
+                $f = new File($this->asDir($name));
+
+                return new Import($name, $f);
             }
-
-            // b. LOAD_AS_DIRECTORY(Y + X)
-            $f = new File($this->asDir($name));
-
-            if ($parent instanceof Module) {
-                return new Import($name, new Module(File::clean($name), $f));
-            }
-
-            return new Import($name, $f);
         }
+
         if ($name[0] === '.' && ($name[1] === '/' || ($name[1] === '.' && $name[2] === '/'))) {
             // 3. If X begins with './' or '/' or '../'
             // a. LOAD_AS_FILE(Y + X)
@@ -64,33 +72,38 @@ class FileResolver
                 $f = new File($this->asFile($parent->getDirectory() . '/' . $name));
 
                 if ($parent instanceof Module) {
-                    return new Import($name, new Module(File::clean($parent->getParentName() . '/' . $name), $f));
+                    $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->getPath());
                 }
 
                 return new Import($name, $f);
-            } catch (\RuntimeException $e) {
-                // do nothing
+            } catch (FileNotFoundException $e) {
+                // b. LOAD_AS_DIRECTORY(Y + X)
+                $f = new File($this->asDir($parent->getDirectory() . '/' . $name));
+
+                if ($parent instanceof Module) {
+                    $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->getPath());
+                }
+
+                return new Import($name, $f);
             }
-
-            // b. LOAD_AS_DIRECTORY(Y + X)
-            $f = new File($this->asDir($parent->getDirectory() . '/' . $name));
-
-            if ($parent instanceof Module) {
-                return new Import($name, new Module(File::clean($parent->getParentName() . '/' . $name), $f));
-            }
-
-            return new Import($name, $f);
         }
 
         // 4. LOAD_NODE_MODULES(X, dirname(Y))
-        return new Import($name, new Module($name, new File($this->asModule($name))));
+        return new Import($name, new Module($name, $this->asModule($name)));
     }
 
-    public function asFile(string $name): string
+    /**
+     * Try to resolve the import as a File.
+     *
+     * @param string $name
+     * @throws FileNotFoundException when no file could be resolved.
+     * @return string
+     */
+    private function asFile(string $name): string
     {
         $path = $name;
 
-        if ($path[0] !== '/') {
+        if (!$this->isAbsolutePath($path)) {
             $path = $this->cwd . '/' . $path;
         }
 
@@ -108,14 +121,21 @@ class FileResolver
             }
         }
 
-        throw new \RuntimeException(sprintf('File %s could not be be found!', $name));
+        throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
     }
 
-    public function asIndex(string $name): string
+    /**
+     * Try to resolve the import as a Index file of a Directory.
+     *
+     * @param string $name
+     * @throws FileNotFoundException when no file could be resolved.
+     * @return string
+     */
+    private function asIndex(string $name): string
     {
         $path = $name;
 
-        if ($path[0] !== '/') {
+        if (!$this->isAbsolutePath($path)) {
             $path = $this->cwd . '/' . $path;
         }
 
@@ -133,14 +153,21 @@ class FileResolver
         }
 
         // ERROR
-        throw new \RuntimeException(sprintf('File %s could not be be found!', $name));
+        throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
     }
 
-    public function asDir(string $name): string
+    /**
+     * Try to resolve the import as a Directory.
+     *
+     * @param string $name
+     * @throws FileNotFoundException when no file could be resolved.
+     * @return string
+     */
+    private function asDir(string $name): string
     {
         $package_info_path = $name . '/package.json';
 
-        if ($package_info_path[0] !== '/') {
+        if (!$this->isAbsolutePath($package_info_path)) {
             $package_info_path = $this->cwd . '/' . $package_info_path;
         }
 
@@ -153,19 +180,24 @@ class FileResolver
             // c. LOAD_AS_FILE(M)
             try {
                 return $this->asFile($name . '/' . $package_info['main']);
-            } catch (\RuntimeException $e) {
-                // do nothing
+            } catch (FileNotFoundException $e) {
+                // d. LOAD_INDEX(M)
+                return $this->asIndex($name . '/' . $package_info['main']);
             }
-
-            // d. LOAD_INDEX(M)
-            return $this->asIndex($name . '/' . $package_info['main']);
         }
 
         // 2. LOAD_INDEX(X)
         return $this->asIndex($name);
     }
 
-    public function asModule(string $name): string
+    /**
+     * Try to resolve the import as a Module.
+     *
+     * @param string $name
+     * @throws FileNotFoundException when no file could be resolved.
+     * @return string
+     */
+    private function asModule(string $name): string
     {
         // 1. let DIRS=NODE_MODULES_PATHS(START)
         $module = 'node_modules/' . $name;
@@ -173,11 +205,29 @@ class FileResolver
         // a. LOAD_AS_FILE(DIR/X)
         try {
             return $this->asFile($module);
-        } catch (\RuntimeException $e) {
-            // do nothing
+        } catch (FileNotFoundException $e) {
+            // b. LOAD_AS_DIRECTORY(DIR/X)
+            try {
+                return $this->asDir($module);
+            } catch (FileNotFoundException $e) {
+                throw new FileNotFoundException(sprintf('File %s could not be be found!', $name), 0, $e);
+            }
+        }
+    }
+
+    /**
+     * Check if the given path is absolute.
+     *
+     * @param string $path
+     * @return bool
+     */
+    private function isAbsolutePath(string $path): bool
+    {
+        // Windows check...
+        if (0 === stripos(PHP_OS, 'WIN') && 1 === preg_match('/^[A-Z]:\//', $path)) {
+            return true;
         }
 
-        // b. LOAD_AS_DIRECTORY(DIR/X)
-        return $this->asDir($module);
+        return $path[0] === '/';
     }
 }

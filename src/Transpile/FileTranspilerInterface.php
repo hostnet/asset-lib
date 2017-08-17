@@ -2,7 +2,7 @@
 
 namespace Hostnet\Component\Resolver\Transpile;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 
 /**
  * Implementations of this interface allow for transpiling of a file by the
@@ -27,10 +27,10 @@ interface FileTranspilerInterface
     /**
      * Transpile a file.
      *
-     * @param string          $cwd
-     * @param ImportInterface $file
+     * @param string $cwd
+     * @param File   $file
      * @throws TranspileException when transpiling has failed.
      * @return TranspileResult
      */
-    public function transpile(string $cwd, ImportInterface $file): TranspileResult;
+    public function transpile(string $cwd, File $file): TranspileResult;
 }

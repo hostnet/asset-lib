@@ -3,12 +3,11 @@
 namespace Hostnet\Component\Resolver;
 
 use Hostnet\Component\Resolver\Bundler\Bundler;
+use Hostnet\Component\Resolver\Bundler\EntryPoint;
 use Hostnet\Component\Resolver\Import\BuildIn\AngularImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\LessImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\TsImportCollector;
-use Hostnet\Component\Resolver\Import\EntryPoint;
-use Hostnet\Component\Resolver\Import\File;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;

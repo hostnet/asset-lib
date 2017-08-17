@@ -1,11 +1,8 @@
 <?php
 namespace Hostnet\Component\Resolver\Bundler;
 
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
-use Hostnet\Component\Resolver\Import\EntryPoint;
-use Hostnet\Component\Resolver\Import\File;
-use Hostnet\Component\Resolver\Import\ImportInterface;
-use Hostnet\Component\Resolver\Transform\Transformer;
 use Hostnet\Component\Resolver\Transform\TransformerInterface;
 use Hostnet\Component\Resolver\Transpile\JsModuleWrapperInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
@@ -104,7 +101,7 @@ class Bundler
     }
 
     /**
-     * @param ImportInterface[] $asset_files
+     * @param File[] $asset_files
      */
     private function compileAsset(array $asset_files)
     {
@@ -164,7 +161,7 @@ class Bundler
 
                 // Wrap
                 $content = $this->module_wrapper->wrapModule(
-                    $file->getPath(), // Use the old file, since we need to resolve dependecies
+                    $file->getPath(), // Use the old file, since we need to resolve dependencies
                     $result->getModuleName(),
                     $result->getContent()
                 );
@@ -183,7 +180,7 @@ class Bundler
         file_put_contents($this->cwd . '/' . $output_file->getPath(), $output_content);
     }
 
-    private function getCompiledContentForCached(ImportInterface $file): TranspileResult
+    private function getCompiledContentForCached(File $file): TranspileResult
     {
         $new_ext     = $this->transpiler->getExtensionFor($file);
         $output_file = new File($file->getDirectory() . '/' . $file->getBaseName() . '.' . $new_ext);
@@ -218,7 +215,7 @@ class Bundler
         return new TranspileResult($module_name, $content);
     }
 
-    private function getCompiledContentFor(ImportInterface $file, ImportInterface $output_file): TranspileResult
+    private function getCompiledContentFor(File $file, File $output_file): TranspileResult
     {
         $this->logger->debug('  - Emitting {name}', ['name' => $file->getPath()]);
 
@@ -256,11 +253,11 @@ class Bundler
     }
 
     /**
-     * @param ImportInterface $output_file
-     * @param Dependency[]    $input_files
+     * @param File         $output_file
+     * @param Dependency[] $input_files
      * @return bool
      */
-    private function checkIfChangedForAll(ImportInterface $output_file, array $input_files): bool
+    private function checkIfChangedForAll(File $output_file, array $input_files): bool
     {
         if ($this->use_cacheing) {
             // did the sources change?

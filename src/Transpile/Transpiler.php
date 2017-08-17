@@ -1,7 +1,7 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 
 /**
  * Transpiler which supports multiple extensions. It can only have one
@@ -32,7 +32,7 @@ class Transpiler implements TranspilerInterface
         $this->transpilers[$ext] = $transpiler;
     }
 
-    public function getExtensionFor(ImportInterface $file): string
+    public function getExtensionFor(File $file): string
     {
         $ext = $file->getExtension();
 
@@ -43,7 +43,7 @@ class Transpiler implements TranspilerInterface
         return $this->transpilers[$ext]->getOutputtedExtension();
     }
 
-    public function transpile(ImportInterface $file): TranspileResult
+    public function transpile(File $file): TranspileResult
     {
         $ext = $file->getExtension();
 

@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\BuildIn;
 
-use Hostnet\Component\Resolver\Import\File;
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
-use Hostnet\Component\Resolver\Import\ImportInterface;
 
 /**
  * Angular asset resolver.
@@ -16,7 +15,7 @@ class AngularImportCollector implements ImportCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(ImportInterface $file): bool
+    public function supports(File $file): bool
     {
         return $file->getExtension() === 'ts' && 1 === preg_match('/\.component\.ts$/', $file->getPath());
     }
@@ -24,7 +23,7 @@ class AngularImportCollector implements ImportCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(string $cwd, ImportInterface $file, ImportCollection $imports)
+    public function collect(string $cwd, File $file, ImportCollection $imports)
     {
         $content = file_get_contents($cwd . '/' . $file->getPath());
 

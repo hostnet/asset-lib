@@ -1,7 +1,7 @@
 <?php
 namespace Hostnet\Component\Resolver\Transform\BuildIn;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transform\ContentTransformerInterface;
 use Hostnet\Component\Resolver\Transform\TransformException;
@@ -21,7 +21,7 @@ class UglifyJsTransformer implements ContentTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(ImportInterface $file): bool
+    public function supports(File $file): bool
     {
         return $file->getExtension() === 'js';
     }
@@ -29,7 +29,7 @@ class UglifyJsTransformer implements ContentTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform(ImportInterface $file, string $content, string $cwd, string $output_dir): string
+    public function transform(File $file, string $content, string $cwd, string $output_dir): string
     {
         $tmp = $this->cache_dir . '/' . str_replace('.', '_', uniqid('uglifyjs', true));
 

@@ -1,10 +1,9 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile\BuildIn;
 
-use Hostnet\Component\Resolver\Import\ImportInterface;
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
-use Hostnet\Component\Resolver\Transpile\JsModuleWrapperInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
 use Symfony\Component\Process\Process;
@@ -28,7 +27,7 @@ class TsFileTranspiler implements FileTranspilerInterface
         return 'js';
     }
 
-    public function transpile(string $cwd, ImportInterface $file): TranspileResult
+    public function transpile(string $cwd, File $file): TranspileResult
     {
         $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/tsc.js ' . $cwd . '/' . $file->getPath(), null, [
             'NODE_PATH' => $this->nodejs->getNodeModulesLocation()

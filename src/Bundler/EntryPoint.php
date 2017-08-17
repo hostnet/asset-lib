@@ -1,5 +1,8 @@
 <?php
-namespace Hostnet\Component\Resolver\Import;
+namespace Hostnet\Component\Resolver\Bundler;
+
+use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\Dependency;
 
 /**
  * Entry points are the starting files for your application. This can be main
@@ -58,7 +61,7 @@ class EntryPoint
     }
 
     /**
-     * @return ImportInterface[]
+     * @return File[]
      */
     public function getAssetFiles(): array
     {
