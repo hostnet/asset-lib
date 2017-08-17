@@ -38,7 +38,7 @@ class Config
      */
     public function getAssetFiles(): array
     {
-        return $this->data['assets'];
+        return $this->data['assets'] ?? [];
     }
 
     /**
@@ -56,11 +56,12 @@ class Config
      * Return the output folder in which to dump the compiled assets. This is
      * relative to the web root.
      *
+     * @param bool $dev
      * @return string
      */
-    public function getOutputFolder(): string
+    public function getOutputFolder(bool $dev): string
     {
-        return $this->data['output-folder'];
+        return $dev && isset($this->data['output-folder-dev']) ? $this->data['output-folder-dev'] : $this->data['output-folder'];
     }
 
     /**

@@ -10,15 +10,6 @@ use Symfony\Component\Process\Process;
 
 class TsFileTranspiler implements FileTranspilerInterface
 {
-    private $tsc_location;
-    private $cache_location;
-
-    public function __construct(string $tsc_location, string $cache_location)
-    {
-        $this->tsc_location = $tsc_location;
-        $this->cache_location = $cache_location;
-    }
-
     public function getSupportedExtension(): string
     {
         return 'ts';

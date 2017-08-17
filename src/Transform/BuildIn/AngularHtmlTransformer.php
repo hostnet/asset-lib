@@ -11,13 +11,13 @@ class AngularHtmlTransformer implements ContentTransformerInterface
      */
     public function supports(ImportInterface $file): bool
     {
-        return $file->getExtension() === 'ts' && 1 === preg_match('/\.component\.ts$/', $file->getPath());
+        return $file->getExtension() === 'js' && 1 === preg_match('/\.component\.js$/', $file->getPath());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function transform(ImportInterface $file, string $content, string $output_dir): string
+    public function transform(ImportInterface $file, string $content, string $cwd, string $output_dir): string
     {
         $content = preg_replace_callback('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', function ($match) use ($file, $output_dir) {
             $file_path = $match[2];

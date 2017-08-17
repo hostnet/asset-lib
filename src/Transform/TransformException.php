@@ -1,10 +1,9 @@
 <?php
-namespace Hostnet\Component\Resolver\Transpile;
 
-/**
- * Exception thrown when transpiling has failed.
- */
-class TranspileException extends \RuntimeException
+namespace Hostnet\Component\Resolver\Transform;
+
+
+class TransformException extends \RuntimeException
 {
     private $error_output;
 

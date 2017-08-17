@@ -12,6 +12,7 @@ use Hostnet\Component\Resolver\Import\File;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 use Hostnet\Component\Resolver\Transform\BuildIn\AngularHtmlTransformer;
+use Hostnet\Component\Resolver\Transform\BuildIn\UglifyJsTransformer;
 use Hostnet\Component\Resolver\Transform\Transformer;
 use Hostnet\Component\Resolver\Transpile\BuildIn\CssFileTranspiler;
 use Hostnet\Component\Resolver\Transpile\BuildIn\HtmlFileTranspiler;
@@ -28,7 +29,7 @@ use Psr\Log\LoggerInterface;
  */
 final class Packer
 {
-    public static function pack(string $project_root, LoggerInterface $logger)
+    public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false)
     {
         $config = new Config($project_root . '/resolve.config.json');
 
@@ -56,12 +57,29 @@ final class Packer
         $transpiler->addTranspiler(new HtmlFileTranspiler());
         $transpiler->addTranspiler(new JsFileTranspiler());
         $transpiler->addTranspiler(new LessFileTranspiler($config->get('lessc-bin')));
-        $transpiler->addTranspiler(new TsFileTranspiler($config->get('tsc-bin'), $project_root . '/var/assets'));
+        $transpiler->addTranspiler(new TsFileTranspiler());
 
-        $transformer = new Transformer();
-        $transformer->addTransformer(new AngularHtmlTransformer());
+        $transformer = new Transformer($config->cwd());
+        $transformer->addTransformer(Transformer::POST_TRANSPILE, new AngularHtmlTransformer());
 
-        $bundler = new Bundler($config->cwd(), $transpiler, $transformer, $wrapper, $logger, $config->getWebRoot(), $config->getOutputFolder());
+        if (!$dev) {
+            $transformer->addTransformer(
+                Transformer::PRE_WRITE,
+                new UglifyJsTransformer($project_root . '/var/assets')
+            );
+        }
+
+        $bundler = new Bundler(
+            $config->cwd(),
+            $transpiler,
+            $transformer,
+            $wrapper,
+            $logger,
+            $config->getWebRoot(),
+            $config->getOutputFolder($dev),
+            $project_root . '/var/assets',
+            $dev
+        );
         $bundler->bundle(array_map(function (string $file_name) use ($finder) {
             $file = new File($file_name);
 

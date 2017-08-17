@@ -9,6 +9,7 @@ use Hostnet\Component\Resolver\Transform\Transformer;
 use Hostnet\Component\Resolver\Transform\TransformerInterface;
 use Hostnet\Component\Resolver\Transpile\JsModuleWrapperInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
+use Hostnet\Component\Resolver\Transpile\TranspileResult;
 use Hostnet\Component\Resolver\Transpile\TranspilerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -24,6 +25,8 @@ class Bundler
     private $logger;
     private $web_root;
     private $output_dir;
+    private $cache_dir;
+    private $use_cacheing;
 
     public function __construct(
         string $cwd,
@@ -32,7 +35,9 @@ class Bundler
         JsModuleWrapperInterface $module_wrapper,
         LoggerInterface $logger,
         string $web_root,
-        string $output_dir
+        string $output_dir,
+        string $cache_dir,
+        bool $use_cacheing = false
     ) {
         $this->cwd = $cwd;
         $this->transpiler = $transpiler;
@@ -41,6 +46,8 @@ class Bundler
         $this->logger = $logger;
         $this->web_root = $web_root;
         $this->output_dir = $output_dir;
+        $this->cache_dir = $cache_dir;
+        $this->use_cacheing = $use_cacheing;
     }
 
     /**
@@ -102,6 +109,7 @@ class Bundler
         $output_folder = $this->web_root . '/' . $this->output_dir;
 
         foreach ($asset_files as $asset_file) {
+
             if (false !== ($i = strpos($asset_file->getDirectory(), '/'))) {
                 $base_dir = substr($asset_file->getDirectory(), $i);
             } else {
@@ -112,25 +120,18 @@ class Bundler
                 $output_folder . $base_dir . '/' . $asset_file->getBaseName() . '.' . $this->transpiler->getExtensionFor($asset_file)
             );
 
-            if ($this->checkIfChanged($output_file, [new Dependency($asset_file)])) {
-                if (!file_exists($this->cwd . '/' . $output_file->getDirectory())) {
-                    mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
-                }
+            if (!file_exists($this->cwd . '/' . $output_file->getDirectory())) {
+                mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
+            }
 
-                $this->logger->debug(' * Compiling asset {dest}', ['dest' => $output_file->getPath()]);
-
+            if ($this->checkIfChangedForAll($output_file, [new Dependency($asset_file)])) {
                 // Transpile
-                $result = $this->transpiler->transpile($asset_file);
-                // Transform
-                $content = $this->transformer->transform(
-                    $asset_file,
-                    $result->getContent(),
-                    $this->output_dir
-                );
+                $result = $this->getCompiledContentForCached($asset_file);
+
+                // Transform PRE_WRITE
+                $content = $this->transformer->onPreWrite($output_file, $result->getContent(), $this->output_dir);
 
                 file_put_contents($this->cwd . '/' . $output_file->getPath(), $content);
-            } else {
-                $this->logger->debug(' * Nothing to do for asset');
             }
         }
     }
@@ -148,7 +149,7 @@ class Bundler
             mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
         }
 
-        $f = fopen($this->cwd . '/' . $output_file->getPath(), 'wb+');
+        $output_content = '';
 
         try {
             foreach ($dependencies as $dependency) {
@@ -156,35 +157,82 @@ class Bundler
                     continue;
                 }
 
-                $this->logger->debug('  - Emitting {name}', ['name' => $dependency->getImport()->getPath()]);
+                $file = $dependency->getImport();
 
-                // Transpile
-                $result = $this->transpiler->transpile($dependency->getImport());
-                // Transform
-                $content = $this->transformer->transform(
-                    $dependency->getImport(),
-                    $result->getContent(),
-                    $this->output_dir
-                );
+                $result = $this->getCompiledContentForCached($file);
+
                 // Wrap
                 $content = $this->module_wrapper->wrapModule(
-                    $dependency->getImport()->getPath(),
+                    $file->getPath(), // Use the old file, since we need to resolve dependecies
                     $result->getModuleName(),
-                    $content
+                    $result->getContent()
                 );
 
-                fwrite($f, $content);
+                $output_content .= $content;
             }
         } catch (TranspileException $e) {
-            fclose($f);
-            unlink($this->cwd . '/' . $output_file->getPath());
-
-            $this->logger->error($e->getTranspilerOutput());
+            $this->logger->error($e->getErrorOutput());
 
             throw $e;
         }
 
-        fclose($f);
+        // Transform PRE_WRITE
+        $output_content = $this->transformer->onPreWrite($output_file, $output_content, $this->output_dir);
+
+        file_put_contents($this->cwd . '/' . $output_file->getPath(), $output_content);
+    }
+
+    private function getCompiledContentForCached(ImportInterface $file): TranspileResult
+    {
+        $new_ext     = $this->transpiler->getExtensionFor($file);
+        $output_file = new File($file->getDirectory() . '/' . $file->getBaseName() . '.' . $new_ext);
+
+        if (!$this->use_cacheing) {
+            return $this->getCompiledContentFor($file, $output_file);
+        }
+
+        $cache_key = substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace('/', '.', $output_file->getPath());
+
+        if ($this->checkIfChanged(
+            $this->cache_dir . '/' . $cache_key,
+            $this->cwd . '/' . $file->getPath()
+        )) {
+            $result = $this->getCompiledContentFor($file, $output_file);
+
+            file_put_contents(
+                $this->cache_dir . '/' . $cache_key,
+                serialize([$result->getModuleName(), $result->getContent()])
+            );
+
+            $module_name = $result->getModuleName();
+            $content = $result->getContent();
+        } else {
+            $this->logger->debug('  - Emitting {name} (from cache)', ['name' => $file->getPath()]);
+
+            [$module_name, $content] = unserialize(file_get_contents(
+                $this->cache_dir . '/' . $cache_key
+            ), []);
+        }
+
+        return new TranspileResult($module_name, $content);
+    }
+
+    private function getCompiledContentFor(ImportInterface $file, ImportInterface $output_file): TranspileResult
+    {
+        $this->logger->debug('  - Emitting {name}', ['name' => $file->getPath()]);
+
+        // Transpile
+        $result = $this->transpiler->transpile($file);
+        $module_name = $result->getModuleName();
+
+        // Transform
+        $content = $this->transformer->onPostTranspile(
+            $output_file,
+            $result->getContent(),
+            $this->output_dir
+        );
+
+        return new TranspileResult($module_name, $content);
     }
 
     /**
@@ -201,12 +249,17 @@ class Bundler
         $output_folder = $this->web_root . '/' . $this->output_dir;
 
         return [
-            $this->checkIfChanged($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles()),
-            $this->checkIfChanged($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles()),
+            $this->checkIfChangedForAll($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles()),
+            $this->checkIfChangedForAll($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles()),
         ];
     }
 
-    private function checkIfChanged(ImportInterface $output_file, array $input_files): bool
+    /**
+     * @param ImportInterface $output_file
+     * @param Dependency[]    $input_files
+     * @return bool
+     */
+    private function checkIfChangedForAll(ImportInterface $output_file, array $input_files): bool
     {
         $file_path = $this->cwd . '/' . $output_file->getPath();
         $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
@@ -221,6 +274,43 @@ class Bundler
             }
         }
 
+        if (!$this->use_cacheing) {
+            return false;
+        }
+
+        // did the sources change?
+        $sources_file = $this->cache_dir . '/' . substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace('/', '.', $output_file->getPath()) . '.sources';
+        $input_sources = array_map(function (Dependency $d) {
+            return $d->getImport()->getPath();
+        }, $input_files);
+
+        sort($input_sources);
+
+        if (!file_exists($sources_file)) {
+            file_put_contents($sources_file, serialize($input_sources));
+
+            return true;
+        }
+
+        $sources = unserialize(file_get_contents($sources_file), []);
+
+        if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
+            file_put_contents($sources_file, serialize($input_sources));
+
+            return true;
+        }
+
         return false;
+    }
+
+    private function checkIfChanged(string $output_file, string $input_file): bool
+    {
+        $mtime = file_exists($output_file) ? filemtime($output_file) : -1;
+
+        if ($mtime === -1) {
+            return true;
+        }
+
+        return $mtime < filemtime($input_file);
     }
 }

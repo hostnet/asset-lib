@@ -19,7 +19,10 @@ interface ContentTransformerInterface
      *
      * @param ImportInterface $file
      * @param string          $content
+     * @param string          $cwd
+     * @param string          $output_dir
+     * @throws TransformException
      * @return string
      */
-    public function transform(ImportInterface $file, string $content, string $output_dir): string;
+    public function transform(ImportInterface $file, string $content, string $cwd, string $output_dir): string;
 }
