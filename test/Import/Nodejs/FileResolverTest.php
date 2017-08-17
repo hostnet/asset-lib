@@ -30,6 +30,18 @@ class FileResolverTest extends TestCase
         self::assertSame('bar/foo/hom', $import->getImportedFile()->getName());
     }
 
+    public function testAsRequireAbsoluteFile()
+    {
+        $parent = new Module('bar/baz', new File('node_modules/bar/baz.js'));
+        $path = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
+
+        $import = $this->file_resolver->asRequire($path, $parent);
+
+        self::assertInstanceOf(File::class, $import->getImportedFile());
+        self::assertSame($path . '.js', $import->getImportedFile()->getPath());
+        self::assertSame($path . '.js', $import->getImportedFile()->getName());
+    }
+
     public function testAsRequireAsDir()
     {
         $parent = new Module('bar/baz', new File('node_modules/bar/baz.js'));

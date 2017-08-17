@@ -90,11 +90,6 @@ class File implements ImportInterface
                 $absolutes[] = $part;
             }
         }
-        return implode('/', $absolutes);
-    }
-
-    public function exists()
-    {
-        return file_exists($this->getPath());
+        return ($path[0] === '/' ? '/' : '') . implode('/', $absolutes);
     }
 }

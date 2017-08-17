@@ -88,8 +88,14 @@ class FileResolver
 
     public function asFile(string $name): string
     {
+        $path = $name;
+
+        if ($path[0] !== '/') {
+            $path = $this->cwd . '/' . $path;
+        }
+
         // 1. If X is a file, load X as JavaScript text.  STOP
-        if (is_file($this->cwd . '/' . $name)) {
+        if (is_file($path)) {
             return File::clean($name);
         }
 
@@ -97,37 +103,49 @@ class FileResolver
         // 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
         // 4. If X.node is a file, load X.node as binary addon.  STOP
         foreach ($this->extensions as $ext) {
-            if (is_file($this->cwd . '/' . $name . $ext)) {
+            if (is_file($path . $ext)) {
                 return File::clean($name . $ext);
             }
         }
 
-        throw new \RuntimeException('File not found!');
+        throw new \RuntimeException(sprintf('File %s could not be be found!', $name));
     }
 
     public function asIndex(string $name): string
     {
+        $path = $name;
+
+        if ($path[0] !== '/') {
+            $path = $this->cwd . '/' . $path;
+        }
+
         // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
-        if (is_file($this->cwd . '/' . $name . '/index.js')) {
+        if (is_file($path . '/index.js')) {
             return File::clean($name . '/index.js');
         }
         // 2. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
-        if (is_file($this->cwd . '/' . $name . '/index.json')) {
+        if (is_file($path . '/index.json')) {
             return File::clean($name . '/index.json');
         }
         // 3. If X/index.node is a file, load X/index.node as binary addon.  STOP
-        if (is_file($this->cwd . '/' . $name . '/index.node')) {
+        if (is_file($path . '/index.node')) {
             return File::clean($name . '/index.node');
         }
 
         // ERROR
-        throw new \RuntimeException('File not found!');
+        throw new \RuntimeException(sprintf('File %s could not be be found!', $name));
     }
 
     public function asDir(string $name): string
     {
+        $package_info_path = $name . '/package.json';
+
+        if ($package_info_path[0] !== '/') {
+            $package_info_path = $this->cwd . '/' . $package_info_path;
+        }
+
         // 1. If X/package.json is a file,
-        if (is_file($this->cwd . '/' . $name . '/package.json')) {
+        if (is_file($package_info_path)) {
             // a. Parse X/package.json, and look for "main" field.
             $package_info = json_decode(file_get_contents($this->cwd . '/' . $name . '/package.json'), true);
 
