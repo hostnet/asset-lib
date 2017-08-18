@@ -7,6 +7,7 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
+use Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException;
 
 /**
  * Import resolver for JS files.
@@ -44,11 +45,7 @@ final class JsImportCollector implements ImportCollectorInterface
                 continue;
             }
 
-            try {
-                $imports->addImport($this->nodejs_resolver->asRequire($path, $file));
-            } catch (\RuntimeException $e) {
-                continue;
-            }
+            $imports->addImport($this->nodejs_resolver->asRequire($path, $file));
         }
     }
 }
