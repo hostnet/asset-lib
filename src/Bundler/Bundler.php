@@ -164,13 +164,17 @@ class Bundler
                 }
 
                 $file = $dependency->getFile();
-
                 $result = $this->getCompiledContentForCached($file);
+
+                $module_name = $result->getModuleName();
+                if (0 === strpos($module_name, $this->config->getSourceRoot())) {
+                    $module_name = trim(substr($module_name, strlen($this->config->getSourceRoot())), '/');
+                }
 
                 // Wrap
                 $content = $this->module_wrapper->wrapModule(
                     $file->path, // Use the old file, since we need to resolve dependencies
-                    $result->getModuleName(),
+                    $module_name,
                     $result->getContent()
                 );
 
