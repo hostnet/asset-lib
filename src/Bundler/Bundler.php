@@ -1,8 +1,10 @@
 <?php
 namespace Hostnet\Component\Resolver\Bundler;
 
+use Hostnet\Component\Resolver\Config;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Hostnet\Component\Resolver\Transform\TransformerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
@@ -14,54 +16,49 @@ use Psr\Log\LoggerInterface;
  */
 class Bundler
 {
-    private $cwd;
+    private $finder;
     private $transpiler;
     private $transformer;
     private $module_wrapper;
     private $logger;
-    private $web_root;
-    private $output_dir;
-    private $cache_dir;
-    private $use_cacheing;
+    private $config;
+
+    private $cwd;
 
     public function __construct(
-        string $cwd,
+        ImportFinderInterface $finder,
         TranspilerInterface $transpiler,
         TransformerInterface $transformer,
         JsModuleWrapperInterface $module_wrapper,
         LoggerInterface $logger,
-        string $web_root,
-        string $output_dir,
-        string $cache_dir,
-        bool $use_cacheing = false
+        Config $config
     ) {
-        $this->cwd = $cwd;
+        $this->finder = $finder;
         $this->transpiler = $transpiler;
         $this->transformer = $transformer;
         $this->module_wrapper = $module_wrapper;
         $this->logger = $logger;
-        $this->web_root = $web_root;
-        $this->output_dir = $output_dir;
-        $this->cache_dir = $cache_dir;
-        $this->use_cacheing = $use_cacheing;
+        $this->config = $config;
+
+        $this->cwd = $config->cwd();
     }
 
     /**
      * Bundle a list of entry points, each entry point will be written to their
      * own file.
-     *
-     * @param EntryPoint[] $entry_points
      */
-    public function bundle(array $entry_points)
+    public function bundle()
     {
-        $output_folder = $this->web_root . '/' . $this->output_dir;
+        $output_folder = $this->config->getWebRoot() . '/' . $this->config->getOutputFolder();
+        $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
-        foreach ($entry_points as $entry_point) {
+        foreach ($this->config->getEntryPoints() as $file_name) {
+            $file        = new File($source_dir . $file_name);
+            $entry_point = new EntryPoint($file, $this->finder->all($file));
+
             $this->logger->debug('Checking entry-point {name}', ['name' => $entry_point->getFile()->getPath()]);
 
-            [$bundle_changed, $vendor_changed] = $this->needsRecompile($entry_point);
-
-            if ($bundle_changed) {
+            if ($this->checkIfAnyChanged($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles())) {
                 $this->logger->debug(' * Compiling bundle for {name}', ['name' => $entry_point->getFile()->getPath()]);
 
                 $this->compileFile($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles());
@@ -69,7 +66,7 @@ class Bundler
                 $this->logger->debug(' * Nothing to do for bundle');
             }
 
-            if ($vendor_changed) {
+            if ($this->checkIfAnyChanged($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles())) {
                 $this->logger->debug(' * Compiling vendors for {name}', ['name' => $entry_point->getFile()->getPath()]);
 
                 $this->compileFile($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles());
@@ -83,12 +80,15 @@ class Bundler
 
     /**
      * Bundle a list of assets, each asset will be written to their own file.
-     *
-     * @param EntryPoint[] $entry_points
      */
-    public function compile(array $entry_points)
+    public function compile()
     {
-        foreach ($entry_points as $entry_point) {
+        $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
+
+        foreach ($this->config->getAssetFiles() as $file_name) {
+            $file        = new File($source_dir . $file_name);
+            $entry_point = new EntryPoint($file, $this->finder->all($file));
+
             $this->logger->debug('Checking asset {name}', ['name' => $entry_point->getFile()->getPath()]);
 
             $this->compileAsset(array_map(function (Dependency $d) {
@@ -104,28 +104,32 @@ class Bundler
      */
     private function compileAsset(array $asset_files)
     {
-        $output_folder = $this->web_root . '/' . $this->output_dir;
+        $output_folder = $this->config->getWebRoot() . '/' . $this->config->getOutputFolder();
 
         foreach ($asset_files as $asset_file) {
-            if (false !== ($i = strpos($asset_file->getDirectory(), '/'))) {
-                $base_dir = substr($asset_file->getDirectory(), $i);
-            } else {
-                $base_dir = '';
+            $base_dir = trim(substr($asset_file->getDirectory(), strlen($this->config->getSourceRoot())), '/');
+
+            if (strlen($base_dir) > 0) {
+                $base_dir .= '/';
             }
 
             $output_file_name = $asset_file->getBaseName() . '.' . $this->transpiler->getExtensionFor($asset_file);
-            $output_file      = new File($output_folder . $base_dir . '/' . $output_file_name);
+            $output_file      = new File($output_folder . '/' . $base_dir . $output_file_name);
 
             if (!file_exists($this->cwd . '/' . $output_file->getDirectory())) {
                 mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
             }
 
-            if ($this->checkIfChangedForAll($output_file, [new Dependency($asset_file)])) {
+            if ($this->checkIfAnyChanged($output_file, [new Dependency($asset_file)])) {
                 // Transpile
                 $result = $this->getCompiledContentForCached($asset_file);
 
                 // Transform PRE_WRITE
-                $content = $this->transformer->onPreWrite($output_file, $result->getContent(), $this->output_dir);
+                $content = $this->transformer->onPreWrite(
+                    $output_file,
+                    $result->getContent(),
+                    $this->config->getOutputFolder()
+                );
 
                 file_put_contents($this->cwd . '/' . $output_file->getPath(), $content);
             }
@@ -173,7 +177,11 @@ class Bundler
         }
 
         // Transform PRE_WRITE
-        $output_content = $this->transformer->onPreWrite($output_file, $output_content, $this->output_dir);
+        $output_content = $this->transformer->onPreWrite(
+            $output_file,
+            $output_content,
+            $this->config->getOutputFolder()
+        );
 
         file_put_contents($this->cwd . '/' . $output_file->getPath(), $output_content);
     }
@@ -190,20 +198,20 @@ class Bundler
         $new_ext     = $this->transpiler->getExtensionFor($file);
         $output_file = new File($file->getDirectory() . '/' . $file->getBaseName() . '.' . $new_ext);
 
-        if (!$this->use_cacheing) {
+        if (!$this->config->isDev()) {
             return $this->getCompiledContentFor($file, $output_file);
         }
 
         $cache_key = $this->createFileCacheKey($output_file);
 
         if ($this->checkIfChanged(
-            $this->cache_dir . '/' . $cache_key,
+            $this->config->getCacheDir() . '/' . $cache_key,
             $this->cwd . '/' . $file->getPath()
         )) {
             $result = $this->getCompiledContentFor($file, $output_file);
 
             file_put_contents(
-                $this->cache_dir . '/' . $cache_key,
+                $this->config->getCacheDir() . '/' . $cache_key,
                 serialize([$result->getModuleName(), $result->getContent()])
             );
 
@@ -213,7 +221,7 @@ class Bundler
             $this->logger->debug('  - Emitting {name} (from cache)', ['name' => $file->getPath()]);
 
             [$module_name, $content] = unserialize(file_get_contents(
-                $this->cache_dir . '/' . $cache_key
+                $this->config->getCacheDir() . '/' . $cache_key
             ), []);
         }
 
@@ -239,29 +247,10 @@ class Bundler
         $content = $this->transformer->onPostTranspile(
             $output_file,
             $result->getContent(),
-            $this->output_dir
+            $this->config->getOutputFolder()
         );
 
         return new TranspileResult($module_name, $content);
-    }
-
-    /**
-     * Check if there needs to be a recompile. This check if the bundle and the
-     * vendor needs a recompile.
-     *
-     * NOTE: if there is no vendor file, this should always return false.
-     *
-     * @param EntryPoint $entry_point
-     * @return bool[]
-     */
-    private function needsRecompile(EntryPoint $entry_point): array
-    {
-        $output_folder = $this->web_root . '/' . $this->output_dir;
-
-        return [
-            $this->checkIfChangedForAll($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles()),
-            $this->checkIfChangedForAll($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles()),
-        ];
     }
 
     /**
@@ -271,17 +260,14 @@ class Bundler
      * @param Dependency[] $input_files
      * @return bool
      */
-    private function checkIfChangedForAll(File $output_file, array $input_files): bool
+    private function checkIfAnyChanged(File $output_file, array $input_files): bool
     {
-        if ($this->use_cacheing) {
+        if ($this->config->isDev()) {
             // did the sources change?
-            $sources_file = $this->cache_dir . '/' . $this->createFileCacheKey($output_file) . '.sources';
-            $input_sources = array_map(
-                function (Dependency $d) {
-                    return $d->getFile()->getPath();
-                },
-                $input_files
-            );
+            $sources_file = $this->config->getCacheDir() . '/' . $this->createFileCacheKey($output_file) . '.sources';
+            $input_sources = array_map(function (Dependency $d) {
+                return $d->getFile()->getPath();
+            }, $input_files);
 
             sort($input_sources);
 

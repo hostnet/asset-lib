@@ -7,13 +7,20 @@ namespace Hostnet\Component\Resolver;
  */
 class Config
 {
+    private $is_dev;
     private $data;
     private $cwd;
 
-    public function __construct(string $config_file = 'resolve.config.json')
+    public function __construct(bool $is_dev = false, string $config_file = 'resolve.config.json')
     {
+        $this->is_dev = $is_dev;
         $this->data = json_decode(file_get_contents($config_file), true);
         $this->cwd = dirname($config_file);
+    }
+
+    public function isDev(): bool
+    {
+        return $this->is_dev;
     }
 
     public function cwd(): string
@@ -56,12 +63,15 @@ class Config
      * Return the output folder in which to dump the compiled assets. This is
      * relative to the web root.
      *
-     * @param bool $dev
      * @return string
      */
-    public function getOutputFolder(bool $dev): string
+    public function getOutputFolder(): string
     {
-        return $dev && isset($this->data['output-folder-dev']) ? $this->data['output-folder-dev'] : $this->data['output-folder'];
+        $output_folder = $this->isDev() && isset($this->data['output-folder-dev'])
+            ? $this->data['output-folder-dev']
+            : $this->data['output-folder'];
+
+        return $output_folder;
     }
 
     /**
@@ -72,5 +82,25 @@ class Config
     public function getWebRoot(): string
     {
         return $this->data['web-root'];
+    }
+
+    /**
+     * Return the source root folder in which the assets are located.
+     *
+     * @return string
+     */
+    public function getSourceRoot(): string
+    {
+        return $this->data['source-root'] ?? '';
+    }
+
+    /**
+     * Return the cache folder in which the temporary files can be put.
+     *
+     * @return string
+     */
+    public function getCacheDir(): string
+    {
+        return $this->cwd() . '/' . $this->data['cache-dir'] ?? '/tmp';
     }
 }

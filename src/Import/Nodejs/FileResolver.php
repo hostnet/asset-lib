@@ -224,7 +224,7 @@ final class FileResolver implements FileResolverInterface
     private function isAbsolutePath(string $path): bool
     {
         // Windows check...
-        if (0 === stripos(PHP_OS, 'WIN') && 1 === preg_match('/^[A-Z]:\//', $path)) {
+        if (DIRECTORY_SEPARATOR === '\\' && 1 === preg_match('/^[A-Z]:\//', $path)) {
             return true;
         }
 

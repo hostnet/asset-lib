@@ -5,9 +5,8 @@ namespace Hostnet\Component\Resolver\Cache;
 use Hostnet\Component\Resolver\Cache\Exception\InvalidArgumentException;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Module;
-use Psr\SimpleCache\CacheInterface;
 
-final class Cache implements CacheInterface
+final class Cache implements FileCacheInterface
 {
     private $file;
     private $data;
@@ -17,7 +16,6 @@ final class Cache implements CacheInterface
         $this->file = $file;
         $this->data = [];
     }
-
 
     /**
      * {@inheritdoc}
@@ -67,11 +65,17 @@ final class Cache implements CacheInterface
         $this->data = [];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function save()
     {
         file_put_contents($this->file, serialize($this->data));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function load()
     {
         if (!file_exists($this->file)) {

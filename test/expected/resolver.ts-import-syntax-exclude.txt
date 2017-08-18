@@ -1,5 +1,0 @@
-node_modules/module_index/index.js
-node_modules/module_package/main.js
-node_modules/module_package_dir/src/index.js
-node_modules/jquery/jquery.js
-node_modules/module_package/subpackage/main.js

@@ -1,9 +1,0 @@
-resolver/js/require-syntax/main.js
-resolver/js/require-syntax/single_quote
-resolver/js/require-syntax/double_quote
-module_index
-module_package
-module_package_dir
-resolver/js/require-syntax/relative
-resolver/js/relative
-module_package/subpackage/main

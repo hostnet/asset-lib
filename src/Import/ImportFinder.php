@@ -43,9 +43,12 @@ class ImportFinder implements ImportFinderInterface
      */
     public function all(File $file): array
     {
+        $files = [];
         /* @var Dependency[] $queue */
         $queue = $this->get($file);
-        $files = [];
+        $seen = array_values(array_map(function(Dependency $d) {
+            return $d->getFile()->getPath();
+        }, $queue));
 
         while (count($queue) > 0) {
             $dep = array_shift($queue);
@@ -54,13 +57,15 @@ class ImportFinder implements ImportFinderInterface
             $imports = $this->findImports($dep->getFile());
 
             foreach ($imports->getImports() as $import) {
-                if (!$this->inArray($import->getImportedFile(), $queue, $files)) {
+                if (!in_array($import->getImportedFile()->getPath(), $seen, true)) {
                     $queue[] = new Dependency($import->getImportedFile(), $import->isVirtual());
+                    $seen[] = $import->getImportedFile()->getPath();
                 }
             }
             foreach ($imports->getResources() as $import) {
-                if (!$this->inArray($import, $queue, $files)) {
+                if (!in_array($import->getPath(), $seen, true)) {
                     $queue[] = new Dependency($import, false, true);
+                    $seen[] = $import->getPath();
                 }
             }
         }
@@ -95,23 +100,5 @@ class ImportFinder implements ImportFinderInterface
         }
 
         return $imports;
-    }
-
-    /**
-     * @param File                   $file
-     * @param array[]|Dependency[][] ...$lists
-     * @return bool
-     */
-    private function inArray(File $file, array ...$lists): bool
-    {
-        foreach ($lists as $list) {
-            foreach ($list as $f) {
-                if ($file->equals($f->getFile())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 }

@@ -5,6 +5,8 @@ namespace Hostnet\Component\Resolver;
 use Hostnet\Component\Resolver\Bundler\Bundler;
 use Hostnet\Component\Resolver\Bundler\EntryPoint;
 use Hostnet\Component\Resolver\Bundler\JsModuleWrapper;
+use Hostnet\Component\Resolver\Cache\Cache;
+use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\AngularImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\LessImportCollector;
@@ -31,7 +33,9 @@ final class Packer
 {
     public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false)
     {
-        $config = new Config($project_root . '/resolve.config.json');
+        $config = new Config($dev, $project_root . '/resolve.config.json');
+        $cache = new Cache($config->getCacheDir() . '/dependencies');
+        $cache->load();
 
         $nodejs = new Executable(
             $config->cwd() . '/' . $config->get('node-bin'),
@@ -48,12 +52,20 @@ final class Packer
             ),
             new FileResolver($config->cwd(), ['.ts', '.d.ts', '.js', '.json', '.node'])
         );
+        $angular_collector = new AngularImportCollector();
+
+        if ($config->isDev()) {
+            $js_collector = new CachedImportCollector($js_collector, $cache);
+            $less_collector = new CachedImportCollector($less_collector, $cache);
+            $ts_collector = new CachedImportCollector($ts_collector, $cache);
+            $angular_collector = new CachedImportCollector($angular_collector, $cache);
+        }
 
         $finder = new ImportFinder($config->cwd());
         $finder->addCollector($js_collector);
         $finder->addCollector($less_collector);
         $finder->addCollector($ts_collector);
-        $finder->addCollector(new AngularImportCollector());
+        $finder->addCollector($angular_collector);
 
         $wrapper = new JsModuleWrapper($finder, new FileResolver($config->cwd(), ['.js', '.json', '.node']));
 
@@ -67,7 +79,7 @@ final class Packer
         $transformer = new Transformer($config->cwd());
         $transformer->addTransformer(Transformer::POST_TRANSPILE, new AngularHtmlTransformer());
 
-        if (!$dev) {
+        if (!$config->isDev()) {
             $transformer->addTransformer(
                 Transformer::PRE_WRITE,
                 new UglifyJsTransformer($nodejs, $project_root . '/var/assets')
@@ -75,25 +87,16 @@ final class Packer
         }
 
         $bundler = new Bundler(
-            $config->cwd(),
+            $finder,
             $transpiler,
             $transformer,
             $wrapper,
             $logger,
-            $config->getWebRoot(),
-            $config->getOutputFolder($dev),
-            $project_root . '/var/assets',
-            $dev
+            $config
         );
-        $bundler->bundle(array_map(function (string $file_name) use ($finder) {
-            $file = new File($file_name);
+        $bundler->bundle();
+        $bundler->compile();
 
-            return new EntryPoint($file, $finder->all($file));
-        }, $config->getEntryPoints()));
-        $bundler->compile(array_map(function (string $file_name) use ($finder) {
-            $file = new File($file_name);
-
-            return new EntryPoint($file, $finder->all($file));
-        }, $config->getAssetFiles()));
+        $cache->save();
     }
 }

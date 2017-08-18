@@ -7,7 +7,6 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
-use Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException;
 
 /**
  * Import resolver for JS files.
@@ -44,16 +43,20 @@ final class TsImportCollector implements ImportCollectorInterface
         for ($i = 0; $i < $n; $i++) {
             $path = $matches[2][$i];
 
-            $import = $this->nodejs_resolver->asRequire($path, $file);
-            $base_name = basename($import->getImportedFile()->getPath());
+            try {
+                $import = $this->nodejs_resolver->asRequire($path, $file);
+                $base_name = basename($import->getImportedFile()->getPath());
 
-            $ext = substr($base_name, strpos($base_name, '.'));
+                $ext = substr($base_name, strpos($base_name, '.'));
 
-            if ($ext === '.d.ts') {
+                if ($ext === '.d.ts') {
+                    continue;
+                }
+
+                $imports->addImport($import);
+            } catch (\RuntimeException $e) {
                 continue;
             }
-
-            $imports->addImport($import);
         }
     }
 }

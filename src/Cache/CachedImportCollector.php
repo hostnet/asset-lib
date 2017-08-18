@@ -8,6 +8,9 @@ use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Psr\SimpleCache\CacheInterface;
 
+/**
+ * Decorator for a ImportCollectorInterface which can cache the result.
+ */
 final class CachedImportCollector implements ImportCollectorInterface
 {
     private $inner;
@@ -35,15 +38,20 @@ final class CachedImportCollector implements ImportCollectorInterface
         if ($this->cache->has($file->getPath())) {
             $item = $this->cache->get($file->getPath());
 
-            // Do we have dependencies set?
-            if (isset($item['deps'])) {
+            // Did the file change? If so, do not use the cached item...
+            if (isset($item['deps']) && $item['info'] === filemtime($cwd . '/' . $file->getPath())) {
                 $imports->extends($item['deps']);
+
+                return;
             }
         }
         $inner_imports = new ImportCollection();
         $this->inner->collect($cwd, $file, $inner_imports);
 
-        $this->cache->set($file->getPath(), ['info' => $file, 'deps' => $inner_imports]);
+        $this->cache->set($file->getPath(), [
+            'info' => filemtime($cwd . '/' . $file->getPath()),
+            'deps' => $inner_imports
+        ]);
 
         $imports->extends($inner_imports);
     }

@@ -89,7 +89,7 @@ class File
      */
     public static function clean(string $path): string
     {
-        $parts = array_filter(explode('/', str_replace('\\', '/', $path)), 'strlen');
+        $parts = explode('/', str_replace(['\\', '//'], '/', $path));
 
         $absolutes = [];
         foreach ($parts as $part) {
@@ -103,6 +103,7 @@ class File
                 $absolutes[] = $part;
             }
         }
-        return ($path[0] === '/' ? '/' : '') . implode('/', $absolutes);
+
+        return implode('/', $absolutes);
     }
 }
