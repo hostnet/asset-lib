@@ -25,7 +25,7 @@ final class JsImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->getExtension() === 'js';
+        return $file->extension === 'js';
     }
 
     /**
@@ -33,7 +33,7 @@ final class JsImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
-        $content = file_get_contents($cwd . '/' . $file->getPath());
+        $content = file_get_contents($cwd . '/' . $file->path);
         $n = preg_match_all('/(.?)require\(([\']([^\']+)[\']|["]([^"]+)["])\)/', $content, $matches);
 
         for ($i = 0; $i < $n; $i++) {

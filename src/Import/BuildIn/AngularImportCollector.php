@@ -17,7 +17,7 @@ final class AngularImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->getExtension() === 'ts' && 1 === preg_match('/\.component\.ts$/', $file->getPath());
+        return $file->extension === 'ts' && '.component.ts' === substr($file->path, -13);
     }
 
     /**
@@ -25,14 +25,14 @@ final class AngularImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
-        $content = file_get_contents($cwd . '/' . $file->getPath());
+        $content = file_get_contents($cwd . '/' . $file->path);
 
         if (preg_match_all('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', $content, $matches) > 0) {
             foreach ($matches[2] as $match) {
                 $file_path = $match;
 
                 if ($file_path[0] === '.') {
-                    $file_path = $file->getDirectory() . substr($file_path, 1);
+                    $file_path = $file->dir . substr($file_path, 1);
                 }
 
                 $imports->addResource(new File($file_path));
@@ -45,7 +45,7 @@ final class AngularImportCollector implements ImportCollectorInterface
                         $file_path = $inner_match;
 
                         if ($file_path[0] === '.') {
-                            $file_path = $file->getDirectory() . substr($file_path, 1);
+                            $file_path = $file->dir . substr($file_path, 1);
                         }
 
                         $imports->addResource(new File($file_path));

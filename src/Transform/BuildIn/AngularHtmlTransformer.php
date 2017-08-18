@@ -11,7 +11,7 @@ class AngularHtmlTransformer implements ContentTransformerInterface
      */
     public function supports(File $file): bool
     {
-        return $file->getExtension() === 'js' && 1 === preg_match('/\.component\.js$/', $file->getPath());
+        return $file->extension === 'js' && 1 === preg_match('/\.component\.js$/', $file->path);
     }
 
     /**
@@ -23,7 +23,7 @@ class AngularHtmlTransformer implements ContentTransformerInterface
             $file_path = $match[2];
 
             if ($file_path[0] === '.') {
-                $file_path = substr($file->getDirectory(), strpos($file->getDirectory(), '/') + 1) . substr($file_path, 1);
+                $file_path = substr($file->dir, strpos($file->dir, '/') + 1) . substr($file_path, 1);
             }
 
             return 'templateUrl: "' . $output_dir . '/' . $file_path . '"';
@@ -36,7 +36,7 @@ class AngularHtmlTransformer implements ContentTransformerInterface
                     $file_path = $inner_match;
 
                     if ($file_path[0] === '.') {
-                        $file_path = substr($file->getDirectory(), strpos($file->getDirectory(), '/') + 1) . substr($file_path, 1);
+                        $file_path = substr($file->dir, strpos($file->dir, '/') + 1) . substr($file_path, 1);
                     }
 
                     $file_path = dirname($file_path) . '/' . substr(basename($file_path), 0, strrpos(basename($file_path), '.')) . '.css';

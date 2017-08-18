@@ -27,7 +27,7 @@ final class TsImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->getExtension() === 'ts';
+        return $file->extension === 'ts';
     }
 
     /**
@@ -35,7 +35,7 @@ final class TsImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
-        $content = file_get_contents($cwd . '/' . $file->getPath());
+        $content = file_get_contents($cwd . '/' . $file->path);
         $n = preg_match_all('/import(.*from)?\s+["\'](.*)["\'];/', $content, $matches);
 
         $this->js_import_collector->collect($cwd, $file, $imports);
@@ -45,7 +45,7 @@ final class TsImportCollector implements ImportCollectorInterface
 
             try {
                 $import = $this->nodejs_resolver->asRequire($path, $file);
-                $base_name = basename($import->getImportedFile()->getPath());
+                $base_name = basename($import->getImportedFile()->path);
 
                 $ext = substr($base_name, strpos($base_name, '.'));
 

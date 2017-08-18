@@ -29,20 +29,20 @@ final class TsFileTranspiler implements FileTranspilerInterface
 
     public function transpile(string $cwd, File $file): TranspileResult
     {
-        $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/tsc.js ' . $cwd . '/' . $file->getPath(), null, [
+        $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/tsc.js ' . $cwd . '/' . $file->path, null, [
             'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
         ]);
         $process->run();
 
         if (!$process->isSuccessful()) {
             throw new TranspileException(
-                sprintf('Cannot compile "%s" due to compiler error.', $file->getPath()),
+                sprintf('Cannot compile "%s" due to compiler error.', $file->path),
                 $process->getOutput() . $process->getErrorOutput()
             );
         }
 
         return new TranspileResult(
-            $file->getDirectory() . '/' . $file->getBaseName(),
+            $file->dir . '/' . $file->getBaseName(),
             $process->getOutput()
         );
     }

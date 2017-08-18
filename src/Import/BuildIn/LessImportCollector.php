@@ -18,7 +18,7 @@ final class LessImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->getExtension() === 'less';
+        return $file->extension === 'less';
     }
 
     /**
@@ -26,7 +26,7 @@ final class LessImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
-        $content = file_get_contents($cwd . '/' . $file->getPath());
+        $content = file_get_contents($cwd . '/' . $file->path);
         $n = preg_match_all('/@import (\([a-z,\s]*\)\s*)?(url\()?(\'([^\']+)\'|"([^"]+)")/', $content, $matches);
 
         for ($i = 0; $i < $n; $i++) {
@@ -37,11 +37,11 @@ final class LessImportCollector implements ImportCollectorInterface
                 continue;
             }
 
-            $import = new Import($path, new File(File::clean($file->getDirectory() . '/' . $path)), true);
+            $import = new Import($path, new File(File::clean($file->dir . '/' . $path)), true);
 
-            if (empty($import->getImportedFile()->getExtension())) {
+            if (empty($import->getImportedFile()->extension)) {
                 // all imports are virtual, since the less compiler will squash everything.
-                $import = new Import($path, new File($import->getImportedFile()->getPath() . '.less'), true);
+                $import = new Import($path, new File($import->getImportedFile()->path . '.less'), true);
             }
 
             $imports->addImport($import);

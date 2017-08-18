@@ -8,15 +8,15 @@ namespace Hostnet\Component\Resolver;
  */
 class File
 {
-    private $path;
-    private $dir;
-    private $ext;
+    public $path;
+    public $extension;
+    public $dir;
 
     public function __construct(string $path)
     {
         $this->path = $path;
         $this->dir = dirname($path);
-        $this->ext = pathinfo($path, PATHINFO_EXTENSION);
+        $this->extension = pathinfo($path, PATHINFO_EXTENSION);
     }
 
     /**
@@ -26,7 +26,7 @@ class File
      */
     public function getName(): string
     {
-        return $this->getPath();
+        return $this->path;
     }
 
     /**
@@ -36,37 +36,7 @@ class File
      */
     public function getBaseName(): string
     {
-        return basename($this->path, '.' . $this->getExtension());
-    }
-
-    /**
-     * Return the path of file to import.
-     *
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    /**
-     * Return the extension for the imported file.
-     *
-     * @return string
-     */
-    public function getExtension(): string
-    {
-        return $this->ext;
-    }
-
-    /**
-     * Return the directory the file or module is located.
-     *
-     * @return string
-     */
-    public function getDirectory(): string
-    {
-        return $this->dir;
+        return basename($this->path, '.' . $this->extension);
     }
 
     /**
@@ -77,7 +47,7 @@ class File
      */
     public function equals(File $other): bool
     {
-        return $this->getPath() === $other->getPath();
+        return $this->path === $other->path;
     }
 
     /**

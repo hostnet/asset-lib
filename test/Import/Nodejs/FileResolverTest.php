@@ -28,7 +28,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asImport('resolver/js/require-syntax/main');
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/require-syntax/main.js', $import->getImportedFile()->getPath());
+        self::assertSame('resolver/js/require-syntax/main.js', $import->getImportedFile()->path);
         self::assertSame('resolver/js/require-syntax/main.js', $import->getImportedFile()->getName());
     }
 
@@ -37,7 +37,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asImport('resolver/js/foo-dir');
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/foo-dir/index.js', $import->getImportedFile()->getPath());
+        self::assertSame('resolver/js/foo-dir/index.js', $import->getImportedFile()->path);
         self::assertSame('resolver/js/foo-dir/index.js', $import->getImportedFile()->getName());
     }
 
@@ -46,7 +46,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asImport('resolver/js/foo-json');
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/foo-json/index.json', $import->getImportedFile()->getPath());
+        self::assertSame('resolver/js/foo-json/index.json', $import->getImportedFile()->path);
         self::assertSame('resolver/js/foo-json/index.json', $import->getImportedFile()->getName());
     }
 
@@ -55,7 +55,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asImport('resolver/js/foo-node');
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/foo-node/index.node', $import->getImportedFile()->getPath());
+        self::assertSame('resolver/js/foo-node/index.node', $import->getImportedFile()->path);
         self::assertSame('resolver/js/foo-node/index.node', $import->getImportedFile()->getName());
     }
 
@@ -64,7 +64,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asImport('jquery');
 
         self::assertInstanceOf(Module::class, $import->getImportedFile());
-        self::assertSame('node_modules/jquery/jquery.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/jquery/jquery.js', $import->getImportedFile()->path);
         self::assertSame('jquery', $import->getImportedFile()->getName());
     }
 
@@ -82,7 +82,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire('./foo/hom', $parent);
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('node_modules/bar/foo/hom.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/bar/foo/hom.js', $import->getImportedFile()->path);
         self::assertSame('node_modules/bar/foo/hom.js', $import->getImportedFile()->getName());
     }
 
@@ -92,7 +92,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire('./foo/hom', $parent);
 
         self::assertInstanceOf(Module::class, $import->getImportedFile());
-        self::assertSame('node_modules/bar/foo/hom.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/bar/foo/hom.js', $import->getImportedFile()->path);
         self::assertSame('bar/foo/hom', $import->getImportedFile()->getName());
     }
 
@@ -104,7 +104,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire($path, $parent);
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame($path . '.js', $import->getImportedFile()->getPath());
+        self::assertSame($path . '.js', $import->getImportedFile()->path);
         self::assertSame($path . '.js', $import->getImportedFile()->getName());
     }
 
@@ -116,7 +116,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire($path, $parent);
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame($path . '.js', $import->getImportedFile()->getPath());
+        self::assertSame($path . '.js', $import->getImportedFile()->path);
         self::assertSame($path . '.js', $import->getImportedFile()->getName());
     }
 
@@ -128,7 +128,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire($path, $parent);
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame($path . '/index.js', $import->getImportedFile()->getPath());
+        self::assertSame($path . '/index.js', $import->getImportedFile()->path);
         self::assertSame($path . '/index.js', $import->getImportedFile()->getName());
     }
 
@@ -140,7 +140,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire($path, $parent);
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame($path . '/index.js', $import->getImportedFile()->getPath());
+        self::assertSame($path . '/index.js', $import->getImportedFile()->path);
         self::assertSame($path . '/index.js', $import->getImportedFile()->getName());
     }
 
@@ -150,7 +150,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire('./foo/bar', $parent);
 
         self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('node_modules/bar/foo/bar/index.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/bar/foo/bar/index.js', $import->getImportedFile()->path);
         self::assertSame('node_modules/bar/foo/bar/index.js', $import->getImportedFile()->getName());
     }
 
@@ -160,7 +160,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire('./foo/bar', $parent);
 
         self::assertInstanceOf(Module::class, $import->getImportedFile());
-        self::assertSame('node_modules/bar/foo/bar/index.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/bar/foo/bar/index.js', $import->getImportedFile()->path);
         self::assertSame('bar/foo/bar', $import->getImportedFile()->getName());
     }
 
@@ -170,7 +170,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire('jquery', $parent);
 
         self::assertInstanceOf(Module::class, $import->getImportedFile());
-        self::assertSame('node_modules/jquery/jquery.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/jquery/jquery.js', $import->getImportedFile()->path);
         self::assertSame('jquery', $import->getImportedFile()->getName());
     }
 
@@ -180,7 +180,7 @@ class FileResolverTest extends TestCase
         $import = $this->file_resolver->asRequire('module_package_dir', $parent);
 
         self::assertInstanceOf(Module::class, $import->getImportedFile());
-        self::assertSame('node_modules/module_package_dir/src/index.js', $import->getImportedFile()->getPath());
+        self::assertSame('node_modules/module_package_dir/src/index.js', $import->getImportedFile()->path);
         self::assertSame('module_package_dir', $import->getImportedFile()->getName());
     }
 

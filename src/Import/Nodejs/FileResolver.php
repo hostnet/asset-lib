@@ -69,19 +69,19 @@ final class FileResolver implements FileResolverInterface
             // 3. If X begins with './' or '/' or '../'
             // a. LOAD_AS_FILE(Y + X)
             try {
-                $f = new File($this->asFile($parent->getDirectory() . '/' . $name));
+                $f = new File($this->asFile($parent->dir . '/' . $name));
 
                 if ($parent instanceof Module) {
-                    $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->getPath());
+                    $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->path);
                 }
 
                 return new Import($name, $f);
             } catch (FileNotFoundException $e) {
                 // b. LOAD_AS_DIRECTORY(Y + X)
-                $f = new File($this->asDir($parent->getDirectory() . '/' . $name));
+                $f = new File($this->asDir($parent->dir . '/' . $name));
 
                 if ($parent instanceof Module) {
-                    $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->getPath());
+                    $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->path);
                 }
 
                 return new Import($name, $f);

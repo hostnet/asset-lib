@@ -56,10 +56,10 @@ class Bundler
             $file        = new File($source_dir . $file_name);
             $entry_point = new EntryPoint($file, $this->finder->all($file));
 
-            $this->logger->debug('Checking entry-point {name}', ['name' => $entry_point->getFile()->getPath()]);
+            $this->logger->debug('Checking entry-point {name}', ['name' => $entry_point->getFile()->path]);
 
             if ($this->checkIfAnyChanged($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles())) {
-                $this->logger->debug(' * Compiling bundle for {name}', ['name' => $entry_point->getFile()->getPath()]);
+                $this->logger->debug(' * Compiling bundle for {name}', ['name' => $entry_point->getFile()->path]);
 
                 $this->compileFile($entry_point->getBundleFile($output_folder), $entry_point->getBundleFiles());
             } else {
@@ -67,14 +67,20 @@ class Bundler
             }
 
             if ($this->checkIfAnyChanged($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles())) {
-                $this->logger->debug(' * Compiling vendors for {name}', ['name' => $entry_point->getFile()->getPath()]);
+                $this->logger->debug(' * Compiling vendors for {name}', ['name' => $entry_point->getFile()->path]);
 
                 $this->compileFile($entry_point->getVendorFile($output_folder), $entry_point->getVendorFiles());
             } else {
                 $this->logger->debug(' * Nothing to do for vendor');
             }
 
-            $this->compileAsset($entry_point->getAssetFiles());
+            foreach ($entry_point->getAssetFiles() as $asset_file) {
+                $asset = new Asset($asset_file, $this->finder->all($asset_file));
+
+                $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
+
+                $this->compileAsset($asset);
+            }
         }
     }
 
@@ -86,53 +92,53 @@ class Bundler
         $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
         foreach ($this->config->getAssetFiles() as $file_name) {
-            $file        = new File($source_dir . $file_name);
-            $entry_point = new EntryPoint($file, $this->finder->all($file));
+            $file  = new File($source_dir . $file_name);
+            $asset = new Asset($file, $this->finder->all($file));
 
-            $this->logger->debug('Checking asset {name}', ['name' => $entry_point->getFile()->getPath()]);
+            $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-            $this->compileAsset(array_map(function (Dependency $d) {
-                return $d->getFile();
-            }, array_filter($entry_point->getBundleFiles(), function (Dependency $d) {
-                return !$d->isVirtual();
-            })));
+            $this->compileAsset($asset);
         }
     }
 
     /**
-     * @param File[] $asset_files
+     * @param Asset $asset
      */
-    private function compileAsset(array $asset_files)
+    private function compileAsset(Asset $asset)
     {
+        $asset_file = $asset->getFile();
+
         $output_folder = $this->config->getWebRoot() . '/' . $this->config->getOutputFolder();
+        $base_dir      = trim(substr($asset_file->dir, strlen($this->config->getSourceRoot())), '/');
 
-        foreach ($asset_files as $asset_file) {
-            $base_dir = trim(substr($asset_file->getDirectory(), strlen($this->config->getSourceRoot())), '/');
+        if (strlen($base_dir) > 0) {
+            $base_dir .= '/';
+        }
 
-            if (strlen($base_dir) > 0) {
-                $base_dir .= '/';
+        $output_file_name = $asset_file->getBaseName() . '.' . $this->transpiler->getExtensionFor($asset_file);
+        $output_file      = new File($output_folder . '/' . $base_dir . $output_file_name);
+
+        if ($this->checkIfAnyChanged($output_file, $asset->getFiles())) {
+            $this->logger->debug(' * Compiling asset {name}', ['name' => $asset_file->path]);
+
+            if (!file_exists($this->cwd . '/' . $output_file->dir)) {
+                mkdir($this->cwd . '/' . $output_file->dir, 0777, true);
             }
 
-            $output_file_name = $asset_file->getBaseName() . '.' . $this->transpiler->getExtensionFor($asset_file);
-            $output_file      = new File($output_folder . '/' . $base_dir . $output_file_name);
+            // Transpile
+            // Assets will never be cached since they cannot be build incremental
+            $result = $this->getCompiledContentFor($asset_file, $output_file);
 
-            if (!file_exists($this->cwd . '/' . $output_file->getDirectory())) {
-                mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
-            }
+            // Transform PRE_WRITE
+            $content = $this->transformer->onPreWrite(
+                $output_file,
+                $result->getContent(),
+                $this->config->getOutputFolder()
+            );
 
-            if ($this->checkIfAnyChanged($output_file, [new Dependency($asset_file)])) {
-                // Transpile
-                $result = $this->getCompiledContentForCached($asset_file);
-
-                // Transform PRE_WRITE
-                $content = $this->transformer->onPreWrite(
-                    $output_file,
-                    $result->getContent(),
-                    $this->config->getOutputFolder()
-                );
-
-                file_put_contents($this->cwd . '/' . $output_file->getPath(), $content);
-            }
+            file_put_contents($this->cwd . '/' . $output_file->path, $content);
+        } else {
+            $this->logger->debug(' * Nothing to do for asset');
         }
     }
 
@@ -145,8 +151,8 @@ class Bundler
     private function compileFile(File $output_file, array $dependencies)
     {
         // make sure folder exists
-        if (!file_exists($this->cwd . '/' . $output_file->getDirectory())) {
-            mkdir($this->cwd . '/' . $output_file->getDirectory(), 0777, true);
+        if (!file_exists($this->cwd . '/' . $output_file->dir)) {
+            mkdir($this->cwd . '/' . $output_file->dir, 0777, true);
         }
 
         $output_content = '';
@@ -163,7 +169,7 @@ class Bundler
 
                 // Wrap
                 $content = $this->module_wrapper->wrapModule(
-                    $file->getPath(), // Use the old file, since we need to resolve dependencies
+                    $file->path, // Use the old file, since we need to resolve dependencies
                     $result->getModuleName(),
                     $result->getContent()
                 );
@@ -183,7 +189,7 @@ class Bundler
             $this->config->getOutputFolder()
         );
 
-        file_put_contents($this->cwd . '/' . $output_file->getPath(), $output_content);
+        file_put_contents($this->cwd . '/' . $output_file->path, $output_content);
     }
 
     /**
@@ -196,7 +202,7 @@ class Bundler
     private function getCompiledContentForCached(File $file): TranspileResult
     {
         $new_ext     = $this->transpiler->getExtensionFor($file);
-        $output_file = new File($file->getDirectory() . '/' . $file->getBaseName() . '.' . $new_ext);
+        $output_file = new File($file->dir . '/' . $file->getBaseName() . '.' . $new_ext);
 
         if (!$this->config->isDev()) {
             return $this->getCompiledContentFor($file, $output_file);
@@ -206,7 +212,7 @@ class Bundler
 
         if ($this->checkIfChanged(
             $this->config->getCacheDir() . '/' . $cache_key,
-            $this->cwd . '/' . $file->getPath()
+            $this->cwd . '/' . $file->path
         )) {
             $result = $this->getCompiledContentFor($file, $output_file);
 
@@ -218,7 +224,7 @@ class Bundler
             $module_name = $result->getModuleName();
             $content = $result->getContent();
         } else {
-            $this->logger->debug('  - Emitting {name} (from cache)', ['name' => $file->getPath()]);
+            $this->logger->debug('  - Emitting {name} (from cache)', ['name' => $file->path]);
 
             [$module_name, $content] = unserialize(file_get_contents(
                 $this->config->getCacheDir() . '/' . $cache_key
@@ -237,7 +243,7 @@ class Bundler
      */
     private function getCompiledContentFor(File $file, File $output_file): TranspileResult
     {
-        $this->logger->debug('  - Emitting {name}', ['name' => $file->getPath()]);
+        $this->logger->debug('  - Emitting {name}', ['name' => $file->path]);
 
         // Transpile
         $result = $this->transpiler->transpile($file);
@@ -266,7 +272,7 @@ class Bundler
             // did the sources change?
             $sources_file = $this->config->getCacheDir() . '/' . $this->createFileCacheKey($output_file) . '.sources';
             $input_sources = array_map(function (Dependency $d) {
-                return $d->getFile()->getPath();
+                return $d->getFile()->path;
             }, $input_files);
 
             sort($input_sources);
@@ -287,7 +293,7 @@ class Bundler
         }
 
         // Did the files change?
-        $file_path = $this->cwd . '/' . $output_file->getPath();
+        $file_path = $this->cwd . '/' . $output_file->path;
         $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
@@ -295,7 +301,7 @@ class Bundler
         }
 
         foreach ($input_files as $input_file) {
-            if ($mtime < filemtime($this->cwd . '/' . $input_file->getFile()->getPath())) {
+            if ($mtime < filemtime($this->cwd . '/' . $input_file->getFile()->path)) {
                 return true;
             }
         }
@@ -331,6 +337,6 @@ class Bundler
      */
     private function createFileCacheKey(File $output_file): string
     {
-        return substr(md5($output_file->getPath()), 0, 5) . '_' . str_replace('/', '.', $output_file->getPath());
+        return substr(md5($output_file->path), 0, 5) . '_' . str_replace('/', '.', $output_file->path);
     }
 }

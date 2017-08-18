@@ -34,7 +34,7 @@ final class Transpiler implements TranspilerInterface
 
     public function getExtensionFor(File $file): string
     {
-        $ext = $file->getExtension();
+        $ext = $file->extension;
 
         if (!isset($this->transpilers[$ext])) {
             throw new \InvalidArgumentException(sprintf('No transpiler registered for extension "%s".', $ext));
@@ -45,7 +45,7 @@ final class Transpiler implements TranspilerInterface
 
     public function transpile(File $file): TranspileResult
     {
-        $ext = $file->getExtension();
+        $ext = $file->extension;
 
         if (!isset($this->transpilers[$ext])) {
             throw new \InvalidArgumentException(sprintf('No transpiler registered for extension "%s".', $ext));

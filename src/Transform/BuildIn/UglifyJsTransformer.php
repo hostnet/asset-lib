@@ -23,7 +23,7 @@ class UglifyJsTransformer implements ContentTransformerInterface
      */
     public function supports(File $file): bool
     {
-        return $file->getExtension() === 'js';
+        return $file->extension === 'js';
     }
 
     /**
@@ -43,7 +43,7 @@ class UglifyJsTransformer implements ContentTransformerInterface
 
             if (!$process->isSuccessful()) {
                 throw new TransformException(
-                    sprintf('Cannot transform "%s" due to uglifyjs error.', $file->getPath()),
+                    sprintf('Cannot transform "%s" due to uglifyjs error.', $file->path),
                     $process->getErrorOutput()
                 );
             }
