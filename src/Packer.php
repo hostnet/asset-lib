@@ -67,7 +67,7 @@ final class Packer
         $finder->addCollector($ts_collector);
         $finder->addCollector($angular_collector);
 
-        $wrapper = new JsModuleWrapper($finder, new FileResolver($config->cwd(), ['.js', '.json', '.node']));
+        $wrapper = new JsModuleWrapper();
 
         $transpiler = new Transpiler($config->cwd());
         $transpiler->addTranspiler(new CssFileTranspiler());

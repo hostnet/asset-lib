@@ -1,8 +1,6 @@
 var uglify = require("uglify-js");
 var fs = require("fs");
 
-var source = fs.readFileSync(process.argv[2]);
-
-var result = uglify.minify(source.toString());
+var result = uglify.minify(process.argv[2]);
 
 process.stdout.write(result.code);

@@ -155,7 +155,23 @@ class Bundler
             mkdir($this->cwd . '/' . $output_file->dir, 0777, true);
         }
 
-        $output_content = '';
+        $initializer = str_replace('.', '_', uniqid('_init', true));
+        $output_content = 'var ' . $initializer . " = function(module_name) {
+            var _define = function (a, b, c) {
+                if (!c) {
+                    if (typeof a === 'string' && typeof b === 'function') {
+                        define(a, [], b);
+                    } else {
+                        define(module_name, a, b);
+                    }
+                } else {
+                    define(a, b, c);
+                }
+            };
+            _define.amd = true;
+    
+            return _define;
+        };\n";
 
         try {
             foreach ($dependencies as $dependency) {
@@ -173,7 +189,7 @@ class Bundler
 
                 // Wrap
                 $content = $this->module_wrapper->wrapModule(
-                    $file->path, // Use the old file, since we need to resolve dependencies
+                    $initializer,
                     $module_name,
                     $result->getContent()
                 );

@@ -8,7 +8,7 @@ var result = ts.transpileModule(source.toString(), {
         inlineSourceMap: true,
         skipLibCheck: true,
         target: ts.ScriptTarget.ES5,
-        module: ts.ModuleKind.CommonJS,
+        module: ts.ModuleKind.AMD,
         moduleResolution: ts.ModuleResolutionKind.NodeJs,
         experimentalDecorators: true
     }
