@@ -32,6 +32,7 @@ final class TsFileTranspiler implements FileTranspilerInterface
         $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/tsc.js ' . $cwd . '/' . $file->path, null, [
             'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
         ]);
+        $process->inheritEnvironmentVariables();
         $process->run();
 
         if (!$process->isSuccessful()) {

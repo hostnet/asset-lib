@@ -33,12 +33,17 @@ class UglifyJsTransformer implements ContentTransformerInterface
     {
         $tmp = $this->cache_dir . '/' . str_replace('.', '_', uniqid('uglifyjs', true));
 
+        if (!file_exists($this->cache_dir)){
+            mkdir($this->cache_dir, 0777, true);
+        }
+
         try {
             file_put_contents($tmp, $content);
 
             $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/uglify.js ' . $tmp, null, [
                 'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
             ]);
+            $process->inheritEnvironmentVariables();
             $process->run();
 
             if (!$process->isSuccessful()) {

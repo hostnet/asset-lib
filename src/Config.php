@@ -5,7 +5,7 @@ namespace Hostnet\Component\Resolver;
 /**
  * Generic config reader. This loads the entry-points.json file.
  */
-class Config
+class Config implements ConfigInterface
 {
     private $is_dev;
     private $data;

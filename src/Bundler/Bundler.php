@@ -1,7 +1,7 @@
 <?php
 namespace Hostnet\Component\Resolver\Bundler;
 
-use Hostnet\Component\Resolver\Config;
+use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
@@ -31,7 +31,7 @@ class Bundler
         TransformerInterface $transformer,
         JsModuleWrapperInterface $module_wrapper,
         LoggerInterface $logger,
-        Config $config
+        ConfigInterface $config
     ) {
         $this->finder = $finder;
         $this->transpiler = $transpiler;
@@ -298,6 +298,10 @@ class Bundler
             sort($input_sources);
 
             if (!file_exists($sources_file)) {
+                // make sure the cache dir exists
+                if (!is_dir(dirname($sources_file))) {
+                    mkdir(dirname($sources_file), 0777, true);
+                }
                 file_put_contents($sources_file, serialize($input_sources));
 
                 return true;

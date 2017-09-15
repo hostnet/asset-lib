@@ -32,6 +32,7 @@ final class LessFileTranspiler implements FileTranspilerInterface
         $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/lessc.js ' . $cwd . '/' . $file->path, null, [
             'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
         ]);
+        $process->inheritEnvironmentVariables();
         $process->run();
 
         if (!$process->isSuccessful()) {

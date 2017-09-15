@@ -9,6 +9,11 @@ final class Transformer implements TransformerInterface
     public const POST_TRANSPILE = 'post_transpile';
     public const PRE_WRITE = 'pre_write';
 
+    public const ALL = [
+        self::PRE_WRITE,
+        self::POST_TRANSPILE
+    ];
+
     /**
      * @var ContentTransformerInterface[][]
      */
