@@ -5,6 +5,7 @@ use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Module;
 use Hostnet\Component\Resolver\Transform\TransformerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
 use Hostnet\Component\Resolver\Transpile\TranspileResult;
@@ -54,7 +55,8 @@ class Bundler
 
         foreach ($this->config->getEntryPoints() as $file_name) {
             $file        = new File($source_dir . $file_name);
-            $entry_point = new EntryPoint($file, $this->finder->all($file));
+            $module      = new Module($file->getBaseName(), $file->path);
+            $entry_point = new EntryPoint($module, $this->finder->all($module));
 
             $this->logger->debug('Checking entry-point {name}', ['name' => $entry_point->getFile()->path]);
 
@@ -168,7 +170,7 @@ class Bundler
                     define(a, b, c);
                 }
             };
-            _define.amd = true;
+            _define.amd = {};
     
             return _define;
         };\n";
