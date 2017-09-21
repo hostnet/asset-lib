@@ -1,0 +1,21 @@
+{
+  "name": "resolver-lib",
+  "version": "1.0.0",
+  "description": "THIS PROJECT IS WORK IN PROGRESS, NOTHING IS FINAL! USE AT OWN RISK.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hostnet/resolver-lib.git"
+  },
+  "author": "Hostnet BV.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hostnet/resolver-lib/issues"
+  },
+  "dependencies": {
+    "typescript": "^2.5.0",
+    "less": "^2.7.0",
+    "uglify-js": "^3.1.0",
+    "clean-css": "^4.1.9"
+  },
+  "homepage": "https://github.com/hostnet/resolver-lib#readme"
+}

@@ -45,14 +45,15 @@ class Bundler
     }
 
     /**
-     * Bundle a list of entry points, each entry point will be written to their
-     * own file.
+     * Execute the bundler. This will compile all the entry points and assets
+     * defined in the config.
      */
-    public function bundle()
+    public function execute()
     {
         $output_folder = $this->config->getWebRoot() . '/' . $this->config->getOutputFolder();
         $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
+        // Entry points
         foreach ($this->config->getEntryPoints() as $file_name) {
             $file        = new File($source_dir . $file_name);
             $module      = new Module($file->getBaseName(), $file->path);
@@ -84,15 +85,8 @@ class Bundler
                 $this->compileAsset($asset);
             }
         }
-    }
 
-    /**
-     * Bundle a list of assets, each asset will be written to their own file.
-     */
-    public function compile()
-    {
-        $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
-
+        // Assets
         foreach ($this->config->getAssetFiles() as $file_name) {
             $file  = new File($source_dir . $file_name);
             $asset = new Asset($file, $this->finder->all($file));

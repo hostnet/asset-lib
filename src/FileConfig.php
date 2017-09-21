@@ -3,9 +3,10 @@
 namespace Hostnet\Component\Resolver;
 
 /**
- * Generic config reader. This loads the entry-points.json file.
+ * Generic config reader. This loads the resolve.config.json file and allows
+ * for flexible configuration of all the parts.
  */
-class Config implements ConfigInterface
+class FileConfig implements ConfigInterface
 {
     private $is_dev;
     private $data;
@@ -18,11 +19,21 @@ class Config implements ConfigInterface
         $this->cwd = dirname($config_file);
     }
 
+    /**
+     * Return if the packer is running in dev mode.
+     *
+     * @return bool
+     */
     public function isDev(): bool
     {
         return $this->is_dev;
     }
 
+    /**
+     * Return the current working directory.
+     *
+     * @return string
+     */
     public function cwd(): string
     {
         return $this->cwd;
@@ -101,6 +112,56 @@ class Config implements ConfigInterface
      */
     public function getCacheDir(): string
     {
-        return $this->cwd() . '/' . $this->data['cache-dir'] ?? '/tmp';
+        return $this->cwd() . '/' . $this->data['cache-dir'] ?? 'var';
+    }
+
+    /**
+     * NodeJS binary location.
+     *
+     * @return string
+     */
+    public function getNodeJsBinary(): string
+    {
+        return $this->cwd() . '/' . $this->data['node']['bin'];
+    }
+
+    /**
+     * Location of the 'node_modules' folder.
+     *
+     * @return string
+     */
+    public function getNodeModulesPath(): string
+    {
+        return $this->cwd() . '/' . $this->data['node']['node_modules'];
+    }
+
+    /**
+     * Check if Less is enabled.
+     *
+     * @return bool
+     */
+    public function isLessEnabled(): bool
+    {
+        return in_array('less', $this->data['loaders'], true);
+    }
+
+    /**
+     * Check if Typescript is enabled.
+     *
+     * @return bool
+     */
+    public function isTsEnabled(): bool
+    {
+        return in_array('ts', $this->data['loaders'], true);
+    }
+
+    /**
+     * Check if Angular is enabled.
+     *
+     * @return bool
+     */
+    public function isAngularEnabled(): bool
+    {
+        return in_array('angular', $this->data['loaders'], true);
     }
 }

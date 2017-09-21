@@ -8,8 +8,13 @@
   "web-root": "web",
   "output-folder": "dist",
   "output-folder-dev": "dev",
-  "config": {
-    "node-bin" : "../../vendor/bin/node",
+  "node": {
+    "bin" : "../../vendor/bin/node",
     "node_modules" : "../../vendor/node_modules"
-  }
+  },
+  "loaders": [
+    "less",
+    "ts",
+    "angular"
+  ]
 }
