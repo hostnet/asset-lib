@@ -10,7 +10,7 @@ final class TranspileException extends \RuntimeException
 
     public function __construct(string $message, string $error_output, \Throwable $previous = null)
     {
-        parent::__construct($message, 0, $previous);
+        parent::__construct($message . ' Error: ' . $error_output, 0, $previous);
 
         $this->error_output = $error_output;
     }

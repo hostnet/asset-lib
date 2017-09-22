@@ -9,8 +9,8 @@
   "output-folder": "dist",
   "output-folder-dev": "dev",
   "node": {
-    "bin" : "../../vendor/bin/node",
-    "node_modules" : "../../vendor/node_modules"
+    "bin" : "/home/ydelange/node-v8.5.0-linux-x64/bin/node",
+    "node_modules" : "../../node_modules"
   },
   "loaders": [
     "less",

@@ -179,7 +179,9 @@ class Bundler
                 $result = $this->getCompiledContentForCached($file);
 
                 $module_name = $result->getModuleName();
-                if (0 === strpos($module_name, $this->config->getSourceRoot())) {
+                if (!empty($this->config->getSourceRoot())
+                    && 0 === strpos($module_name, $this->config->getSourceRoot())
+                ) {
                     $module_name = trim(substr($module_name, strlen($this->config->getSourceRoot())), '/');
                 }
 

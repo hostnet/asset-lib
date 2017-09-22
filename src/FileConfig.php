@@ -112,7 +112,7 @@ class FileConfig implements ConfigInterface
      */
     public function getCacheDir(): string
     {
-        return $this->cwd() . '/' . $this->data['cache-dir'] ?? 'var';
+        return $this->cwd() . '/' . ($this->data['cache-dir'] ?? 'var');
     }
 
     /**
@@ -122,6 +122,10 @@ class FileConfig implements ConfigInterface
      */
     public function getNodeJsBinary(): string
     {
+        if ($this->data['node']['bin'][0] === '/') {
+            return $this->data['node']['bin'];
+        }
+
         return $this->cwd() . '/' . $this->data['node']['bin'];
     }
 
@@ -132,6 +136,10 @@ class FileConfig implements ConfigInterface
      */
     public function getNodeModulesPath(): string
     {
+        if ($this->data['node']['node_modules'][0] === '/') {
+            return $this->data['node']['node_modules'];
+        }
+
         return $this->cwd() . '/' . $this->data['node']['node_modules'];
     }
 

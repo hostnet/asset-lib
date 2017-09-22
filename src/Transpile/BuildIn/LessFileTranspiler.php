@@ -38,7 +38,7 @@ final class LessFileTranspiler implements FileTranspilerInterface
         if (!$process->isSuccessful()) {
             throw new TranspileException(
                 sprintf('Cannot compile "%s" due to compiler error.', $file->path),
-                $process->getErrorOutput()
+                $process->getOutput() . $process->getErrorOutput()
             );
         }
 

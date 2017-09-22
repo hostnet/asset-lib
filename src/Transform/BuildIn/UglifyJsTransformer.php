@@ -49,7 +49,7 @@ class UglifyJsTransformer implements ContentTransformerInterface
             if (!$process->isSuccessful()) {
                 throw new TransformException(
                     sprintf('Cannot transform "%s" due to uglifyjs error.', $file->path),
-                    $process->getErrorOutput()
+                    $process->getOutput() . $process->getErrorOutput()
                 );
             }
 
