@@ -1,9 +1,8 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile\BuildIn;
 
-use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Bundler\Item;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
-use Hostnet\Component\Resolver\Transpile\TranspileResult;
 
 final class CssFileTranspiler implements FileTranspilerInterface
 {
@@ -17,8 +16,9 @@ final class CssFileTranspiler implements FileTranspilerInterface
         return 'css';
     }
 
-    public function transpile(string $cwd, File $file): TranspileResult
+    public function transpile(string $cwd, Item $item): void
     {
-        return new TranspileResult($file->getName(), file_get_contents($cwd . '/' .$file->path));
+        $item->transition(Item::READY);
+        // do nothing.
     }
 }

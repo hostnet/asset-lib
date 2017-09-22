@@ -11,12 +11,12 @@ class JsModuleWrapper implements JsModuleWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function wrapModule(string $initializer, string $module_name, string $content): string
+    public function wrap(Item $item): void
     {
         $js = "(function (define) {\n";
-        $js .= $content;
-        $js .= "\n})(" . $initializer . "('" . $module_name . "'));\n";
+        $js .= $item->getContent();
+        $js .= "\n})(__create_define('" . $item->module_name . "'));\n";
 
-        return $js;
+        $item->transition(Item::READY, $js);
     }
 }

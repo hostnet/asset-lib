@@ -2,7 +2,7 @@
 
 namespace Hostnet\Component\Resolver\Transpile;
 
-use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Bundler\Item;
 
 /**
  * Implementations of this interface allow for transpiling of a file by the
@@ -28,9 +28,8 @@ interface FileTranspilerInterface
      * Transpile a file.
      *
      * @param string $cwd
-     * @param File   $file
+     * @param Item $item
      * @throws TranspileException when transpiling has failed.
-     * @return TranspileResult
      */
-    public function transpile(string $cwd, File $file): TranspileResult;
+    public function transpile(string $cwd, Item $item): void;
 }

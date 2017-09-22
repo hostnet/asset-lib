@@ -1,0 +1,9 @@
+@media projection, tv {
+  a {
+    color: red;
+  }
+}
+body div {
+  color: red;
+}
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3lkZWxhbmdlL3Byb2plY3RzL3Rvb2xzL3Jlc29sdmVyLWxpYi90ZXN0L2ZpeHR1cmVzL3Jlc29sdmVyL2xlc3MvaW1wb3J0LXN5bnRheC9wcmludC10di5jc3MiLCIvaG9tZS95ZGVsYW5nZS9wcm9qZWN0cy90b29scy9yZXNvbHZlci1saWIvdGVzdC9maXh0dXJlcy9yZXNvbHZlci9sZXNzL2ltcG9ydC1zeW50YXgvbWFpbi5sZXNzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7RUFBQTtJQUNJLFVBQUE7OztBQ1lKLElBQ0k7RUFDSSxVQUFBIn0= */

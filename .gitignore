@@ -6,6 +6,7 @@ var/
 node_modules/
 test/fixtures/.deps
 test/fixtures/web/
+package-lock.json
 composer.lock
 yarn.lock
 composer.phar

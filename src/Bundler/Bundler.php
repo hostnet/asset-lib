@@ -151,23 +151,23 @@ class Bundler
             mkdir($this->cwd . '/' . $output_file->dir, 0777, true);
         }
 
-        $initializer = str_replace('.', '_', uniqid('_init', true));
-        $output_content = 'var ' . $initializer . " = function(module_name) {
-            var _define = function (a, b, c) {
-                if (!c) {
-                    if (typeof a === 'string' && typeof b === 'function') {
-                        define(a, [], b);
+        $output_content = "(function () {
+            var __create_define = function(module_name) {
+                var _define = function (a, b, c) {
+                    if (!c) {
+                        if (typeof a === 'string' && typeof b === 'function') {
+                            define(a, [], b);
+                        } else {
+                            define(module_name, a, b);
+                        }
                     } else {
-                        define(module_name, a, b);
+                        define(a, b, c);
                     }
-                } else {
-                    define(a, b, c);
-                }
-            };
-            _define.amd = {};
-    
-            return _define;
-        };\n";
+                };
+                _define.amd = {};
+        
+                return _define;
+            };\n";
 
         try {
             foreach ($dependencies as $dependency) {
@@ -199,6 +199,7 @@ class Bundler
 
             throw $e;
         }
+        $output_content .= "\n})();";
 
         // Transform PRE_WRITE
         $output_content = $this->transformer->onPreWrite(

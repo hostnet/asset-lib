@@ -1,22 +1,29 @@
 var less = require("less");
 var path = require('path');
-var fs = require("fs");
 
-var file = process.argv[2];
-var source = fs.readFileSync(file);
+function compile(source) {
+    less.render(source, {
+        "sourceMap": {
+            "sourceMapFileInline": true
+        },
+        "filename": path.resolve(process.argv[2])
+    }, function (error, output) {
+        if (null !== error) {
+            process.stdout.write(error.message);
+            process.stdout.write("\n");
 
-less.render(source.toString(), {
-    "sourceMap": {
-        "sourceMapFileInline" : true
-    },
-    "filename": path.resolve(file)
-}, function (error, output) {
-    if (null !== error) {
-        process.stdout.write(error.message);
-        process.stdout.write("\n");
+            process.exit(1);
+        }
 
-        process.exit(1);
-    }
+        process.stdout.write(output.css);
+    });
+}
 
-    process.stdout.write(output.css);
+var content = '';
+
+process.stdin.resume();
+process.stdin.on('data', function(buf) { content += buf.toString(); });
+process.stdin.on('end', function() {
+    // your code here
+    compile(content);
 });

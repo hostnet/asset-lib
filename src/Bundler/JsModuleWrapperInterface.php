@@ -11,10 +11,7 @@ interface JsModuleWrapperInterface
     /**
      * Wrap javascript content. The given file name should also support module names.
      *
-     * @param string $initializer
-     * @param string $module_name
-     * @param string $content
-     * @return string
+     * @param Item $item
      */
-    public function wrapModule(string $initializer, string $module_name, string $content): string;
+    public function wrap(Item $item): void;
 }

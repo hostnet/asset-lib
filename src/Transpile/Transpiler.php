@@ -1,6 +1,7 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile;
 
+use Hostnet\Component\Resolver\Bundler\Item;
 use Hostnet\Component\Resolver\File;
 
 /**
@@ -43,14 +44,14 @@ final class Transpiler implements TranspilerInterface
         return $this->transpilers[$ext]->getOutputtedExtension();
     }
 
-    public function transpile(File $file): TranspileResult
+    public function transpile(Item $item): void
     {
-        $ext = $file->extension;
+        $ext = $item->file->extension;
 
         if (!isset($this->transpilers[$ext])) {
             throw new \InvalidArgumentException(sprintf('No transpiler registered for extension "%s".', $ext));
         }
 
-        return $this->transpilers[$ext]->transpile($this->cwd, $file);
+        $this->transpilers[$ext]->transpile($this->cwd, $item);
     }
 }

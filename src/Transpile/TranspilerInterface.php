@@ -2,6 +2,7 @@
 
 namespace Hostnet\Component\Resolver\Transpile;
 
+use Hostnet\Component\Resolver\Bundler\Item;
 use Hostnet\Component\Resolver\File;
 
 
@@ -22,9 +23,8 @@ interface TranspilerInterface
     /**
      * Transpile a file into browser usable code and return it.
      *
-     * @param File $file
+     * @param Item $item
      * @throw \InvalidArgumentException when file was given that was not supported.
-     * @return TranspileResult
      */
-    public function transpile(File $file): TranspileResult;
+    public function transpile(Item $item): void;
 }
