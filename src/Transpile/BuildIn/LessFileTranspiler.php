@@ -1,13 +1,12 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile\BuildIn;
 
-use Hostnet\Component\Resolver\Bundler\Item;
-use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Bundler\ContentItem;
+use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
-use Hostnet\Component\Resolver\Transpile\TranspileResult;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 final class LessFileTranspiler implements FileTranspilerInterface
 {
@@ -18,23 +17,26 @@ final class LessFileTranspiler implements FileTranspilerInterface
         $this->nodejs = $nodejs;
     }
 
-    public function getSupportedExtension(): string
+    public function supports(ContentState $state): bool
     {
-        return 'less';
+        return $state->current() === ContentState::UNPROCESSED && $state->extension() === 'less';
     }
 
-    public function getOutputtedExtension(): string
+    public function peek(string $cwd, ContentState $state): void
     {
-        return 'css';
+        $state->transition(ContentState::READY, 'css');
     }
 
-    public function transpile(string $cwd, Item $item): void
+    public function transpile(string $cwd, ContentItem $item): void
     {
-        $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/lessc.js ' . $cwd . '/' . $item->file->path, null, [
-            'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
-        ]);
-        $process->inheritEnvironmentVariables();
-        $process->setInput($item->getContent());
+        $process = ProcessBuilder::create()
+            ->add($this->nodejs->getBinary())
+            ->add(__DIR__ . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lessc.js')
+            ->add($cwd . DIRECTORY_SEPARATOR . $item->file->path)
+            ->setInput($item->getContent())
+            ->setEnv('NODE_PATH', $this->nodejs->getNodeModulesLocation())
+            ->getProcess();
+
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -44,6 +46,6 @@ final class LessFileTranspiler implements FileTranspilerInterface
             );
         }
 
-        $item->transition(Item::READY, $process->getOutput());
+        $item->transition(ContentState::READY, $process->getOutput(), 'css');
     }
 }

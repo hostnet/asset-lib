@@ -52,7 +52,7 @@ final class FileResolver implements FileResolverInterface
     public function asRequire(string $name, File $parent): Import
     {
         // 1. If X is a core module,
-        if ($this->isAbsolutePath($name)) {
+        if (File::isAbsolutePath($name)) {
             // 2. If X begins with '/'
             // a. LOAD_AS_FILE(Y + X)
             try {
@@ -103,7 +103,7 @@ final class FileResolver implements FileResolverInterface
     {
         $path = $name;
 
-        if (!$this->isAbsolutePath($path)) {
+        if (!File::isAbsolutePath($path)) {
             $path = $this->cwd . '/' . $path;
         }
 
@@ -135,7 +135,7 @@ final class FileResolver implements FileResolverInterface
     {
         $path = $name;
 
-        if (!$this->isAbsolutePath($path)) {
+        if (!File::isAbsolutePath($path)) {
             $path = $this->cwd . '/' . $path;
         }
 
@@ -167,7 +167,7 @@ final class FileResolver implements FileResolverInterface
     {
         $package_info_path = $name . '/package.json';
 
-        if (!$this->isAbsolutePath($package_info_path)) {
+        if (!File::isAbsolutePath($package_info_path)) {
             $package_info_path = $this->cwd . '/' . $package_info_path;
         }
 
@@ -213,21 +213,5 @@ final class FileResolver implements FileResolverInterface
                 throw new FileNotFoundException(sprintf('File %s could not be be found!', $name), 0, $e);
             }
         }
-    }
-
-    /**
-     * Check if the given path is absolute.
-     *
-     * @param string $path
-     * @return bool
-     */
-    private function isAbsolutePath(string $path): bool
-    {
-        // Windows check...
-        if (DIRECTORY_SEPARATOR === '\\' && 1 === preg_match('/^[A-Z]:\//', $path)) {
-            return true;
-        }
-
-        return $path[0] === '/';
     }
 }

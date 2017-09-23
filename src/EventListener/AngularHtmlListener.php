@@ -1,24 +1,25 @@
 <?php
-namespace Hostnet\Component\Resolver\Transform\BuildIn;
+namespace Hostnet\Component\Resolver\EventListener;
 
-use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\Transform\ContentTransformerInterface;
+use Hostnet\Component\Resolver\Event\AssetEvent;
 
-class AngularHtmlTransformer implements ContentTransformerInterface
+class AngularHtmlListener
 {
     /**
      * {@inheritdoc}
      */
-    public function supports(File $file): bool
+    public function onPostTranspile(AssetEvent $event): void
     {
-        return $file->extension === 'js' && 1 === preg_match('/\.component\.js$/', $file->path);
-    }
+        $item = $event->getItem();
+        $file = $item->file;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function transform(File $file, string $content, string $cwd, string $output_dir): string
-    {
+        // Check if we need to apply the listener.
+        if ($item->getState()->extension() !== 'js' || 1 !== preg_match('/\.component\.js$/', $file->path)) {
+            return;
+        }
+
+        $content = $item->getContent();
+
         $content = preg_replace_callback('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', function ($match) use ($file, $output_dir) {
             $file_path = $match[2];
 
@@ -48,6 +49,7 @@ class AngularHtmlTransformer implements ContentTransformerInterface
             return 'styleUrls: [' . implode(', ', $urls) . ']';
         }, $content);
 
-        return $content;
+        // Keep the current state, but update the content.
+        $item->transition($item->getState()->current(), $content);
     }
 }

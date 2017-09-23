@@ -2,7 +2,8 @@
 
 namespace Hostnet\Component\Resolver\Transpile;
 
-use Hostnet\Component\Resolver\Bundler\Item;
+use Hostnet\Component\Resolver\Bundler\ContentItem;
+use Hostnet\Component\Resolver\Bundler\ContentState;
 
 /**
  * Implementations of this interface allow for transpiling of a file by the
@@ -10,26 +11,19 @@ use Hostnet\Component\Resolver\Bundler\Item;
  */
 interface FileTranspilerInterface
 {
-    /**
-     * Return the supported extension without the '.'. I.e., less, ts, js, css, etc.
-     *
-     * @return string
-     */
-    public function getSupportedExtension(): string;
+    public function supports(ContentState $state): bool;
 
     /**
-     * Return the file extension that will result from transpiling the asset.
-     *
-     * @return string
+     * Peek for the extension of the state. This should mimic the transpile.
      */
-    public function getOutputtedExtension(): string;
+    public function peek(string $cwd, ContentState $state): void;
 
     /**
      * Transpile a file.
      *
-     * @param string $cwd
-     * @param Item $item
+     * @param string      $cwd
+     * @param ContentItem $item
      * @throws TranspileException when transpiling has failed.
      */
-    public function transpile(string $cwd, Item $item): void;
+    public function transpile(string $cwd, ContentItem $item): void;
 }

@@ -1,11 +1,12 @@
 <?php
 namespace Hostnet\Component\Resolver\Transpile\BuildIn;
 
-use Hostnet\Component\Resolver\Bundler\Item;
+use Hostnet\Component\Resolver\Bundler\ContentItem;
+use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
 use Hostnet\Component\Resolver\Transpile\TranspileException;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 final class TsFileTranspiler implements FileTranspilerInterface
 {
@@ -16,23 +17,25 @@ final class TsFileTranspiler implements FileTranspilerInterface
         $this->nodejs = $nodejs;
     }
 
-    public function getSupportedExtension(): string
+    public function supports(ContentState $state): bool
     {
-        return 'ts';
+        return $state->current() === ContentState::UNPROCESSED && $state->extension() === 'ts';
     }
 
-    public function getOutputtedExtension(): string
+    public function peek(string $cwd, ContentState $state): void
     {
-        return 'js';
+        $state->transition(ContentState::PROCESSED, 'js');
     }
 
-    public function transpile(string $cwd, Item $item): void
+    public function transpile(string $cwd, ContentItem $item): void
     {
-        $process = new Process($this->nodejs->getBinary() . ' ' . __DIR__ . '/js/tsc.js', null, [
-            'NODE_PATH' => $this->nodejs->getNodeModulesLocation()
-        ]);
-        $process->inheritEnvironmentVariables();
-        $process->setInput($item->getContent());
+        $process = ProcessBuilder::create()
+            ->add($this->nodejs->getBinary())
+            ->add(__DIR__ . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'tsc.js')
+            ->setInput($item->getContent())
+            ->setEnv('NODE_PATH', $this->nodejs->getNodeModulesLocation())
+            ->getProcess();
+
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -42,6 +45,6 @@ final class TsFileTranspiler implements FileTranspilerInterface
             );
         }
 
-        $item->transition(Item::PROCESSED, $process->getOutput());
+        $item->transition(ContentState::PROCESSED, $process->getOutput(), 'js');
     }
 }

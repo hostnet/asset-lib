@@ -2,10 +2,15 @@
 
 namespace Hostnet\Component\Resolver;
 
-use Hostnet\Component\Resolver\Bundler\Bundler;
-use Hostnet\Component\Resolver\Bundler\JsModuleWrapper;
+use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
+use Hostnet\Component\Resolver\Bundler\PipelineBundler;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
+use Hostnet\Component\Resolver\Event\AssetEvents;
+use Hostnet\Component\Resolver\EventListener\AngularHtmlListener;
+use Hostnet\Component\Resolver\EventListener\CleanCssListener;
+use Hostnet\Component\Resolver\EventListener\UglifyJsListener;
 use Hostnet\Component\Resolver\Import\BuildIn\AngularImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\LessImportCollector;
@@ -13,17 +18,12 @@ use Hostnet\Component\Resolver\Import\BuildIn\TsImportCollector;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
-use Hostnet\Component\Resolver\Transform\BuildIn\AngularHtmlTransformer;
-use Hostnet\Component\Resolver\Transform\BuildIn\CleanCssTransformer;
-use Hostnet\Component\Resolver\Transform\BuildIn\UglifyJsTransformer;
-use Hostnet\Component\Resolver\Transform\Transformer;
-use Hostnet\Component\Resolver\Transpile\BuildIn\CssFileTranspiler;
-use Hostnet\Component\Resolver\Transpile\BuildIn\HtmlFileTranspiler;
-use Hostnet\Component\Resolver\Transpile\BuildIn\JsFileTranspiler;
+use Hostnet\Component\Resolver\Transpile\BuildIn\IdentityTranspiler;
+use Hostnet\Component\Resolver\Transpile\BuildIn\JsModuleWrapper;
 use Hostnet\Component\Resolver\Transpile\BuildIn\LessFileTranspiler;
 use Hostnet\Component\Resolver\Transpile\BuildIn\TsFileTranspiler;
-use Hostnet\Component\Resolver\Transpile\Transpiler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Simple facade that registered JS, CSS, TS and LESS compilation and runs it
@@ -36,6 +36,8 @@ final class Packer
         $config = new FileConfig($dev, $project_root . '/resolve.config.json');
         $cache = new Cache($config->getCacheDir() . '/dependencies');
         $cache->load();
+
+        $dispatcher = new EventDispatcher();
 
         $nodejs = new Executable(
             $config->getNodeJsBinary(),
@@ -53,14 +55,12 @@ final class Packer
         $finder = new ImportFinder($config->cwd());
         $finder->addCollector($js_collector);
 
-        $wrapper = new JsModuleWrapper();
+        $pipeline = new ContentPipeline($dispatcher, $logger, $config);
 
-        $transpiler = new Transpiler($config->cwd());
-        $transpiler->addTranspiler(new CssFileTranspiler());
-        $transpiler->addTranspiler(new HtmlFileTranspiler());
-        $transpiler->addTranspiler(new JsFileTranspiler());
-
-        $transformer = new Transformer($config->cwd());
+        $pipeline->addProcessor(new IdentityTranspiler('css'));
+        $pipeline->addProcessor(new IdentityTranspiler('html'));
+        $pipeline->addProcessor(new IdentityTranspiler('js', ContentState::PROCESSED));
+        $pipeline->addProcessor(new JsModuleWrapper());
 
         // LESS
         if ($config->isLessEnabled()) {
@@ -69,7 +69,7 @@ final class Packer
                 $less_collector = new CachedImportCollector($less_collector, $cache);
             }
             $finder->addCollector($less_collector);
-            $transpiler->addTranspiler(new LessFileTranspiler($nodejs));
+            $pipeline->addProcessor(new LessFileTranspiler($nodejs));
         }
 
         // TS
@@ -84,7 +84,7 @@ final class Packer
                 $ts_collector = new CachedImportCollector($ts_collector, $cache);
             }
             $finder->addCollector($ts_collector);
-            $transpiler->addTranspiler(new TsFileTranspiler($nodejs));
+            $pipeline->addProcessor(new TsFileTranspiler($nodejs));
         }
 
         // ANGULAR
@@ -94,30 +94,30 @@ final class Packer
                 $angular_collector = new CachedImportCollector($angular_collector, $cache);
             }
             $finder->addCollector($angular_collector);
-            $transformer->addTransformer(Transformer::POST_TRANSPILE, new AngularHtmlTransformer());
+
+            $listener = new AngularHtmlListener();
+
+            $dispatcher->addListener(AssetEvents::POST_TRANSPILE, [$listener, 'onPostTranspile']);
         }
 
         if (!$config->isDev()) {
-            $transformer->addTransformer(
-                Transformer::PRE_WRITE,
-                new UglifyJsTransformer($nodejs, $project_root . '/var/assets')
-            );
-            $transformer->addTransformer(
-                Transformer::PRE_WRITE,
-                new CleanCssTransformer($nodejs, $project_root . '/var/assets')
-            );
+            $uglify_listener = new UglifyJsListener($nodejs, $project_root . '/var/assets');
+            $cleancss_listener = new CleanCssListener($nodejs, $project_root . '/var/assets');
+
+            $dispatcher->addListener(AssetEvents::PRE_WRITE, [$uglify_listener, 'onPreWrite']);
+            $dispatcher->addListener(AssetEvents::PRE_WRITE, [$cleancss_listener, 'onPreWrite']);
         }
 
-        $bundler = new Bundler(
+        $bundler = new PipelineBundler(
             $finder,
-            $transpiler,
-            $transformer,
-            $wrapper,
+            $pipeline,
             $logger,
             $config
         );
         $bundler->execute();
 
-        $cache->save();
+        if ($config->isDev()) {
+            $cache->save();
+        }
     }
 }

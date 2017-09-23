@@ -122,7 +122,7 @@ class FileConfig implements ConfigInterface
      */
     public function getNodeJsBinary(): string
     {
-        if ($this->data['node']['bin'][0] === '/') {
+        if (File::isAbsolutePath($this->data['node']['bin'])) {
             return $this->data['node']['bin'];
         }
 
@@ -136,7 +136,7 @@ class FileConfig implements ConfigInterface
      */
     public function getNodeModulesPath(): string
     {
-        if ($this->data['node']['node_modules'][0] === '/') {
+        if (File::isAbsolutePath($this->data['node']['node_modules'])) {
             return $this->data['node']['node_modules'];
         }
 
