@@ -1,5 +1,5 @@
 <?php
-namespace Hostnet\Component\Resolver\Transpile;
+namespace Hostnet\Component\Resolver\Bundler;
 
 /**
  * Exception thrown when transpiling has failed.

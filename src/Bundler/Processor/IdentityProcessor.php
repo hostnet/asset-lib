@@ -1,11 +1,11 @@
 <?php
-namespace Hostnet\Component\Resolver\Transpile\BuildIn;
+namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 
-final class IdentityTranspiler implements FileTranspilerInterface
+final class IdentityProcessor implements ContentProcessorInterface
 {
     private $extension;
     private $done_state;

@@ -15,7 +15,7 @@ final class AssetEvents
      *
      * @var string
      */
-    public const PRE_TRANSPILE = 'asset.pre_transpile';
+    public const PRE_PROCESS = 'asset.pre_process';
 
     /**
      * Event triggered just after the transpiling of an asset.
@@ -24,25 +24,7 @@ final class AssetEvents
      *
      * @var string
      */
-    public const POST_TRANSPILE = 'asset.post_transpile';
-
-    /**
-     * Event triggered just before wrapping of javascript modules.
-     *
-     * @Event("Hostnet\Component\Resolver\Event\AssetEvent")
-     *
-     * @var string
-     */
-    public const PRE_WRAP = 'asset.pre_wrap';
-
-    /**
-     * Event triggered just after wrapping of javascript modules.
-     *
-     * @Event("Hostnet\Component\Resolver\Event\AssetEvent")
-     *
-     * @var string
-     */
-    public const POST_WRAP = 'asset.post_wrap';
+    public const POST_PROCESS = 'asset.post_process';
 
     /**
      * Event triggered just before writing the file to disk.

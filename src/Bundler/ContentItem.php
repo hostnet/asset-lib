@@ -36,12 +36,20 @@ class ContentItem
         return $this->content;
     }
 
-    public function transition(string $state, string $new_content = null, string $new_extension = null)
-    {
+    public function transition(
+        string $state,
+        string $new_content = null,
+        string $new_extension = null,
+        string $new_module_name = null
+    ) {
         $this->state->transition($state, $new_extension);
 
         if (null !== $new_content) {
             $this->content = $new_content;
+        }
+
+        if (null !== $new_module_name) {
+            $this->module_name = $new_module_name;
         }
     }
 }

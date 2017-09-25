@@ -5,6 +5,10 @@ namespace Hostnet\Component\Resolver;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
 use Hostnet\Component\Resolver\Bundler\PipelineBundler;
+use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
+use Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor;
+use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
+use Hostnet\Component\Resolver\Bundler\Processor\TsContentProcessor;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Event\AssetEvents;
@@ -18,10 +22,6 @@ use Hostnet\Component\Resolver\Import\BuildIn\TsImportCollector;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
-use Hostnet\Component\Resolver\Transpile\BuildIn\IdentityTranspiler;
-use Hostnet\Component\Resolver\Transpile\BuildIn\JsModuleWrapper;
-use Hostnet\Component\Resolver\Transpile\BuildIn\LessFileTranspiler;
-use Hostnet\Component\Resolver\Transpile\BuildIn\TsFileTranspiler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -57,10 +57,10 @@ final class Packer
 
         $pipeline = new ContentPipeline($dispatcher, $logger, $config);
 
-        $pipeline->addProcessor(new IdentityTranspiler('css'));
-        $pipeline->addProcessor(new IdentityTranspiler('html'));
-        $pipeline->addProcessor(new IdentityTranspiler('js', ContentState::PROCESSED));
-        $pipeline->addProcessor(new JsModuleWrapper());
+        $pipeline->addProcessor(new IdentityProcessor('css'));
+        $pipeline->addProcessor(new IdentityProcessor('html'));
+        $pipeline->addProcessor(new IdentityProcessor('js', ContentState::PROCESSED));
+        $pipeline->addProcessor(new ModuleProcessor());
 
         // LESS
         if ($config->isLessEnabled()) {
@@ -69,7 +69,7 @@ final class Packer
                 $less_collector = new CachedImportCollector($less_collector, $cache);
             }
             $finder->addCollector($less_collector);
-            $pipeline->addProcessor(new LessFileTranspiler($nodejs));
+            $pipeline->addProcessor(new LessContentProcessor($nodejs));
         }
 
         // TS
@@ -84,7 +84,7 @@ final class Packer
                 $ts_collector = new CachedImportCollector($ts_collector, $cache);
             }
             $finder->addCollector($ts_collector);
-            $pipeline->addProcessor(new TsFileTranspiler($nodejs));
+            $pipeline->addProcessor(new TsContentProcessor($nodejs));
         }
 
         // ANGULAR
@@ -97,7 +97,7 @@ final class Packer
 
             $listener = new AngularHtmlListener();
 
-            $dispatcher->addListener(AssetEvents::POST_TRANSPILE, [$listener, 'onPostTranspile']);
+            $dispatcher->addListener(AssetEvents::POST_PROCESS, [$listener, 'onPostTranspile']);
         }
 
         if (!$config->isDev()) {

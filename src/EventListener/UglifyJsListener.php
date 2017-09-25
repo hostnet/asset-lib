@@ -3,8 +3,7 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
-use Hostnet\Component\Resolver\Transpile\TranspileException;
-use Symfony\Component\Process\Process;
+use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Symfony\Component\Process\ProcessBuilder;
 
 class UglifyJsListener

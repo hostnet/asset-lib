@@ -1,15 +1,16 @@
 <?php
 
-namespace Hostnet\Component\Resolver\Transpile;
+namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\TranspileException;
 
 /**
  * Implementations of this interface allow for transpiling of a file by the
  * supported extension.
  */
-interface FileTranspilerInterface
+interface ContentProcessorInterface
 {
     public function supports(ContentState $state): bool;
 

@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Transpile\BuildIn;
+namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 
 /**
  * Wrap a javascript file such that can be used as a module.
  */
-class JsModuleWrapper implements FileTranspilerInterface
+class ModuleProcessor implements ContentProcessorInterface
 {
     public function supports(ContentState $state): bool
     {
@@ -26,22 +26,14 @@ class JsModuleWrapper implements FileTranspilerInterface
     {
         $js = "(function (define) {\n";
         $js .= $item->getContent();
-        $js .= "\n})((function(module_name) {
+        $js .= "\n})((function() {
             var _define = function (a, b, c) {
-                if (!c) {
-                    if (typeof a === 'string' && typeof b === 'function') {
-                        define(a, [], b);
-                    } else {
-                        define(module_name, a, b);
-                    }
-                } else {
-                    define(a, b, c);
-                }
+                typeof a !== 'string' ? define('" . $item->module_name . "', a, b) : define(a, b, c);
             };
             _define.amd = {};
     
             return _define;
-        })('" . $item->module_name . "'));\n";
+        })());\n";
 
         $item->transition(ContentState::READY, $js);
     }

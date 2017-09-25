@@ -9,7 +9,6 @@ use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
-use Hostnet\Component\Resolver\Transpile\FileTranspilerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +24,7 @@ class ContentPipeline
     private $config;
 
     /**
-     * @var FileTranspilerInterface[]
+     * @var ContentProcessorInterface[]
      */
     private $processors;
 
@@ -40,7 +39,7 @@ class ContentPipeline
         $this->processors = [];
     }
 
-    public function addProcessor(FileTranspilerInterface $processor): void
+    public function addProcessor(ContentProcessorInterface $processor): void
     {
         $this->processors[] = $processor;
     }
@@ -144,11 +143,11 @@ class ContentPipeline
 
         foreach ($this->processors as $processor) {
             if ($processor->supports($item->getState())) {
-                $this->dispatcher->dispatch(AssetEvents::PRE_TRANSPILE, new AssetEvent($item));
+                $this->dispatcher->dispatch(AssetEvents::PRE_PROCESS, new AssetEvent($item));
 
                 $processor->transpile($this->config->cwd(), $item);
 
-                $this->dispatcher->dispatch(AssetEvents::POST_TRANSPILE, new AssetEvent($item));
+                $this->dispatcher->dispatch(AssetEvents::POST_PROCESS, new AssetEvent($item));
 
                 break;
             }

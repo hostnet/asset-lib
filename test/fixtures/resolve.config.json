@@ -9,7 +9,7 @@
   "output-folder": "dist",
   "output-folder-dev": "dev",
   "node": {
-    "bin" : "C:\\Program Files\\nodejs\\node.exe",
+    "bin" : "/home/ydelange/node-v8.5.0-linux-x64/bin/node",
     "node_modules" : "../../node_modules"
   },
   "loaders": [

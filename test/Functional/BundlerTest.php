@@ -12,7 +12,7 @@ class BundlerTest extends TestCase
         $fixtures_folder = __DIR__ . '/../fixtures';
         $logger = new BufferingLogger();
 
-        Packer::pack($fixtures_folder, $logger, false);
+        Packer::pack($fixtures_folder, $logger, true);
 
         var_dump($logger->cleanLogs());
     }
