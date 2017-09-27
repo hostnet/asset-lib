@@ -62,7 +62,7 @@ class PipelineBundler
 
                 $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-                $this->pipeline->push($asset->getFiles(), $asset->getAssetFile($output_folder), $file_reader);
+                $this->pipeline->push($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
             }
         }
 
@@ -73,7 +73,7 @@ class PipelineBundler
 
             $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-            $this->pipeline->push($asset->getFiles(), $asset->getAssetFile($output_folder), $file_reader);
+            $this->pipeline->push($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
         }
     }
 }

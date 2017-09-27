@@ -41,8 +41,14 @@ class Asset
      * @param string $output_folder
      * @return File
      */
-    public function getAssetFile(string $output_folder): File
+    public function getAssetFile(string $output_folder, string $source_folder): File
     {
-        return new File($output_folder . '/' . $this->file->dir . '/' . $this->file->getBaseName() . '.' . $this->extension);
+        $base_dir      = trim(substr($this->file->dir, strlen($source_folder)), '/');
+
+        if (strlen($base_dir) > 0) {
+            $base_dir .= '/';
+        }
+
+        return new File($output_folder . '/' . $base_dir . $this->file->getBaseName() . '.' . $this->extension);
     }
 }

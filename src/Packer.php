@@ -95,7 +95,7 @@ final class Packer
             }
             $finder->addCollector($angular_collector);
 
-            $listener = new AngularHtmlListener();
+            $listener = new AngularHtmlListener($config);
 
             $dispatcher->addListener(AssetEvents::POST_PROCESS, [$listener, 'onPostTranspile']);
         }

@@ -24,16 +24,9 @@ class ModuleProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $js = "(function (define) {\n";
+        $js = "register('" . $item->module_name . "', function (define, require, module, exports) {\n";
         $js .= $item->getContent();
-        $js .= "\n})((function() {
-            var _define = function (a, b, c) {
-                typeof a !== 'string' ? define('" . $item->module_name . "', a, b) : define(a, b, c);
-            };
-            _define.amd = {};
-    
-            return _define;
-        })());\n";
+        $js .= "\n});\n";
 
         $item->transition(ContentState::READY, $js);
     }
