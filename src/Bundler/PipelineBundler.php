@@ -5,8 +5,11 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
 use Hostnet\Component\Resolver\Bundler\Pipeline\FileReader;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ReaderInterface;
+use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Psr\Log\LoggerInterface;
 
@@ -48,12 +51,12 @@ class PipelineBundler
             $this->logger->debug('Checking entry-point bundle file {name}', ['name' => $entry_point->getFile()->path]);
 
             // bundle
-            $this->pipeline->push($entry_point->getBundleFiles(), $entry_point->getBundleFile($output_folder), $file_reader);
+            $this->write($entry_point->getBundleFiles(), $entry_point->getBundleFile($output_folder), $file_reader);
 
             $this->logger->debug('Checking entry-point vendor file {name}', ['name' => $entry_point->getFile()->path]);
 
             // vendor
-            $this->pipeline->push($entry_point->getVendorFiles(), $entry_point->getVendorFile($output_folder), $file_reader);
+            $this->write($entry_point->getVendorFiles(), $entry_point->getVendorFile($output_folder), $file_reader);
 
             // assets
             foreach ($entry_point->getAssetFiles() as $file) {
@@ -62,7 +65,7 @@ class PipelineBundler
 
                 $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-                $this->pipeline->push($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
+                $this->write($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
             }
         }
 
@@ -73,7 +76,79 @@ class PipelineBundler
 
             $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-            $this->pipeline->push($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
+            $this->write($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
         }
+    }
+
+    private function write(array $dependencies, File $target_file, ReaderInterface $file_reader): void
+    {
+        if ($this->config->isDev() && !$this->checkIfAnyChanged($target_file, $dependencies)) {
+            $this->logger->debug(' * Target already up to date');
+            return;
+        }
+
+        $this->logger->debug(' * Compiling target {name}', ['name' => $target_file->path]);
+
+        $content = $this->pipeline->push($dependencies, $target_file, $file_reader);
+
+        $path = $this->config->cwd() . '/' . $target_file->path;
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0777, true);
+        }
+
+        file_put_contents($path, $content);
+    }
+
+    /**
+     * Check if the output file is newer than the input files.
+     *
+     * @param File         $output_file
+     * @param Dependency[] $input_files
+     * @return bool
+     */
+    private function checkIfAnyChanged(File $output_file, array $input_files): bool
+    {
+        // did the sources change?
+        $sources_file = $this->config->getCacheDir() . '/' . Cache::createFileCacheKey($output_file) . '.sources';
+        $input_sources = array_map(function (Dependency $d) {
+            return $d->getFile()->path;
+        }, $input_files);
+
+        sort($input_sources);
+
+        if (!file_exists($sources_file)) {
+            // make sure the cache dir exists
+            if (!is_dir(dirname($sources_file))) {
+                mkdir(dirname($sources_file), 0777, true);
+            }
+            file_put_contents($sources_file, serialize($input_sources));
+
+            return true;
+        }
+
+        $sources = unserialize(file_get_contents($sources_file), []);
+
+        if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
+            file_put_contents($sources_file, serialize($input_sources));
+
+            return true;
+        }
+
+        // Did the files change?
+        $file_path = $this->config->cwd() . '/' . $output_file->path;
+        $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
+
+        if ($mtime === -1) {
+            return true;
+        }
+
+        foreach ($input_files as $input_file) {
+            if ($mtime < filemtime($this->config->cwd() . '/' . $input_file->getFile()->path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

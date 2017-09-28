@@ -18,6 +18,19 @@ final class Cache implements FileCacheInterface
     }
 
     /**
+     * Create a cache key for a file. This must be unique for a file, but
+     * always the same for each file and it's location. The same file in a
+     * different folder should have a different key.
+     *
+     * @param File $output_file
+     * @return string
+     */
+    public static function createFileCacheKey(File $output_file): string
+    {
+        return substr(md5($output_file->path), 0, 5) . '_' . str_replace('/', '.', $output_file->path);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function has($key)

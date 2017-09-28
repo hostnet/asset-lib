@@ -27,23 +27,11 @@ final class AssetEvents
     public const POST_PROCESS = 'asset.post_process';
 
     /**
-     * Event triggered just before writing the file to disk.
+     * Event triggered just after the asset is marked as ready.
      *
      * @Event("Hostnet\Component\Resolver\Event\AssetEvent")
      *
      * @var string
      */
-    public const PRE_WRITE = 'asset.pre_write';
-
-    /**
-     * Event triggered just after writing the file to disk.
-     *
-     * Note: changing the content does not effect the file anymore since it has
-     * already been written to disk.
-     *
-     * @Event("Hostnet\Component\Resolver\Event\AssetEvent")
-     *
-     * @var string
-     */
-    public const POST_WRITE = 'asset.post_write';
+    public const READY = 'asset.ready';
 }

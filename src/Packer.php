@@ -106,8 +106,8 @@ final class Packer
             $uglify_listener = new UglifyJsListener($nodejs, $project_root . '/var/assets');
             $cleancss_listener = new CleanCssListener($nodejs, $project_root . '/var/assets');
 
-            $dispatcher->addListener(AssetEvents::PRE_WRITE, [$uglify_listener, 'onPreWrite']);
-            $dispatcher->addListener(AssetEvents::PRE_WRITE, [$cleancss_listener, 'onPreWrite']);
+            $dispatcher->addListener(AssetEvents::READY, [$uglify_listener, 'onPreWrite']);
+            $dispatcher->addListener(AssetEvents::READY, [$cleancss_listener, 'onPreWrite']);
         }
 
         $bundler = new PipelineBundler(

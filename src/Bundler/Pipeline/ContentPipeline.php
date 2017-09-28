@@ -4,6 +4,7 @@ namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Event\AssetEvents;
@@ -44,6 +45,13 @@ class ContentPipeline
         $this->processors[] = $processor;
     }
 
+    /**
+     * Peek an item through the content pipeline. This will return the
+     * resulting file extension.
+     *
+     * @param File $input_file
+     * @return string
+     */
     public function peek(File $input_file): string
     {
         $item = new ContentState($input_file->extension);
@@ -59,17 +67,13 @@ class ContentPipeline
     /**
      * Push a bundled file on the pipeline with a list of dependencies.
      *
-     * @param Dependency[] $dependencies
-     * @param File         $target_file
-     * @param FileReader   $file_reader
+     * @param Dependency[]    $dependencies
+     * @param File            $target_file
+     * @param ReaderInterface $file_reader
+     * @return string
      */
-    public function push(array $dependencies, File $target_file, FileReader $file_reader): void
+    public function push(array $dependencies, File $target_file, ReaderInterface $file_reader): string
     {
-        if ($this->config->isDev() && !$this->checkIfAnyChanged($target_file, $dependencies)) {
-            $this->logger->debug(' * Target already up to date');
-            return;
-        }
-
         $this->logger->debug(' * Compiling target {name}', ['name' => $target_file->path]);
 
         /* @var $items ContentItem[] */
@@ -77,7 +81,9 @@ class ContentPipeline
             $file = $d->getFile();
             $module_name = $file->getName();
 
-            if (false !== strpos($module_name, $this->config->getSourceRoot())) {
+            if (!empty($this->config->getSourceRoot())
+                && false !== strpos($module_name, $this->config->getSourceRoot())
+            ) {
                 $base_dir = trim(substr($file->dir, strlen($this->config->getSourceRoot())), '/');
 
                 if (strlen($base_dir) > 0) {
@@ -95,7 +101,7 @@ class ContentPipeline
         $buffer = '';
 
         foreach ($items as $item) {
-            $cache_key = $this->createFileCacheKey($item->file);
+            $cache_key = Cache::createFileCacheKey($item->file);
 
             if ($this->config->isDev()
                 && file_exists($this->config->getCacheDir() . '/' . $cache_key)
@@ -132,17 +138,9 @@ class ContentPipeline
         // Create an item for the file to write to disk.
         $item = new ContentItem($target_file, $target_file->getName(), new StringReader($buffer));
 
-        $path = $this->config->cwd() . '/' . $target_file->path;
+        $this->dispatcher->dispatch(AssetEvents::READY, new AssetEvent($item));
 
-        if (!file_exists(dirname($path))) {
-            mkdir(dirname($path), 0777, true);
-        }
-
-        $this->dispatcher->dispatch(AssetEvents::PRE_WRITE, new AssetEvent($item));
-
-        file_put_contents($path, $item->getContent());
-
-        $this->dispatcher->dispatch(AssetEvents::POST_WRITE, new AssetEvent($item));
+        return $item->getContent();
     }
 
     /**
@@ -201,58 +199,6 @@ class ContentPipeline
         }
     }
 
-    /**
-     * Check if the output file is newer than the input files.
-     *
-     * @param File         $output_file
-     * @param Dependency[] $input_files
-     * @return bool
-     */
-    private function checkIfAnyChanged(File $output_file, array $input_files): bool
-    {
-        // did the sources change?
-        $sources_file = $this->config->getCacheDir() . '/' . $this->createFileCacheKey($output_file) . '.sources';
-        $input_sources = array_map(function (Dependency $d) {
-            return $d->getFile()->path;
-        }, $input_files);
-
-        sort($input_sources);
-
-        if (!file_exists($sources_file)) {
-            // make sure the cache dir exists
-            if (!is_dir(dirname($sources_file))) {
-                mkdir(dirname($sources_file), 0777, true);
-            }
-            file_put_contents($sources_file, serialize($input_sources));
-
-            return true;
-        }
-
-        $sources = unserialize(file_get_contents($sources_file), []);
-
-        if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
-            file_put_contents($sources_file, serialize($input_sources));
-
-            return true;
-        }
-
-        // Did the files change?
-        $file_path = $this->config->cwd() . '/' . $output_file->path;
-        $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
-
-        if ($mtime === -1) {
-            return true;
-        }
-
-        foreach ($input_files as $input_file) {
-            if ($mtime < filemtime($this->config->cwd() . '/' . $input_file->getFile()->path)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private function checkIfChanged(File $output_file, File $file)
     {
         $file_path = $this->config->cwd() . '/' . $output_file->path;
@@ -263,18 +209,5 @@ class ContentPipeline
         }
 
         return $mtime < filemtime($this->config->cwd() . '/' . $file->path);
-    }
-
-    /**
-     * Create a cache key for a file. This must be unique for a file, but
-     * always the same for each file and it's location. The same file in a
-     * different folder should have a different key.
-     *
-     * @param File $output_file
-     * @return string
-     */
-    private function createFileCacheKey(File $output_file): string
-    {
-        return substr(md5($output_file->path), 0, 5) . '_' . str_replace('/', '.', $output_file->path);
     }
 }
