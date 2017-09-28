@@ -8,14 +8,6 @@ use Hostnet\Component\Resolver\File;
 interface ImportFinderInterface
 {
     /**
-     * Resolve only the dependencies of a file.
-     *
-     * @param File $file
-     * @return Dependency[]
-     */
-    public function get(File $file): array;
-
-    /**
      * Resolve the entire dependency tree of a file.
      *
      * @param File $file

@@ -11,15 +11,6 @@ use Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException;
 interface FileResolverInterface
 {
     /**
-     * Resolve a plain import to a file.
-     *
-     * @param string $name
-     * @throws FileNotFoundException when no file could be resolved.
-     * @return Import
-     */
-    public function asImport(string $name): Import;
-
-    /**
      * Resolve a require from another file (parent) to a file.
      *
      * @param string $name

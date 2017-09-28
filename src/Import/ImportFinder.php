@@ -22,9 +22,10 @@ class ImportFinder implements ImportFinderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param File $file
+     * @return Dependency[]
      */
-    public function get(File $file): array
+    private function get(File $file): array
     {
         $imports = $this->findImports($file);
         $results = [];
@@ -44,8 +45,8 @@ class ImportFinder implements ImportFinderInterface
     public function all(File $file): array
     {
         $files = [];
-        /* @var Dependency[] $queue */
         $queue = $this->get($file);
+
         $seen = array_values(array_map(function(Dependency $d) {
             return $d->getFile()->path;
         }, $queue));
@@ -70,7 +71,7 @@ class ImportFinder implements ImportFinderInterface
             }
         }
 
-        return $files;
+        return $this->toTree($files);
     }
 
     /**
@@ -100,5 +101,14 @@ class ImportFinder implements ImportFinderInterface
         }
 
         return $imports;
+    }
+
+    /**
+     * @param Dependency[] $files
+     * @return Dependency[]
+     */
+    private function toTree(array $files): array
+    {
+        return $files;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\BuildIn;
 
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\Import;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 
@@ -35,7 +36,7 @@ final class AngularImportCollector implements ImportCollectorInterface
                     $file_path = $file->dir . substr($file_path, 1);
                 }
 
-                $imports->addResource(new File($file_path));
+                $imports->addImport(new Import($file_path, new File($file_path), $file, true));
             }
         }
         if (preg_match_all('/styleUrls *:(\s*\[[^\]]*?\])/', $content, $matches) > 0) {
@@ -48,7 +49,7 @@ final class AngularImportCollector implements ImportCollectorInterface
                             $file_path = $file->dir . substr($file_path, 1);
                         }
 
-                        $imports->addResource(new File($file_path));
+                        $imports->addImport(new Import($file_path, new File($file_path), $file, true));
                     }
                 }
             }

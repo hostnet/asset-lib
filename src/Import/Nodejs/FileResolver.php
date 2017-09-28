@@ -33,22 +33,6 @@ final class FileResolver implements FileResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function asImport(string $name): Import
-    {
-        try {
-            return new Import($name, new File($this->asFile($name)));
-        } catch (FileNotFoundException $e) {
-            try {
-                return new Import($name, new File($this->asDir($name)));
-            } catch (FileNotFoundException $e) {
-                return new Import($name, new Module($name, $this->asModule($name)));
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function asRequire(string $name, File $parent): Import
     {
         // 1. If X is a core module,
@@ -56,12 +40,12 @@ final class FileResolver implements FileResolverInterface
             // 2. If X begins with '/'
             // a. LOAD_AS_FILE(Y + X)
             try {
-                return new Import($name, new File($this->asFile($name)));
+                return new Import($name, new File($this->asFile($name)), $parent);
             } catch (FileNotFoundException $e) {
                 // b. LOAD_AS_DIRECTORY(Y + X)
                 $f = new File($this->asDir($name));
 
-                return new Import($name, $f);
+                return new Import($name, $f, $parent);
             }
         }
 
@@ -75,7 +59,7 @@ final class FileResolver implements FileResolverInterface
                     $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->path);
                 }
 
-                return new Import($name, $f);
+                return new Import($name, $f, $parent);
             } catch (FileNotFoundException $e) {
                 // b. LOAD_AS_DIRECTORY(Y + X)
                 $f = new File($this->asDir($parent->dir . '/' . $name));
@@ -84,12 +68,12 @@ final class FileResolver implements FileResolverInterface
                     $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->path);
                 }
 
-                return new Import($name, $f);
+                return new Import($name, $f, $parent);
             }
         }
 
         // 4. LOAD_NODE_MODULES(X, dirname(Y))
-        return new Import($name, new Module($name, $this->asModule($name)));
+        return new Import($name, new Module($name, $this->asModule($name)), $parent);
     }
 
     /**
