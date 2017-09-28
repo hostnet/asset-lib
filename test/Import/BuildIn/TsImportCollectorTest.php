@@ -59,18 +59,18 @@ class TsImportCollectorTest extends TestCase
         $this->ts_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
         self::assertEquals([
-            new Import('./Import', new File('resolver/ts/import-syntax/Import.ts')),
-            new Import('./DoubleQuote', new File('resolver/ts/import-syntax/DoubleQuote.ts')),
-            new Import('./SingleQuote', new File('resolver/ts/import-syntax/SingleQuote.ts')),
-            new Import('./Simple', new File('resolver/ts/import-syntax/Simple.ts')),
-            new Import('./Alias', new File('resolver/ts/import-syntax/Alias.ts')),
-            new Import('./All', new File('resolver/ts/import-syntax/All.ts')),
-            new Import('./Multiple', new File('resolver/ts/import-syntax/Multiple.ts')),
-            new Import('./module.js', new File('resolver/ts/import-syntax/module.js')),
-            new Import('module_index', new Module('module_index', 'node_modules/module_index/index.js')),
-            new Import('module_package', new Module('module_package', 'node_modules/module_package/main.js')),
-            new Import('module_package_dir', new Module('module_package_dir', 'node_modules/module_package_dir/src/index.js')),
-            new Import('jquery', new Module('jquery', 'node_modules/jquery/jquery.js')),
+            new Import('./Import', new File('resolver/ts/import-syntax/Import.ts'), $file),
+            new Import('./DoubleQuote', new File('resolver/ts/import-syntax/DoubleQuote.ts'), $file),
+            new Import('./SingleQuote', new File('resolver/ts/import-syntax/SingleQuote.ts'), $file),
+            new Import('./Simple', new File('resolver/ts/import-syntax/Simple.ts'), $file),
+            new Import('./Alias', new File('resolver/ts/import-syntax/Alias.ts'), $file),
+            new Import('./All', new File('resolver/ts/import-syntax/All.ts'), $file),
+            new Import('./Multiple', new File('resolver/ts/import-syntax/Multiple.ts'), $file),
+            new Import('./module.js', new File('resolver/ts/import-syntax/module.js'), $file),
+            new Import('module_index', new Module('module_index', 'node_modules/module_index/index.js'), $file),
+            new Import('module_package', new Module('module_package', 'node_modules/module_package/main.js'), $file),
+            new Import('module_package_dir', new Module('module_package_dir', 'node_modules/module_package_dir/src/index.js'), $file),
+            new Import('jquery', new Module('jquery', 'node_modules/jquery/jquery.js'), $file),
         ], $imports->getImports());
 
         self::assertEquals([], $imports->getResources());

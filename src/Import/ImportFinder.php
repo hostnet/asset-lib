@@ -31,10 +31,10 @@ class ImportFinder implements ImportFinderInterface
         $results = [];
 
         foreach ($imports->getImports() as $import) {
-            $results[$import->getAs()] = new Dependency($import->getImportedFile(), $import->isVirtual());
+            $results[$import->getAs()] = [$import->getImportedFile(), $import->isVirtual()];
         }
         foreach ($imports->getResources() as $import) {
-            $results[$import->path] = new Dependency($import, false, true);
+            $results[$import->path] = [$import, false, true];
         }
         return $results;
     }
@@ -47,25 +47,25 @@ class ImportFinder implements ImportFinderInterface
         $files = [];
         $queue = $this->get($file);
 
-        $seen = array_values(array_map(function(Dependency $d) {
-            return $d->getFile()->path;
+        $seen = array_values(array_map(function(array $d) {
+            return $d[0]->path;
         }, $queue));
 
         while (count($queue) > 0) {
             $dep = array_shift($queue);
             $files[] = $dep;
 
-            $imports = $this->findImports($dep->getFile());
+            $imports = $this->findImports($dep[0]);
 
             foreach ($imports->getImports() as $import) {
                 if (!in_array($import->getImportedFile()->path, $seen, true)) {
-                    $queue[] = new Dependency($import->getImportedFile(), $import->isVirtual());
+                    $queue[] = [$import->getImportedFile(), $import->isVirtual()];
                     $seen[] = $import->getImportedFile()->path;
                 }
             }
             foreach ($imports->getResources() as $import) {
                 if (!in_array($import->path, $seen, true)) {
-                    $queue[] = new Dependency($import, false, true);
+                    $queue[] = [$import, false, true];
                     $seen[] = $import->path;
                 }
             }

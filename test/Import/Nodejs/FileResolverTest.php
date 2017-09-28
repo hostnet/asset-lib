@@ -23,59 +23,6 @@ class FileResolverTest extends TestCase
         $this->file_resolver = new FileResolver(__DIR__ . '/../../fixtures', ['.js', '.json', '.node']);
     }
 
-    public function testAsImportFile()
-    {
-        $import = $this->file_resolver->asImport('resolver/js/require-syntax/main');
-
-        self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/require-syntax/main.js', $import->getImportedFile()->path);
-        self::assertSame('resolver/js/require-syntax/main.js', $import->getImportedFile()->getName());
-    }
-
-    public function testAsImportDir()
-    {
-        $import = $this->file_resolver->asImport('resolver/js/foo-dir');
-
-        self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/foo-dir/index.js', $import->getImportedFile()->path);
-        self::assertSame('resolver/js/foo-dir/index.js', $import->getImportedFile()->getName());
-    }
-
-    public function testAsImportDirWithJson()
-    {
-        $import = $this->file_resolver->asImport('resolver/js/foo-json');
-
-        self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/foo-json/index.json', $import->getImportedFile()->path);
-        self::assertSame('resolver/js/foo-json/index.json', $import->getImportedFile()->getName());
-    }
-
-    public function testAsImportDirWithNodeBin()
-    {
-        $import = $this->file_resolver->asImport('resolver/js/foo-node');
-
-        self::assertInstanceOf(File::class, $import->getImportedFile());
-        self::assertSame('resolver/js/foo-node/index.node', $import->getImportedFile()->path);
-        self::assertSame('resolver/js/foo-node/index.node', $import->getImportedFile()->getName());
-    }
-
-    public function testAsImportModule()
-    {
-        $import = $this->file_resolver->asImport('jquery');
-
-        self::assertInstanceOf(Module::class, $import->getImportedFile());
-        self::assertSame('node_modules/jquery/jquery.js', $import->getImportedFile()->path);
-        self::assertSame('jquery', $import->getImportedFile()->getName());
-    }
-
-    /**
-     * @expectedException \Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException
-     */
-    public function testAsImportUnknown()
-    {
-        $this->file_resolver->asImport('foobar');
-    }
-
     public function testAsRequireFile()
     {
         $parent = new File('node_modules/bar/baz.js');

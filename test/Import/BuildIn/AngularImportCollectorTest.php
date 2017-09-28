@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\BuildIn;
 
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\Import;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use PHPUnit\Framework\TestCase;
 
@@ -51,11 +52,10 @@ class AngularImportCollectorTest extends TestCase
 
         $this->angular_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
-        self::assertEquals([], $imports->getImports());
-
         self::assertEquals([
-            new File('resolver/ts/angular/app.component.html'),
-            new File('resolver/ts/angular/app.component.less'),
-        ], $imports->getResources());
+            new Import('resolver/ts/angular/app.component.html', new File('resolver/ts/angular/app.component.html'), $file, true),
+            new Import('resolver/ts/angular/app.component.less', new File('resolver/ts/angular/app.component.less'), $file, true),
+        ], $imports->getImports());
+        self::assertEquals([], $imports->getResources());
     }
 }
