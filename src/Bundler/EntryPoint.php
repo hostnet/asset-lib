@@ -3,6 +3,7 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\RootFile;
 
 /**
  * Entry points are the starting files for your application. This can be main
@@ -15,20 +16,16 @@ class EntryPoint
     private $vendor_files;
     private $asset_files;
 
-    /**
-     * @param File         $file
-     * @param Dependency[] $dependencies
-     */
-    public function __construct(File $file, array $dependencies)
+    public function __construct(RootFile $file)
     {
-        $this->file = $file;
+        $this->file = $file->getFile();
 
         // Split the input files into bundle and vendor files.
-        $this->bundle_files = [new Dependency($file)];
+        $this->bundle_files = [new Dependency($this->file)];
         $this->vendor_files = [];
         $this->asset_files = [];
 
-        foreach ($dependencies as $dependency) {
+        $walker = new TreeWalker(function (Dependency $dependency) {
             if ($dependency->isStatic()) {
                 $this->asset_files[] = $dependency->getFile();
             } elseif (0 === strpos($dependency->getFile()->path, 'node_modules/')) {
@@ -36,7 +33,9 @@ class EntryPoint
             } else {
                 $this->bundle_files[] = $dependency;
             }
-        }
+        });
+
+        $walker->walk($file);
     }
 
     public function getFile(): File
@@ -92,18 +91,5 @@ class EntryPoint
     public function getVendorFile(string $output_dir): File
     {
         return new File($output_dir . '/' . sprintf('%s.vendor.js', $this->file->getBaseName()));
-    }
-
-    /**
-     * Check if the entry point has vendor files.
-     *
-     * NOTE: stylesheets will never have these, since they are compiled to one
-     * file.
-     *
-     * @return bool
-     */
-    public function hasVendorFile(): bool
-    {
-        return count($this->getVendorFiles()) > 0;
     }
 }

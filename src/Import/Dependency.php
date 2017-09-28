@@ -8,16 +8,21 @@ use Hostnet\Component\Resolver\File;
  *
  * @see Import
  */
-final class Dependency
+final class Dependency implements DependencyNodeInterface
 {
     private $import;
-    private $virtual;
+    private $inline;
     private $static;
 
-    public function __construct(File $import, bool $virtual = false, bool $static = false)
+    /**
+     * @var Dependency[]|array
+     */
+    private $children = [];
+
+    public function __construct(File $import, bool $inline = false, bool $static = false)
     {
         $this->import = $import;
-        $this->virtual = $virtual;
+        $this->inline = $inline;
         $this->static = $static;
     }
 
@@ -27,16 +32,15 @@ final class Dependency
     }
 
     /**
-     * Return if the dependency was virtual. This means that there was a
-     * dependency, but it should not appear in the compiled output result. This
-     * is useful in cases where the transpiler in-lines the imported content
-     * but you still want to track changes.
+     * Return if the dependency was an inline dependency. These are
+     * dependencies which need to be checked but will be inlined in the final
+     * result and thus must not be compiled.
      *
      * @return bool
      */
-    public function isVirtual(): bool
+    public function isInlineDependency(): bool
     {
-        return $this->virtual;
+        return $this->inline;
     }
 
     /**
@@ -48,5 +52,15 @@ final class Dependency
     public function isStatic(): bool
     {
         return $this->static;
+    }
+
+    public function addChild(Dependency $dependency): void
+    {
+        $this->children[] = $dependency;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
     }
 }

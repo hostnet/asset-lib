@@ -11,7 +11,7 @@ interface ImportFinderInterface
      * Resolve the entire dependency tree of a file.
      *
      * @param File $file
-     * @return Dependency[]
+     * @return RootFile
      */
-    public function all(File $file): array;
+    public function all(File $file): RootFile;
 }

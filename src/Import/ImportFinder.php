@@ -31,10 +31,10 @@ class ImportFinder implements ImportFinderInterface
         $results = [];
 
         foreach ($imports->getImports() as $import) {
-            $results[$import->getAs()] = [$import->getImportedFile(), $import->isVirtual()];
+            $results[$import->getAs()] = [$import->getImportedFile(), $file, $import->isVirtual(), false];
         }
         foreach ($imports->getResources() as $import) {
-            $results[$import->path] = [$import, false, true];
+            $results[$import->path] = [$import, $file, false, true];
         }
         return $results;
     }
@@ -42,7 +42,7 @@ class ImportFinder implements ImportFinderInterface
     /**
      * {@inheritdoc}
      */
-    public function all(File $file): array
+    public function all(File $file): RootFile
     {
         $files = [];
         $queue = $this->get($file);
@@ -59,19 +59,19 @@ class ImportFinder implements ImportFinderInterface
 
             foreach ($imports->getImports() as $import) {
                 if (!in_array($import->getImportedFile()->path, $seen, true)) {
-                    $queue[] = [$import->getImportedFile(), $import->isVirtual()];
+                    $queue[] = [$import->getImportedFile(), $dep[0], $import->isVirtual(), false];
                     $seen[] = $import->getImportedFile()->path;
                 }
             }
             foreach ($imports->getResources() as $import) {
                 if (!in_array($import->path, $seen, true)) {
-                    $queue[] = [$import, false, true];
+                    $queue[] = [$import, $dep[0], false, true];
                     $seen[] = $import->path;
                 }
             }
         }
 
-        return $this->toTree($files);
+        return $this->toTree($file, $files);
     }
 
     /**
@@ -104,11 +104,25 @@ class ImportFinder implements ImportFinderInterface
     }
 
     /**
-     * @param Dependency[] $files
-     * @return Dependency[]
+     * @param File  $file
+     * @param array $dependencies
+     * @return RootFile
      */
-    private function toTree(array $files): array
+    private function toTree(File $file, array $dependencies): RootFile
     {
-        return $files;
+        $root = new RootFile($file);
+        $nodes = new \SplObjectStorage();
+
+        $nodes[$file] = $root;
+
+        foreach ($dependencies as $dependency) {
+            $nodes[$dependency[0]] = new Dependency($dependency[0], $dependency[2], $dependency[3]);
+        }
+
+        foreach ($dependencies as $dependency) {
+            $nodes[$dependency[1]]->addChild($nodes[$dependency[0]]);
+        }
+
+        return $root;
     }
 }

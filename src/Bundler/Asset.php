@@ -3,6 +3,7 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\RootFile;
 
 class Asset
 {
@@ -11,15 +12,20 @@ class Asset
     private $extension;
 
     /**
-     * @param File         $file
-     * @param Dependency[] $dependencies
-     * @param string       $extension
+     * @param RootFile $file
+     * @param string   $extension
      */
-    public function __construct(File $file, array $dependencies, string $extension)
+    public function __construct(RootFile $file, string $extension)
     {
-        $this->file = $file;
-        $this->files = array_merge([new Dependency($file)], $dependencies);
+        $this->file = $file->getFile();
+        $this->files = [new Dependency($this->file)];
         $this->extension = $extension;
+
+        $walker = new TreeWalker(function (Dependency $dependency) {
+            $this->files[] = $dependency;
+        });
+
+        $walker->walk($file);
     }
 
     public function getFile(): File

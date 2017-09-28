@@ -95,7 +95,7 @@ class ContentPipeline
 
             return new ContentItem($file, $module_name, $file_reader);
         }, array_filter($dependencies, function (Dependency $d) {
-            return !$d->isVirtual();
+            return !$d->isInlineDependency();
         }));
 
         $buffer = '';

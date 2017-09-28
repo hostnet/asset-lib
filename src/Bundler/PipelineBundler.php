@@ -46,7 +46,7 @@ class PipelineBundler
         // Entry points
         foreach ($this->config->getEntryPoints() as $file_name) {
             $file        = new File($source_dir . $file_name);
-            $entry_point = new EntryPoint($file, $this->finder->all($file));
+            $entry_point = new EntryPoint($this->finder->all($file));
 
             $this->logger->debug('Checking entry-point bundle file {name}', ['name' => $entry_point->getFile()->path]);
 
@@ -61,7 +61,7 @@ class PipelineBundler
             // assets
             foreach ($entry_point->getAssetFiles() as $file) {
                 // peek for the extension... since we do not know it.
-                $asset = new Asset($file, $this->finder->all($file), $this->pipeline->peek($file));
+                $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
 
                 $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
@@ -72,7 +72,7 @@ class PipelineBundler
         // Assets
         foreach ($this->config->getAssetFiles() as $file_name) {
             $file  = new File($source_dir . $file_name);
-            $asset = new Asset($file, $this->finder->all($file), $this->pipeline->peek($file));
+            $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
 
             $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
