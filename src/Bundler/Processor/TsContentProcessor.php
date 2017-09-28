@@ -45,10 +45,16 @@ final class TsContentProcessor implements ContentProcessorInterface
             );
         }
 
+        $module_name = $item->module_name;
+
+        if (false !== ($i = strrpos($module_name, '.'))) {
+            $module_name = substr($module_name, 0, $i);
+        }
+
         $item->transition(
             ContentState::PROCESSED,
             $process->getOutput(), 'js',
-            $item->file->dir . '/' . $item->file->getBaseName()
+            $module_name
         );
     }
 }

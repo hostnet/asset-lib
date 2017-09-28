@@ -43,7 +43,7 @@ class Asset
      */
     public function getAssetFile(string $output_folder, string $source_folder): File
     {
-        $base_dir      = trim(substr($this->file->dir, strlen($source_folder)), '/');
+        $base_dir = trim(substr($this->file->dir, strlen($source_folder)), '/');
 
         if (strlen($base_dir) > 0) {
             $base_dir .= '/';

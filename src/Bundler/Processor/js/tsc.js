@@ -3,10 +3,10 @@ var ts = require("typescript");
 function compile(source) {
     var result = ts.transpileModule(source, {
         compilerOptions: {
-            inlineSourceMap: true,
+            inlineSourceMap: false,
             skipLibCheck: true,
             target: ts.ScriptTarget.ES5,
-            module: ts.ModuleKind.AMD,
+            module: ts.ModuleKind.CommonJS,
             moduleResolution: ts.ModuleResolutionKind.NodeJs,
             experimentalDecorators: true
         }

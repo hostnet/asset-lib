@@ -6,6 +6,7 @@ use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
 use Hostnet\Component\Resolver\Bundler\PipelineBundler;
 use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
+use Hostnet\Component\Resolver\Bundler\Processor\JsonProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\TsContentProcessor;
@@ -61,6 +62,7 @@ final class Packer
         $pipeline->addProcessor(new IdentityProcessor('html'));
         $pipeline->addProcessor(new IdentityProcessor('js', ContentState::PROCESSED));
         $pipeline->addProcessor(new ModuleProcessor());
+        $pipeline->addProcessor(new JsonProcessor());
 
         // LESS
         if ($config->isLessEnabled()) {

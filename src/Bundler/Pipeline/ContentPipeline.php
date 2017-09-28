@@ -74,7 +74,20 @@ class ContentPipeline
 
         /* @var $items ContentItem[] */
         $items = array_map(function (Dependency $d) use ($file_reader) {
-            return new ContentItem($d->getFile(), $d->getFile()->getName(), $file_reader);
+            $file = $d->getFile();
+            $module_name = $file->getName();
+
+            if (false !== strpos($module_name, $this->config->getSourceRoot())) {
+                $base_dir = trim(substr($file->dir, strlen($this->config->getSourceRoot())), '/');
+
+                if (strlen($base_dir) > 0) {
+                    $base_dir .= '/';
+                }
+
+                $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
+            }
+
+            return new ContentItem($file, $module_name, $file_reader);
         }, array_filter($dependencies, function (Dependency $d) {
             return !$d->isVirtual();
         }));
@@ -153,7 +166,11 @@ class ContentPipeline
             }
         }
 
-        $this->validateState($current_state, $item->getState()->current());
+        try {
+            $this->validateState($current_state, $item->getState()->current());
+        } catch (\LogicException $e) {
+            throw new \LogicException(sprintf('Failed to compile resource "%s".', $item->module_name), 0, $e);
+        }
     }
 
     /**
