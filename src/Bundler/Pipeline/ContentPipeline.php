@@ -4,6 +4,7 @@ namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\TreeWalker;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
@@ -76,9 +77,13 @@ class ContentPipeline
     {
         $this->logger->debug(' * Compiling target {name}', ['name' => $target_file->path]);
 
-        /* @var $items ContentItem[] */
-        $items = array_map(function (Dependency $d) use ($file_reader) {
-            $file = $d->getFile();
+        $buffer = '';
+
+        foreach ($dependencies as $dependency) {
+            if ($dependency->isInlineDependency()) {
+                continue;
+            }
+            $file = $dependency->getFile();
             $module_name = $file->getName();
 
             if (!empty($this->config->getSourceRoot())
@@ -93,28 +98,22 @@ class ContentPipeline
                 $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
             }
 
-            return new ContentItem($file, $module_name, $file_reader);
-        }, array_filter($dependencies, function (Dependency $d) {
-            return !$d->isInlineDependency();
-        }));
-
-        $buffer = '';
-
-        foreach ($items as $item) {
-            $cache_key = Cache::createFileCacheKey($item->file);
+            $cache_key = Cache::createFileCacheKey($file);
 
             if ($this->config->isDev()
                 && file_exists($this->config->getCacheDir() . '/' . $cache_key)
-                && !$this->checkIfChanged($target_file, $item->file)
+                && !$this->checkIfChanged($target_file, $dependency)
             ) {
                 [$content, $extension] = unserialize(file_get_contents(
                     $this->config->getCacheDir() . '/' . $cache_key
                 ), []);
 
+                $item = new ContentItem($file, $module_name, $file_reader);
                 $item->transition(ContentState::READY, $content, $extension);
 
                 $this->logger->debug('   - Emiting cached file for {name}', ['name' => $item->file->path]);
             } else {
+                $item = new ContentItem($file, $module_name, $file_reader);
                 // Transition the item until it is in a ready state.
                 while (!$item->getState()->isReady()) {
                     $this->next($item);
@@ -199,7 +198,7 @@ class ContentPipeline
         }
     }
 
-    private function checkIfChanged(File $output_file, File $file)
+    private function checkIfChanged(File $output_file, Dependency $dependency)
     {
         $file_path = $this->config->cwd() . '/' . $output_file->path;
         $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
@@ -208,6 +207,25 @@ class ContentPipeline
             return true;
         }
 
-        return $mtime < filemtime($this->config->cwd() . '/' . $file->path);
+        $files = [$dependency->getFile()->path];
+
+        // Collect all inline dependencies, since if any of those changed we need to recompile.
+        $walker = new TreeWalker(function (Dependency $d) use (&$files) {
+            if (!$d->isInlineDependency()) {
+                return false;
+            }
+
+            $files[] = $d->getFile()->path;
+        });
+        $walker->walk($dependency);
+
+        // Check if any of them changed.
+        foreach ($files as $path) {
+            if ($mtime < filemtime($this->config->cwd() . '/' . $path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

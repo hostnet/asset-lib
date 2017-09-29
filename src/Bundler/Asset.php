@@ -3,7 +3,7 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
-use Hostnet\Component\Resolver\Import\RootFile;
+use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 
 class Asset
 {
@@ -12,10 +12,10 @@ class Asset
     private $extension;
 
     /**
-     * @param RootFile $file
-     * @param string   $extension
+     * @param DependencyNodeInterface $file
+     * @param string                  $extension
      */
-    public function __construct(RootFile $file, string $extension)
+    public function __construct(DependencyNodeInterface $file, string $extension)
     {
         $this->file = $file->getFile();
         $this->files = [new Dependency($this->file)];

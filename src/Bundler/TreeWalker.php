@@ -18,9 +18,9 @@ class TreeWalker
     public function walk(DependencyNodeInterface $node): void
     {
         foreach ($node->getChildren() as $child) {
-            call_user_func($this->user_function, $child);
-
-            $this->walk($child);
+            if (false !== call_user_func($this->user_function, $child)) {
+                $this->walk($child);
+            }
         }
     }
 }
