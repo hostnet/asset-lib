@@ -10,6 +10,7 @@ use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Psr\Log\LoggerInterface;
 
@@ -98,6 +99,11 @@ class PipelineBundler
         }
     }
 
+    /**
+     * @param DependencyNodeInterface[] $dependencies
+     * @param File                      $target_file
+     * @param ReaderInterface           $file_reader
+     */
     private function write(array $dependencies, File $target_file, ReaderInterface $file_reader): void
     {
         if ($this->config->isDev() && !$this->checkIfAnyChanged($target_file, $dependencies)) {
@@ -121,15 +127,15 @@ class PipelineBundler
     /**
      * Check if the output file is newer than the input files.
      *
-     * @param File         $output_file
-     * @param Dependency[] $input_files
+     * @param File                      $output_file
+     * @param DependencyNodeInterface[] $input_files
      * @return bool
      */
     private function checkIfAnyChanged(File $output_file, array $input_files): bool
     {
         // did the sources change?
         $sources_file = $this->config->getCacheDir() . '/' . Cache::createFileCacheKey($output_file) . '.sources';
-        $input_sources = array_map(function (Dependency $d) {
+        $input_sources = array_map(function (DependencyNodeInterface $d) {
             return $d->getFile()->path;
         }, $input_files);
 

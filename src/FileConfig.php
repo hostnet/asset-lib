@@ -60,17 +60,6 @@ class FileConfig implements ConfigInterface
     }
 
     /**
-     * Return a key under the 'config' section.
-     *
-     * @param string $key
-     * @return string
-     */
-    public function get(string $key): string
-    {
-        return $this->data['config'][$key];
-    }
-
-    /**
      * Return the output folder in which to dump the compiled assets. This is
      * relative to the web root.
      *
@@ -78,9 +67,9 @@ class FileConfig implements ConfigInterface
      */
     public function getOutputFolder(): string
     {
-        $output_folder = $this->isDev() && isset($this->data['output-folder-dev'])
-            ? $this->data['output-folder-dev']
-            : $this->data['output-folder'];
+        $output_folder = $this->isDev()
+            ? ($this->data['output-folder-dev'] ?? 'dev')
+            : ($this->data['output-folder'] ?? 'dist');
 
         return $output_folder;
     }
@@ -150,7 +139,7 @@ class FileConfig implements ConfigInterface
      */
     public function isLessEnabled(): bool
     {
-        return in_array('less', $this->data['loaders'], true);
+        return in_array('less', $this->data['loaders'] ?? [], true);
     }
 
     /**
@@ -160,7 +149,7 @@ class FileConfig implements ConfigInterface
      */
     public function isTsEnabled(): bool
     {
-        return in_array('ts', $this->data['loaders'], true);
+        return in_array('ts', $this->data['loaders'] ?? [], true);
     }
 
     /**
@@ -170,6 +159,6 @@ class FileConfig implements ConfigInterface
      */
     public function isAngularEnabled(): bool
     {
-        return in_array('angular', $this->data['loaders'], true);
+        return in_array('angular', $this->data['loaders'] ?? [], true);
     }
 }

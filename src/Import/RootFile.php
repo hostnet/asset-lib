@@ -10,7 +10,7 @@ class RootFile implements DependencyNodeInterface
     private $file;
 
     /**
-     * @var Dependency[]|array
+     * @var DependencyNodeInterface[]|array
      */
     private $children = [];
 
@@ -24,16 +24,26 @@ class RootFile implements DependencyNodeInterface
         return $this->file;
     }
 
-    public function addChild(Dependency $dependency): void
+    public function addChild(DependencyNodeInterface $dependency): void
     {
         $this->children[] = $dependency;
     }
 
     /**
-     * @return array|Dependency[]
+     * @return array|DependencyNodeInterface[]
      */
     public function getChildren(): array
     {
         return $this->children;
+    }
+
+    public function isInlineDependency(): bool
+    {
+        return false;
+    }
+
+    public function isStatic(): bool
+    {
+        return false;
     }
 }

@@ -20,22 +20,6 @@ class File
     }
 
     /**
-     * Check if the given path is absolute.
-     *
-     * @param string $path
-     * @return bool
-     */
-    public static function isAbsolutePath(string $path): bool
-    {
-        // Windows check...
-        if (DIRECTORY_SEPARATOR === '\\' && 1 === preg_match('/^[A-Z]:/', $path)) {
-            return true;
-        }
-
-        return $path[0] === '/';
-    }
-
-    /**
      * Return the name of the import. This is usually the file or module name.
      *
      * @return string
@@ -91,5 +75,21 @@ class File
         }
 
         return implode('/', $absolutes);
+    }
+
+    /**
+     * Check if the given path is absolute.
+     *
+     * @param string $path
+     * @return bool
+     */
+    public static function isAbsolutePath(string $path): bool
+    {
+        // Windows check...
+        if (DIRECTORY_SEPARATOR === '\\' && 1 === preg_match('/^[A-Z]:/', $path)) {
+            return true;
+        }
+
+        return $path[0] === '/';
     }
 }

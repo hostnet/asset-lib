@@ -12,6 +12,7 @@ cache:
 
 matrix:
   include:
+    # PHP tests
     - language: php
       php: 7.1
       env: COMPOSER_FLAGS="--prefer-lowest"
@@ -30,6 +31,8 @@ matrix:
       before_script:
         - composer update $COMPOSER_FLAGS --prefer-dist
       script: vendor/bin/phpunit
+
+    # JS tests
     - language: node_js
       node_js: 8.5.0
       before_script:

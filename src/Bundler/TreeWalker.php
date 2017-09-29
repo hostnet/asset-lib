@@ -14,7 +14,6 @@ class TreeWalker
         $this->user_function = $user_function;
     }
 
-
     public function walk(DependencyNodeInterface $node): void
     {
         foreach ($node->getChildren() as $child) {

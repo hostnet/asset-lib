@@ -23,7 +23,7 @@ class ImportFinder implements ImportFinderInterface
 
     /**
      * @param File $file
-     * @return Dependency[]
+     * @return DependencyNodeInterface[]
      */
     private function get(File $file): array
     {

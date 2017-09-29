@@ -1,6 +1,7 @@
 <?php
 
 namespace Hostnet\Component\Resolver\Import;
+
 use Hostnet\Component\Resolver\File;
 
 /**
@@ -15,7 +16,7 @@ final class Dependency implements DependencyNodeInterface
     private $static;
 
     /**
-     * @var Dependency[]|array
+     * @var DependencyNodeInterface[]|array
      */
     private $children = [];
 
@@ -54,7 +55,7 @@ final class Dependency implements DependencyNodeInterface
         return $this->static;
     }
 
-    public function addChild(Dependency $dependency): void
+    public function addChild(DependencyNodeInterface $dependency): void
     {
         $this->children[] = $dependency;
     }

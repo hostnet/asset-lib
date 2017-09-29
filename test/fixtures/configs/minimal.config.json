@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "web-root": "web",
+  "node": {
+    "bin" : "/usr/bin/node",
+    "node_modules" : "/home/me/node_modules"
+  }
+}

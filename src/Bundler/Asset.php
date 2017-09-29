@@ -2,9 +2,16 @@
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 
+/**
+ * An asset represent a since input file which needs to be written to the
+ * source folder. Assets can contain multiple files but will always output one
+ * file. Furthermore, assets will be outputted to the same path in the output
+ * folder as they have in the source folder.
+ *
+ * For instance: sources/styles/layout.css will be outputted as web/styles/layout.css.
+ */
 class Asset
 {
     private $file;
@@ -18,23 +25,31 @@ class Asset
     public function __construct(DependencyNodeInterface $file, string $extension)
     {
         $this->file = $file->getFile();
-        $this->files = [new Dependency($this->file)];
+        $this->files = [$file];
         $this->extension = $extension;
 
-        $walker = new TreeWalker(function (Dependency $dependency) {
+        $walker = new TreeWalker(function (DependencyNodeInterface $dependency) {
             $this->files[] = $dependency;
         });
 
         $walker->walk($file);
     }
 
+    /**
+     * Return the file from which the asset needs to be created. This is the
+     * source file.
+     *
+     * @return File
+     */
     public function getFile(): File
     {
         return $this->file;
     }
 
     /**
-     * @return Dependency[]
+     * Return all files which are part of this asset.
+     *
+     * @return DependencyNodeInterface[]
      */
     public function getFiles(): array
     {
@@ -42,7 +57,7 @@ class Asset
     }
 
     /**
-     * Return the asset file name.
+     * Return the asset file name. This is the target file name.
      *
      * @param string $output_folder
      * @return File

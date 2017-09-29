@@ -2,7 +2,7 @@
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\RootFile;
 
 /**
@@ -16,16 +16,16 @@ class EntryPoint
     private $vendor_files;
     private $asset_files;
 
-    public function __construct(RootFile $file)
+    public function __construct(DependencyNodeInterface $file)
     {
         $this->file = $file->getFile();
 
         // Split the input files into bundle and vendor files.
-        $this->bundle_files = [new Dependency($this->file)];
+        $this->bundle_files = [$file];
         $this->vendor_files = [];
         $this->asset_files = [];
 
-        $walker = new TreeWalker(function (Dependency $dependency) {
+        $walker = new TreeWalker(function (DependencyNodeInterface $dependency) {
             if ($dependency->isStatic()) {
                 $this->asset_files[] = $dependency->getFile();
             } elseif (0 === strpos($dependency->getFile()->path, 'node_modules/')) {
@@ -44,7 +44,7 @@ class EntryPoint
     }
 
     /**
-     * @return Dependency[]
+     * @return DependencyNodeInterface[]
      */
     public function getBundleFiles(): array
     {
@@ -52,7 +52,7 @@ class EntryPoint
     }
 
     /**
-     * @return Dependency[]
+     * @return DependencyNodeInterface[]
      */
     public function getVendorFiles(): array
     {

@@ -10,4 +10,8 @@ interface DependencyNodeInterface
     public function getChildren(): array;
 
     public function getFile(): File;
+
+    public function isInlineDependency(): bool;
+
+    public function isStatic(): bool;
 }

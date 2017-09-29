@@ -10,7 +10,7 @@ use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -68,9 +68,9 @@ class ContentPipeline
     /**
      * Push a bundled file on the pipeline with a list of dependencies.
      *
-     * @param Dependency[]    $dependencies
-     * @param File            $target_file
-     * @param ReaderInterface $file_reader
+     * @param DependencyNodeInterface[] $dependencies
+     * @param File                      $target_file
+     * @param ReaderInterface           $file_reader
      * @return string
      */
     public function push(array $dependencies, File $target_file, ReaderInterface $file_reader): string
@@ -79,6 +79,7 @@ class ContentPipeline
 
         $buffer = '';
 
+        /* @var $dependency DependencyNodeInterface */
         foreach ($dependencies as $dependency) {
             if ($dependency->isInlineDependency()) {
                 continue;
@@ -198,7 +199,7 @@ class ContentPipeline
         }
     }
 
-    private function checkIfChanged(File $output_file, Dependency $dependency)
+    private function checkIfChanged(File $output_file, DependencyNodeInterface $dependency)
     {
         $file_path = $this->config->cwd() . '/' . $output_file->path;
         $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
@@ -210,7 +211,7 @@ class ContentPipeline
         $files = [$dependency->getFile()->path];
 
         // Collect all inline dependencies, since if any of those changed we need to recompile.
-        $walker = new TreeWalker(function (Dependency $d) use (&$files) {
+        $walker = new TreeWalker(function (DependencyNodeInterface $d) use (&$files) {
             if (!$d->isInlineDependency()) {
                 return false;
             }
