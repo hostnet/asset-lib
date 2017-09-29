@@ -41,6 +41,24 @@ class PipelineBundler
         $output_folder = $this->config->getWebRoot() . '/' . $this->config->getOutputFolder();
         $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
+        $require_file_name = 'require' . ($this->config->isDev() ? '' : '.min') . '.js';
+
+        // put the require.js in the web folder
+        $require_file = new File(File::clean(__DIR__ . '/../Resources/' . $require_file_name));
+        $output_require_file = new File($output_folder . '/require.js');
+
+        if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
+            $this->logger->debug('Writing require.js file to {name}', ['name' => $output_require_file->path]);
+
+            $path = $this->config->cwd() . '/' . $output_require_file->path;
+
+            if (!file_exists(dirname($path))) {
+                mkdir(dirname($path), 0777, true);
+            }
+
+            copy($require_file->path, $path);
+        }
+
         $file_reader = new FileReader($this->config->cwd());
 
         // Entry points
@@ -144,7 +162,13 @@ class PipelineBundler
         }
 
         foreach ($input_files as $input_file) {
-            if ($mtime < filemtime($this->config->cwd() . '/' . $input_file->getFile()->path)) {
+            $path = $input_file->getFile()->path;
+
+            if (!File::isAbsolutePath($path)) {
+                $path = $this->config->cwd() . '/' . $path;
+            }
+
+            if ($mtime < filemtime($path)) {
                 return true;
             }
         }

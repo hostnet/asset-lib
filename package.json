@@ -12,10 +12,13 @@
     "url": "https://github.com/hostnet/resolver-lib/issues"
   },
   "dependencies": {
-    "typescript": "^2.5.0",
+    "clean-css": "^4.1.9",
     "less": "^2.7.0",
-    "uglify-js": "^3.1.0",
-    "clean-css": "^4.1.9"
+    "typescript": "^2.5.0",
+    "uglify-js": "^3.1.0"
+  },
+  "devDependencies": {
+    "jasmine": "^2.8.0"
   },
   "homepage": "https://github.com/hostnet/resolver-lib#readme"
 }
