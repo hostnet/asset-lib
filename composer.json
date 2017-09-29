@@ -1,5 +1,5 @@
 {
-    "name":        "hostnet/resolver-lib",
+    "name":        "hostnet/asset-lib",
     "type":        "hostnet-lib",
     "description": "Tool for finding all dependencies given a set of input files.",
     "license":     "MIT",
