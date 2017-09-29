@@ -23,10 +23,11 @@ class FileTest extends TestCase
         self::assertTrue($file->equals(new File(__FILE__)));
         self::assertFalse($file->equals(new File('someOtherFile.php')));
 
-        self::assertEquals(__FILE__, File::clean(__FILE__));
-        self::assertEquals(__DIR__, File::clean(__DIR__));
-        self::assertEquals(__FILE__, File::clean(__DIR__ . '/../test/FileTest.php'));
-        self::assertEquals(__FILE__, File::clean(__DIR__ . '/./FileTest.php'));
+        self::assertEquals('/some/file.php', File::clean('/some/file.php'));
+        self::assertEquals('/some/dir', File::clean('/some/dir'));
+        self::assertEquals('/some/test/FileTest.php', File::clean('/some/dir/../test/FileTest.php'));
+        self::assertEquals('/some/dir/FileTest.php', File::clean('/some/dir/./FileTest.php'));
+
         self::assertTrue(File::isAbsolutePath(__DIR__));
         self::assertFalse(File::isAbsolutePath('some/other/path'));
         self::assertFalse(File::isAbsolutePath('./some/other/path'));
