@@ -5,7 +5,6 @@
     "license":     "MIT",
     "require": {
         "php":              ">=7.0",
-        "psr/simple-cache": "^0.3",
         "symfony/console":  "^3.3",
         "symfony/event-dispatcher": "^3.3"
     },
