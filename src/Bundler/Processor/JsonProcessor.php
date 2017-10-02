@@ -17,7 +17,7 @@ final class JsonProcessor implements ContentProcessorInterface
 
     public function peek(string $cwd, ContentState $state): void
     {
-        $state->transition(ContentState::PROCESSED, 'json');
+        $state->transition(ContentState::PROCESSED, 'js');
     }
 
     public function transpile(string $cwd, ContentItem $item): void
