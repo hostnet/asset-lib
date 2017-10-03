@@ -105,8 +105,8 @@ final class Packer
         }
 
         if (!$config->isDev()) {
-            $uglify_listener = new UglifyJsListener($nodejs, $project_root . '/var/assets');
-            $cleancss_listener = new CleanCssListener($nodejs, $project_root . '/var/assets');
+            $uglify_listener = new UglifyJsListener($nodejs);
+            $cleancss_listener = new CleanCssListener($nodejs);
 
             $dispatcher->addListener(AssetEvents::READY, [$uglify_listener, 'onPreWrite']);
             $dispatcher->addListener(AssetEvents::READY, [$cleancss_listener, 'onPreWrite']);
