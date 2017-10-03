@@ -1,9 +1,13 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\EventListener;
 
+use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
-use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Symfony\Component\Process\ProcessBuilder;
 
 class CleanCssListener

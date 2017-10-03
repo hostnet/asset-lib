@@ -53,7 +53,7 @@ class JsImportCollectorTest extends TestCase
     public function testCollect()
     {
         $imports = new ImportCollection();
-        $file = new File('resolver/js/require-syntax/main.js');
+        $file    = new File('resolver/js/require-syntax/main.js');
 
         $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
@@ -76,7 +76,7 @@ class JsImportCollectorTest extends TestCase
     public function testCollectBadRequires()
     {
         $imports = new ImportCollection();
-        $file = new File('resolver/js/require-syntax/red_haring.js');
+        $file    = new File('resolver/js/require-syntax/red_haring.js');
 
         $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
@@ -87,7 +87,7 @@ class JsImportCollectorTest extends TestCase
     public function testCollectRequireException()
     {
         $resolver = $this->prophesize(FileResolverInterface::class);
-        $imports = new ImportCollection();
+        $imports  = new ImportCollection();
 
         $resolver->asRequire(Argument::any(), Argument::any())->willThrow(new \RuntimeException());
 

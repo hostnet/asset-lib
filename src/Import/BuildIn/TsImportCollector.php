@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\BuildIn;
@@ -19,7 +22,7 @@ final class TsImportCollector implements ImportCollectorInterface
     public function __construct(JsImportCollector $js_import_collector, FileResolverInterface $nodejs_resolver)
     {
         $this->js_import_collector = $js_import_collector;
-        $this->nodejs_resolver = $nodejs_resolver;
+        $this->nodejs_resolver     = $nodejs_resolver;
     }
 
     /**
@@ -36,7 +39,7 @@ final class TsImportCollector implements ImportCollectorInterface
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
         $content = file_get_contents($cwd . '/' . $file->path);
-        $n = preg_match_all('/import(.*from)?\s+["\'](.*)["\'];/', $content, $matches);
+        $n       = preg_match_all('/import(.*from)?\s+["\'](.*)["\'];/', $content, $matches);
 
         $this->js_import_collector->collect($cwd, $file, $imports);
 
@@ -44,7 +47,7 @@ final class TsImportCollector implements ImportCollectorInterface
             $path = $matches[2][$i];
 
             try {
-                $import = $this->nodejs_resolver->asRequire($path, $file);
+                $import    = $this->nodejs_resolver->asRequire($path, $file);
                 $base_name = basename($import->getImportedFile()->path);
 
                 $ext = substr($base_name, strpos($base_name, '.'));

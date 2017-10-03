@@ -68,7 +68,10 @@ class ContentPipelineTest extends TestCase
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
 
-        self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader));
+        self::assertEquals(
+            "foobar\nfoobar\n",
+            $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader)
+        );
     }
 
     /**
@@ -89,7 +92,10 @@ class ContentPipelineTest extends TestCase
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
 
-        self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader));
+        self::assertEquals(
+            "foobar\nfoobar\n",
+            $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader)
+        );
     }
 
     public function testPushDevAlreadyUpToDate()
@@ -107,7 +113,10 @@ class ContentPipelineTest extends TestCase
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
 
-        self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader));
+        self::assertEquals(
+            "foobar\nfoobar\n",
+            $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader)
+        );
     }
 
     /**

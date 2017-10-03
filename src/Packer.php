@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
 
@@ -37,7 +41,7 @@ final class Packer
     public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false)
     {
         $config = new FileConfig($dev, $project_root . '/resolve.config.json');
-        $cache = new Cache($config->getCacheDir() . '/dependencies');
+        $cache  = new Cache($config->getCacheDir() . '/dependencies');
         $cache->load();
 
         $dispatcher = new EventDispatcher();
@@ -105,7 +109,7 @@ final class Packer
         }
 
         if (!$config->isDev()) {
-            $uglify_listener = new UglifyJsListener($nodejs);
+            $uglify_listener   = new UglifyJsListener($nodejs);
             $cleancss_listener = new CleanCssListener($nodejs);
 
             $dispatcher->addListener(AssetEvents::READY, [$uglify_listener, 'onPreWrite']);

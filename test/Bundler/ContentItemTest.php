@@ -5,8 +5,8 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
-use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use PHPUnit\Framework\TestCase;
 
 /**

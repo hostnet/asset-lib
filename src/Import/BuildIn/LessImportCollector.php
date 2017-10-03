@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\BuildIn;
@@ -27,7 +30,7 @@ final class LessImportCollector implements ImportCollectorInterface
     public function collect(string $cwd, File $file, ImportCollection $imports)
     {
         $content = file_get_contents($cwd . '/' . $file->path);
-        $n = preg_match_all('/@import (\([a-z,\s]*\)\s*)?(url\()?(\'([^\']+)\'|"([^"]+)")/', $content, $matches);
+        $n       = preg_match_all('/@import (\([a-z,\s]*\)\s*)?(url\()?(\'([^\']+)\'|"([^"]+)")/', $content, $matches);
 
         for ($i = 0; $i < $n; $i++) {
             $path = $matches[4][$i] ?: $matches[5][$i];

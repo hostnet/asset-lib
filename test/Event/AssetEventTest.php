@@ -17,7 +17,7 @@ class AssetEventTest extends TestCase
 {
     public function testGeneric()
     {
-        $item = new ContentItem(new File('foo.bar'), 'foo', new StringReader('foobar'));
+        $item  = new ContentItem(new File('foo.bar'), 'foo', new StringReader('foobar'));
         $event = new AssetEvent($item);
 
         self::assertSame($item, $event->getItem());
