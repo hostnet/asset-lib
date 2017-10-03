@@ -40,12 +40,12 @@ final class FileResolver implements FileResolverInterface
             // 2. If X begins with '/'
             // a. LOAD_AS_FILE(Y + X)
             try {
-                return new Import($name, new File($this->asFile($name)), $parent);
+                return new Import($name, new File($this->asFile($name)));
             } catch (FileNotFoundException $e) {
                 // b. LOAD_AS_DIRECTORY(Y + X)
                 $f = new File($this->asDir($name));
 
-                return new Import($name, $f, $parent);
+                return new Import($name, $f);
             }
         }
 
@@ -59,7 +59,7 @@ final class FileResolver implements FileResolverInterface
                     $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->path);
                 }
 
-                return new Import($name, $f, $parent);
+                return new Import($name, $f);
             } catch (FileNotFoundException $e) {
                 // b. LOAD_AS_DIRECTORY(Y + X)
                 $f = new File($this->asDir($parent->dir . '/' . $name));
@@ -68,12 +68,12 @@ final class FileResolver implements FileResolverInterface
                     $f = new Module(File::clean($parent->getParentName() . '/' . $name), $f->path);
                 }
 
-                return new Import($name, $f, $parent);
+                return new Import($name, $f);
             }
         }
 
         // 4. LOAD_NODE_MODULES(X, dirname(Y))
-        return new Import($name, new Module($name, $this->asModule($name)), $parent);
+        return new Import($name, new Module($name, $this->asModule($name)));
     }
 
     /**

@@ -36,7 +36,7 @@ final class AngularImportCollector implements ImportCollectorInterface
                     $file_path = $file->dir . substr($file_path, 1);
                 }
 
-                $imports->addImport(new Import($file_path, new File($file_path), $file, true));
+                $imports->addImport(new Import($file_path, new File($file_path), true));
             }
         }
         if (preg_match_all('/styleUrls *:(\s*\[[^\]]*?\])/', $content, $matches) > 0) {
@@ -49,7 +49,7 @@ final class AngularImportCollector implements ImportCollectorInterface
                             $file_path = $file->dir . substr($file_path, 1);
                         }
 
-                        $imports->addImport(new Import($file_path, new File($file_path), $file, true));
+                        $imports->addImport(new Import($file_path, new File($file_path), true));
                     }
                 }
             }

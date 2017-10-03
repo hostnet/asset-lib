@@ -22,21 +22,13 @@ class ImportFinder implements ImportFinderInterface
     }
 
     /**
-     * @param File $file
-     * @return DependencyNodeInterface[]
+     * Add a collector the the finder.
+     *
+     * @param ImportCollectorInterface $import_collector
      */
-    private function get(File $file): array
+    public function addCollector(ImportCollectorInterface $import_collector)
     {
-        $imports = $this->findImports($file);
-        $results = [];
-
-        foreach ($imports->getImports() as $import) {
-            $results[$import->getAs()] = [$import->getImportedFile(), $file, $import->isVirtual(), false];
-        }
-        foreach ($imports->getResources() as $import) {
-            $results[$import->path] = [$import, $file, false, true];
-        }
-        return $results;
+        $this->import_collectors[] = $import_collector;
     }
 
     /**
@@ -75,13 +67,21 @@ class ImportFinder implements ImportFinderInterface
     }
 
     /**
-     * Add a collector the the finder.
-     *
-     * @param ImportCollectorInterface $import_collector
+     * @param File $file
+     * @return DependencyNodeInterface[]
      */
-    public function addCollector(ImportCollectorInterface $import_collector)
+    private function get(File $file): array
     {
-        $this->import_collectors[] = $import_collector;
+        $imports = $this->findImports($file);
+        $results = [];
+
+        foreach ($imports->getImports() as $import) {
+            $results[$import->getAs()] = [$import->getImportedFile(), $file, $import->isVirtual(), false];
+        }
+        foreach ($imports->getResources() as $import) {
+            $results[$import->path] = [$import, $file, false, true];
+        }
+        return $results;
     }
 
     /**

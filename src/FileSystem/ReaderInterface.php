@@ -1,5 +1,5 @@
 <?php
-namespace Hostnet\Component\Resolver\Bundler\Pipeline;
+namespace Hostnet\Component\Resolver\FileSystem;
 
 use Hostnet\Component\Resolver\File;
 

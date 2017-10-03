@@ -2,7 +2,7 @@
 
 namespace Hostnet\Component\Resolver\Bundler;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\ReaderInterface;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\File;
 
 class ContentItem

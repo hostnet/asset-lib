@@ -8,6 +8,8 @@ namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
 use Hostnet\Component\Resolver\Module;
@@ -90,9 +92,6 @@ class ContentPipelineTest extends TestCase
         self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader));
     }
 
-    /**
-     * This works because no output file is made
-     */
     public function testPushDevAlreadyUpToDate()
     {
         $this->config->isDev()->willReturn(true);

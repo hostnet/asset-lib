@@ -53,8 +53,16 @@ class AngularImportCollectorTest extends TestCase
         $this->angular_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
         self::assertEquals([
-            new Import('resolver/ts/angular/app.component.html', new File('resolver/ts/angular/app.component.html'), $file, true),
-            new Import('resolver/ts/angular/app.component.less', new File('resolver/ts/angular/app.component.less'), $file, true),
+            new Import(
+                'resolver/ts/angular/app.component.html',
+                new File('resolver/ts/angular/app.component.html'),
+                true
+            ),
+            new Import(
+                'resolver/ts/angular/app.component.less',
+                new File('resolver/ts/angular/app.component.less'),
+                true
+            ),
         ], $imports->getImports());
         self::assertEquals([], $imports->getResources());
     }

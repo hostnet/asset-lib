@@ -4,11 +4,13 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
-use Hostnet\Component\Resolver\Bundler\Pipeline\FileReader;
-use Hostnet\Component\Resolver\Bundler\Pipeline\ReaderInterface;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
+use Hostnet\Component\Resolver\FileSystem\FileWriter;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
@@ -36,10 +38,14 @@ class PipelineBundler
     /**
      * Execute the bundler. This will compile all the entry points and assets
      * defined in the config.
+     *
+     * @param ReaderInterface $reader
+     * @param WriterInterface $writer
      */
-    public function execute()
+    public function execute(ReaderInterface $reader, WriterInterface $writer)
     {
-        $output_folder = $this->config->getWebRoot() . '/' . $this->config->getOutputFolder();
+        $output_folder = $this->config->getWebRoot();
+        $output_folder .= (!empty($output_folder) ? '/' : '') . $this->config->getOutputFolder();
         $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
         $require_file_name = 'require' . ($this->config->isDev() ? '' : '.min') . '.js';
@@ -51,16 +57,8 @@ class PipelineBundler
         if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
             $this->logger->debug('Writing require.js file to {name}', ['name' => $output_require_file->path]);
 
-            $path = $this->config->cwd() . '/' . $output_require_file->path;
-
-            if (!file_exists(dirname($path))) {
-                mkdir(dirname($path), 0777, true);
-            }
-
-            copy($require_file->path, $path);
+            $writer->write($output_require_file, $reader->read($require_file));
         }
-
-        $file_reader = new FileReader($this->config->cwd());
 
         // Entry points
         foreach ($this->config->getEntryPoints() as $file_name) {
@@ -70,12 +68,22 @@ class PipelineBundler
             $this->logger->debug('Checking entry-point bundle file {name}', ['name' => $entry_point->getFile()->path]);
 
             // bundle
-            $this->write($entry_point->getBundleFiles(), $entry_point->getBundleFile($output_folder), $file_reader);
+            $this->write(
+                $entry_point->getBundleFiles(),
+                $entry_point->getBundleFile($output_folder),
+                $reader,
+                $writer
+            );
 
             $this->logger->debug('Checking entry-point vendor file {name}', ['name' => $entry_point->getFile()->path]);
 
             // vendor
-            $this->write($entry_point->getVendorFiles(), $entry_point->getVendorFile($output_folder), $file_reader);
+            $this->write(
+                $entry_point->getVendorFiles(),
+                $entry_point->getVendorFile($output_folder),
+                $reader,
+                $writer
+            );
 
             // assets
             foreach ($entry_point->getAssetFiles() as $file) {
@@ -84,7 +92,12 @@ class PipelineBundler
 
                 $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-                $this->write($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
+                $this->write(
+                    $asset->getFiles(),
+                    $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
+                    $reader,
+                    $writer
+                );
             }
         }
 
@@ -95,33 +108,31 @@ class PipelineBundler
 
             $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
-            $this->write($asset->getFiles(), $asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $file_reader);
+            $this->write(
+                $asset->getFiles(),
+                $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
+                $reader,
+                $writer
+            );
         }
     }
 
     /**
      * @param DependencyNodeInterface[] $dependencies
-     * @param File                      $target_file
-     * @param ReaderInterface           $file_reader
+     * @param File                      $target
+     * @param ReaderInterface           $reader
+     * @param WriterInterface           $writer
      */
-    private function write(array $dependencies, File $target_file, ReaderInterface $file_reader): void
+    private function write(array $dependencies, File $target, ReaderInterface $reader, WriterInterface $writer): void
     {
-        if ($this->config->isDev() && !$this->checkIfAnyChanged($target_file, $dependencies)) {
+        if ($this->config->isDev() && !$this->checkIfAnyChanged($target, $dependencies)) {
             $this->logger->debug(' * Target already up to date');
             return;
         }
 
-        $this->logger->debug(' * Compiling target {name}', ['name' => $target_file->path]);
+        $this->logger->debug(' * Compiling target {name}', ['name' => $target->path]);
 
-        $content = $this->pipeline->push($dependencies, $target_file, $file_reader);
-
-        $path = $this->config->cwd() . '/' . $target_file->path;
-
-        if (!file_exists(dirname($path))) {
-            mkdir(dirname($path), 0777, true);
-        }
-
-        file_put_contents($path, $content);
+        $writer->write($target, $this->pipeline->push($dependencies, $target, $reader));
     }
 
     /**
@@ -160,7 +171,7 @@ class PipelineBundler
         }
 
         // Did the files change?
-        $file_path = $this->config->cwd() . '/' . $output_file->path;
+        $file_path = (File::isAbsolutePath($output_file->path) ? '' : ($this->config->cwd() . '/')) . $output_file->path;
         $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {

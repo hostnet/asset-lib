@@ -4,7 +4,6 @@ namespace Hostnet\Component\Resolver\Cache;
 
 use Hostnet\Component\Resolver\Cache\Exception\InvalidArgumentException;
 use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\Module;
 
 final class Cache implements FileCacheInterface
 {
@@ -22,12 +21,12 @@ final class Cache implements FileCacheInterface
      * always the same for each file and it's location. The same file in a
      * different folder should have a different key.
      *
-     * @param File $output_file
+     * @param File $file
      * @return string
      */
-    public static function createFileCacheKey(File $output_file): string
+    public static function createFileCacheKey(File $file): string
     {
-        return substr(md5($output_file->path), 0, 5) . '_' . str_replace('/', '.', $output_file->path);
+        return substr(md5($file->path), 0, 5) . '_' . str_replace('/', '.', $file->path);
     }
 
     /**
@@ -95,7 +94,7 @@ final class Cache implements FileCacheInterface
             return;
         }
 
-        if (false !== ($data = @unserialize(file_get_contents($this->file), [File::class, Module::class]))) {
+        if (false !== ($data = @unserialize(file_get_contents($this->file)))) {
             $this->data = $data;
         }
     }

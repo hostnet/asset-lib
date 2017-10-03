@@ -3,13 +3,14 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
-namespace Hostnet\Component\Resolver\Bundler\Pipeline;
+namespace Hostnet\Component\Resolver\FileSystem;
 
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Bundler\Pipeline\FileReader
+ * @covers \Hostnet\Component\Resolver\FileSystem\FileReader
  */
 class FileReaderTest extends TestCase
 {
@@ -17,6 +18,6 @@ class FileReaderTest extends TestCase
     {
         $reader = new FileReader(__DIR__);
 
-        self::assertEquals("console.log('foobar');\n", $reader->read(new File('fixtures/input.js')));
+        self::assertEquals("console.log('foobar');\n", $reader->read(new File('input.js')));
     }
 }

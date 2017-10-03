@@ -8,14 +8,12 @@ use Hostnet\Component\Resolver\File;
 final class Import
 {
     private $as;
-    private $parent;
     private $import;
     private $virtual;
 
-    public function __construct(string $as, File $import, File $parent, bool $virtual = false)
+    public function __construct(string $as, File $import, bool $virtual = false)
     {
         $this->as = $as;
-        $this->parent = $parent;
         $this->import = $import;
         $this->virtual = $virtual;
     }

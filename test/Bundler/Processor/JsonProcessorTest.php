@@ -7,7 +7,7 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Pipeline\StringReader;
+use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\File;
 use PHPUnit\Framework\TestCase;
 

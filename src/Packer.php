@@ -16,6 +16,8 @@ use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\EventListener\AngularHtmlListener;
 use Hostnet\Component\Resolver\EventListener\CleanCssListener;
 use Hostnet\Component\Resolver\EventListener\UglifyJsListener;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
+use Hostnet\Component\Resolver\FileSystem\FileWriter;
 use Hostnet\Component\Resolver\Import\BuildIn\AngularImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuildIn\LessImportCollector;
@@ -116,7 +118,7 @@ final class Packer
             $logger,
             $config
         );
-        $bundler->execute();
+        $bundler->execute(new FileReader($config->cwd()), new FileWriter($config->cwd()));
 
         if ($config->isDev()) {
             $cache->save();

@@ -56,13 +56,16 @@ class JsImportCollectorTest extends TestCase
         $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
         self::assertEquals([
-            new Import('./single_quote', new File('resolver/js/require-syntax/single_quote.js'), $file),
-            new Import('./double_quote', new File('resolver/js/require-syntax/double_quote.js'), $file),
-            new Import('module_index', new Module('module_index', 'node_modules/module_index/index.js'), $file),
-            new Import('module_package', new Module('module_package', 'node_modules/module_package/main.js'), $file),
-            new Import('module_package_dir', new Module('module_package_dir', 'node_modules/module_package_dir/src/index.js'), $file),
-            new Import('./relative', new File('resolver/js/require-syntax/relative.js'), $file),
-            new Import('../relative', new File('resolver/js/relative.js'), $file),
+            new Import('./single_quote', new File('resolver/js/require-syntax/single_quote.js')),
+            new Import('./double_quote', new File('resolver/js/require-syntax/double_quote.js')),
+            new Import('module_index', new Module('module_index', 'node_modules/module_index/index.js')),
+            new Import('module_package', new Module('module_package', 'node_modules/module_package/main.js')),
+            new Import(
+                'module_package_dir',
+                new Module('module_package_dir', 'node_modules/module_package_dir/src/index.js')
+            ),
+            new Import('./relative', new File('resolver/js/require-syntax/relative.js')),
+            new Import('../relative', new File('resolver/js/relative.js')),
         ], $imports->getImports());
 
         self::assertEquals([], $imports->getResources());

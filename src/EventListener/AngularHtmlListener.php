@@ -3,7 +3,7 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\Asset;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
-use Hostnet\Component\Resolver\Bundler\Pipeline\FileReader;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;

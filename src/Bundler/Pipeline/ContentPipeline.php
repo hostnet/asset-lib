@@ -10,6 +10,8 @@ use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
+use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

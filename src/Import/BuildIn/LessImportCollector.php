@@ -37,11 +37,11 @@ final class LessImportCollector implements ImportCollectorInterface
                 continue;
             }
 
-            $import = new Import($path, new File(File::clean($file->dir . '/' . $path)), $file, true);
+            $import = new Import($path, new File(File::clean($file->dir . '/' . $path)), true);
 
             if (empty($import->getImportedFile()->extension)) {
                 // all imports are virtual, since the less compiler will squash everything.
-                $import = new Import($path, new File($import->getImportedFile()->path . '.less'), $file, true);
+                $import = new Import($path, new File($import->getImportedFile()->path . '.less'), true);
             }
 
             $imports->addImport($import);

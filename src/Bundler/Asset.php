@@ -66,6 +66,10 @@ class Asset
     {
         $base_dir = trim(substr($this->file->dir, strlen($source_folder)), '/');
 
+        if ($base_dir === '.') {
+            $base_dir = '';
+        }
+
         if (strlen($base_dir) > 0) {
             $base_dir .= '/';
         }
