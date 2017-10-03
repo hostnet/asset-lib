@@ -9,12 +9,10 @@ use Symfony\Component\Process\ProcessBuilder;
 class UglifyJsListener
 {
     private $nodejs;
-    private $cache_dir;
 
-    public function __construct(Executable $nodejs, string $cache_dir)
+    public function __construct(Executable $nodejs)
     {
         $this->nodejs = $nodejs;
-        $this->cache_dir = $cache_dir;
     }
 
     /**
