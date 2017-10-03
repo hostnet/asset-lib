@@ -6,11 +6,13 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\BuildIn;
 
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 use Hostnet\Component\Resolver\Module;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 /**
  * @covers \Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector
@@ -77,6 +79,24 @@ class JsImportCollectorTest extends TestCase
         $file = new File('resolver/js/require-syntax/red_haring.js');
 
         $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
+
+        self::assertEquals([], $imports->getImports());
+        self::assertEquals([], $imports->getResources());
+    }
+
+    public function testCollectRequireException()
+    {
+        $resolver = $this->prophesize(FileResolverInterface::class);
+        $imports = new ImportCollection();
+
+        $resolver->asRequire(Argument::any(), Argument::any())->willThrow(new \RuntimeException());
+
+        $js_import_collector = new JsImportCollector($resolver->reveal());
+        $js_import_collector->collect(
+            __DIR__ . '/../../fixtures',
+            new File('resolver/js/require-syntax/main.js'),
+            $imports
+        );
 
         self::assertEquals([], $imports->getImports());
         self::assertEquals([], $imports->getResources());

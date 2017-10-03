@@ -6,11 +6,13 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\BuildIn;
 
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 use Hostnet\Component\Resolver\Module;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 /**
  * @covers \Hostnet\Component\Resolver\Import\BuildIn\TsImportCollector
@@ -25,9 +27,7 @@ class TsImportCollectorTest extends TestCase
     protected function setUp()
     {
         $this->ts_import_collector = new TsImportCollector(
-            new JsImportCollector(
-                new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.js', '.json', '.node'])
-            ),
+            new JsImportCollector(new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.js', '.json', '.node'])),
             new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.d.ts', '.js', '.json', '.node'])
         );
     }
@@ -76,6 +76,27 @@ class TsImportCollectorTest extends TestCase
             new Import('jquery', new Module('jquery', 'node_modules/jquery/jquery.js')),
         ], $imports->getImports());
 
+        self::assertEquals([], $imports->getResources());
+    }
+
+    public function testCollectRequireException()
+    {
+        $resolver = $this->prophesize(FileResolverInterface::class);
+        $imports = new ImportCollection();
+
+        $resolver->asRequire(Argument::any(), Argument::any())->willThrow(new \RuntimeException());
+
+        $ts_import_collector = new TsImportCollector(
+            new JsImportCollector($resolver->reveal()),
+            $resolver->reveal()
+        );
+        $ts_import_collector->collect(
+            __DIR__ . '/../../fixtures',
+            new File('resolver/ts/import-syntax/main.ts'),
+            $imports
+        );
+
+        self::assertEquals([], $imports->getImports());
         self::assertEquals([], $imports->getResources());
     }
 }
