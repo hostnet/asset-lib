@@ -23,8 +23,8 @@ class TreeWalkerTest extends TestCase
             $seen[] = $node;
         });
 
-        $root = new RootFile(new File('foo'));
-        $child = new RootFile(new File('foo'));
+        $root        = new RootFile(new File('foo'));
+        $child       = new RootFile(new File('foo'));
         $grand_child = new RootFile(new File('foo'));
 
         $root->addChild($child);
@@ -45,8 +45,8 @@ class TreeWalkerTest extends TestCase
             return false;
         });
 
-        $root = new RootFile(new File('foo'));
-        $child = new RootFile(new File('foo'));
+        $root        = new RootFile(new File('foo'));
+        $child       = new RootFile(new File('foo'));
         $grand_child = new RootFile(new File('foo'));
 
         $root->addChild($child);

@@ -54,7 +54,7 @@ class TsImportCollectorTest extends TestCase
     public function testCollect()
     {
         $imports = new ImportCollection();
-        $file = new File('resolver/ts/import-syntax/main.ts');
+        $file    = new File('resolver/ts/import-syntax/main.ts');
 
         $this->ts_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
@@ -82,7 +82,7 @@ class TsImportCollectorTest extends TestCase
     public function testCollectRequireException()
     {
         $resolver = $this->prophesize(FileResolverInterface::class);
-        $imports = new ImportCollection();
+        $imports  = new ImportCollection();
 
         $resolver->asRequire(Argument::any(), Argument::any())->willThrow(new \RuntimeException());
 

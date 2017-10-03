@@ -1,12 +1,16 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\Asset;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
-use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 
@@ -18,7 +22,7 @@ class AngularHtmlListener
 
     public function __construct(ConfigInterface $config, ContentPipeline $pipeline)
     {
-        $this->config = $config;
+        $this->config   = $config;
         $this->pipeline = $pipeline;
     }
 
@@ -41,9 +45,13 @@ class AngularHtmlListener
         $content = $item->getContent();
         $reader  = new FileReader($this->config->cwd());
 
-        $content = preg_replace_callback('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', function ($match) use ($file, $reader) {
-            return 'template: ' . json_encode($this->getCompiledAssetFor($match[2], $file, $reader));
-        }, $content);
+        $content = preg_replace_callback(
+            '/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m',
+            function ($match) use ($file, $reader) {
+                return 'template: ' . json_encode($this->getCompiledAssetFor($match[2], $file, $reader));
+            },
+            $content
+        );
         $content = preg_replace_callback('/styleUrls *:(\s*\[[^\]]*?\])/', function ($match) use ($file, $reader) {
             $urls = [];
 

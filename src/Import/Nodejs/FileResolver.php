@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\Nodejs;
@@ -26,7 +29,7 @@ final class FileResolver implements FileResolverInterface
      */
     public function __construct(string $cwd, array $extensions)
     {
-        $this->cwd = $cwd;
+        $this->cwd        = $cwd;
         $this->extensions = $extensions;
     }
 

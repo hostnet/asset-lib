@@ -47,7 +47,7 @@ class LessImportCollectorTest extends TestCase
     public function testCollect()
     {
         $imports = new ImportCollection();
-        $file = new File('resolver/less/import-syntax/main.less');
+        $file    = new File('resolver/less/import-syntax/main.less');
 
         $this->less_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 

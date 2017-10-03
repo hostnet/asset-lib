@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
 
@@ -15,8 +19,8 @@ class FileConfig implements ConfigInterface
     public function __construct(bool $is_dev = false, string $config_file = 'resolve.config.json')
     {
         $this->is_dev = $is_dev;
-        $this->data = json_decode(file_get_contents($config_file), true);
-        $this->cwd = dirname($config_file);
+        $this->data   = json_decode(file_get_contents($config_file), true);
+        $this->cwd    = dirname($config_file);
     }
 
     /**

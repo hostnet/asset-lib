@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler\Processor;
@@ -24,7 +27,7 @@ class ModuleProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $js = "register('" . $item->module_name . "', function (define, require, module, exports) {\n";
+        $js  = "register('" . $item->module_name . "', function (define, require, module, exports) {\n";
         $js .= $item->getContent();
         $js .= "\n});\n";
 

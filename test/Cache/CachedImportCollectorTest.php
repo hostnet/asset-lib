@@ -46,7 +46,7 @@ class CachedImportCollectorTest extends TestCase
 
     public function testCollectNoCache()
     {
-        $file = new File(basename(__FILE__));
+        $file    = new File(basename(__FILE__));
         $imports = new ImportCollection();
 
         $this->inner->collect(__DIR__, $file, $imports)->shouldBeCalled();
@@ -56,9 +56,9 @@ class CachedImportCollectorTest extends TestCase
 
     public function testCollectWithCache()
     {
-        $file = new File(basename(__FILE__));
-        $imports = new ImportCollection();
-        $cached_imports = new ImportCollection();
+        $file                           = new File(basename(__FILE__));
+        $imports                        = new ImportCollection();
+        $cached_imports                 = new ImportCollection();
         $cached_imports->addResource($f = new File('bar.js'));
 
         $this->cache->set(

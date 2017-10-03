@@ -1,7 +1,11 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import;
+
 use Hostnet\Component\Resolver\File;
 
 /**
@@ -39,12 +43,12 @@ class ImportFinder implements ImportFinderInterface
         $files = [];
         $queue = $this->get($file);
 
-        $seen = array_values(array_map(function(array $d) {
+        $seen = array_values(array_map(function (array $d) {
             return $d[0]->path;
         }, $queue));
 
         while (count($queue) > 0) {
-            $dep = array_shift($queue);
+            $dep     = array_shift($queue);
             $files[] = $dep;
 
             $imports = $this->findImports($dep[0]);
@@ -52,13 +56,13 @@ class ImportFinder implements ImportFinderInterface
             foreach ($imports->getImports() as $import) {
                 if (!in_array($import->getImportedFile()->path, $seen, true)) {
                     $queue[] = [$import->getImportedFile(), $dep[0], $import->isVirtual(), false];
-                    $seen[] = $import->getImportedFile()->path;
+                    $seen[]  = $import->getImportedFile()->path;
                 }
             }
             foreach ($imports->getResources() as $import) {
                 if (!in_array($import->path, $seen, true)) {
                     $queue[] = [$import, $dep[0], false, true];
-                    $seen[] = $import->path;
+                    $seen[]  = $import->path;
                 }
             }
         }
@@ -110,7 +114,7 @@ class ImportFinder implements ImportFinderInterface
      */
     private function toTree(File $file, array $dependencies): RootFile
     {
-        $root = new RootFile($file);
+        $root  = new RootFile($file);
         $nodes = new \SplObjectStorage();
 
         $nodes[$file] = $root;

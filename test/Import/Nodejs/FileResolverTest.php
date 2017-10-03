@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\Nodejs;
@@ -46,7 +49,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteFile()
     {
         $parent = new File('node_modules/bar/baz.js');
-        $path = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 
@@ -58,7 +61,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteFileFromModule()
     {
         $parent = new Module('bar/baz', 'node_modules/bar/baz.js');
-        $path = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 
@@ -70,7 +73,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteDir()
     {
         $parent = new File('node_modules/bar/baz.js');
-        $path = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/bar');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/bar');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 
@@ -82,7 +85,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteDirFromModule()
     {
         $parent = new Module('bar/baz', 'node_modules/bar/baz.js');
-        $path = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/bar');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/bar');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 

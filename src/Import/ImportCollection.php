@@ -1,11 +1,15 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import;
 
 use Hostnet\Component\Resolver\File;
 
 final class ImportCollection
 {
-    private $imports = [];
+    private $imports   = [];
     private $resources = [];
 
     public function addImport(Import $import)
@@ -41,7 +45,7 @@ final class ImportCollection
      */
     public function extends(ImportCollection $imports)
     {
-        $this->imports = array_merge($this->imports, $imports->getImports());
+        $this->imports   = array_merge($this->imports, $imports->getImports());
         $this->resources = array_merge($this->resources, $imports->getResources());
     }
 }

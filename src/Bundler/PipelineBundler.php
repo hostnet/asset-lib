@@ -1,15 +1,18 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
-use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\FileSystem\FileWriter;
-use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\FileReader;
+use Hostnet\Component\Resolver\FileSystem\FileWriter;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
@@ -44,14 +47,14 @@ class PipelineBundler
      */
     public function execute(ReaderInterface $reader, WriterInterface $writer)
     {
-        $output_folder = $this->config->getWebRoot();
+        $output_folder  = $this->config->getWebRoot();
         $output_folder .= (!empty($output_folder) ? '/' : '') . $this->config->getOutputFolder();
-        $source_dir = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
+        $source_dir     = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
         $require_file_name = 'require' . ($this->config->isDev() ? '' : '.min') . '.js';
 
         // put the require.js in the web folder
-        $require_file = new File(File::clean(__DIR__ . '/../Resources/' . $require_file_name));
+        $require_file        = new File(File::clean(__DIR__ . '/../Resources/' . $require_file_name));
         $output_require_file = new File($output_folder . '/require.js');
 
         if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
@@ -145,7 +148,7 @@ class PipelineBundler
     private function checkIfAnyChanged(File $output_file, array $input_files): bool
     {
         // did the sources change?
-        $sources_file = $this->config->getCacheDir() . '/' . Cache::createFileCacheKey($output_file) . '.sources';
+        $sources_file  = $this->config->getCacheDir() . '/' . Cache::createFileCacheKey($output_file) . '.sources';
         $input_sources = array_map(function (DependencyNodeInterface $d) {
             return $d->getFile()->path;
         }, $input_files);
@@ -171,8 +174,10 @@ class PipelineBundler
         }
 
         // Did the files change?
-        $file_path = (File::isAbsolutePath($output_file->path) ? '' : ($this->config->cwd() . '/')) . $output_file->path;
-        $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
+        $file_path = (File::isAbsolutePath($output_file->path)
+                ? ''
+                : ($this->config->cwd() . '/')) . $output_file->path;
+        $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
             return true;

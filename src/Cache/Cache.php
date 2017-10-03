@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Cache;
 
@@ -94,9 +97,11 @@ final class Cache implements FileCacheInterface
             return;
         }
 
+        // @codingStandardsIgnoreStart
         if (false !== ($data = @unserialize(file_get_contents($this->file)))) {
             $this->data = $data;
         }
+        // @codingStandardsIgnoreEnd
     }
 
     /**

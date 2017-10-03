@@ -1,9 +1,13 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler;
 
-use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 
 class ContentItem
 {
@@ -16,10 +20,10 @@ class ContentItem
 
     public function __construct(File $file, string $module_name, ReaderInterface $reader)
     {
-        $this->file = $file;
+        $this->file        = $file;
         $this->module_name = $module_name;
-        $this->reader = $reader;
-        $this->state = new ContentState($this->file->extension);
+        $this->reader      = $reader;
+        $this->state       = new ContentState($this->file->extension);
     }
 
     public function getState(): ContentState

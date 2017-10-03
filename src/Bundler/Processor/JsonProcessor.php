@@ -1,11 +1,15 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Bundler\TranspileException;
+use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Symfony\Component\Process\ProcessBuilder;
 
 final class JsonProcessor implements ContentProcessorInterface
@@ -22,7 +26,7 @@ final class JsonProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $js = 'return ';
+        $js  = 'return ';
         $js .= $item->getContent();
         $js .= ";\n";
 

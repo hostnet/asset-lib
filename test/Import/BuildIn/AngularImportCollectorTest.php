@@ -48,7 +48,7 @@ class AngularImportCollectorTest extends TestCase
     public function testCollect()
     {
         $imports = new ImportCollection();
-        $file = new File('resolver/ts/angular/app.component.ts');
+        $file    = new File('resolver/ts/angular/app.component.ts');
 
         $this->angular_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 

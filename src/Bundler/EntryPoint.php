@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
@@ -23,7 +27,7 @@ class EntryPoint
         // Split the input files into bundle and vendor files.
         $this->bundle_files = [$file];
         $this->vendor_files = [];
-        $this->asset_files = [];
+        $this->asset_files  = [];
 
         $walker = new TreeWalker(function (DependencyNodeInterface $dependency) {
             if ($dependency->isStatic()) {

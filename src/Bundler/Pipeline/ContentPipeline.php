@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
@@ -38,8 +42,8 @@ class ContentPipeline
         ConfigInterface $config
     ) {
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
-        $this->config = $config;
+        $this->logger     = $logger;
+        $this->config     = $config;
         $this->processors = [];
     }
 
@@ -86,7 +90,7 @@ class ContentPipeline
             if ($dependency->isInlineDependency()) {
                 continue;
             }
-            $file = $dependency->getFile();
+            $file        = $dependency->getFile();
             $module_name = $file->getName();
 
             if (!empty($this->config->getSourceRoot())
@@ -204,7 +208,7 @@ class ContentPipeline
     private function checkIfChanged(File $output_file, DependencyNodeInterface $dependency)
     {
         $file_path = $this->config->cwd() . '/' . $output_file->path;
-        $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
+        $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
             return true;

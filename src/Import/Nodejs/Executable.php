@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\Nodejs;
 
 /**
@@ -12,7 +16,7 @@ final class Executable
 
     public function __construct(string $node_bin, string $node_modules_location)
     {
-        $this->node_bin = $node_bin;
+        $this->node_bin              = $node_bin;
         $this->node_modules_location = $node_modules_location;
     }
 

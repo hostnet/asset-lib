@@ -17,8 +17,8 @@ class ImportCollectionTest extends TestCase
     {
         $collection = new ImportCollection();
 
-        $import1 = new Import('foo', new File('foo.js'));
-        $import2 = new Import('baz', new File('baz.js'));
+        $import1    = new Import('foo', new File('foo.js'));
+        $import2    = new Import('baz', new File('baz.js'));
         $resources1 = new File('bar.js');
         $resources2 = new File('fez.js');
 

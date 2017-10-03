@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
@@ -14,8 +17,8 @@ class File
 
     public function __construct(string $path)
     {
-        $this->path = $path;
-        $this->dir = dirname($path);
+        $this->path      = $path;
+        $this->dir       = dirname($path);
         $this->extension = pathinfo($path, PATHINFO_EXTENSION);
     }
 

@@ -1,14 +1,16 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler;
 
-
 class ContentState
 {
-    const READY = 'ready';
+    const READY       = 'ready';
     const UNPROCESSED = 'unprocessed';
-    const PROCESSED = 'processed';
+    const PROCESSED   = 'processed';
 
     /**
      * Order of transitions, state should always be going down in this list.
@@ -25,7 +27,7 @@ class ContentState
     public function __construct(string $extension, string $state = self::UNPROCESSED)
     {
         $this->extension = $extension;
-        $this->state = $state;
+        $this->state     = $state;
     }
 
     public function current(): string

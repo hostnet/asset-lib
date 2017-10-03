@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
@@ -12,7 +16,7 @@ final class IdentityProcessor implements ContentProcessorInterface
 
     public function __construct(string $extension, string $done_state = ContentState::READY)
     {
-        $this->extension = $extension;
+        $this->extension  = $extension;
         $this->done_state = $done_state;
     }
 
