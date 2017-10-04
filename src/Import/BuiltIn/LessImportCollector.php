@@ -4,7 +4,7 @@
  */
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Import\BuildIn;
+namespace Hostnet\Component\Resolver\Import\BuiltIn;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Import;
