@@ -70,7 +70,7 @@ class AngularHtmlListenerTest extends TestCase
 
     public function testOnPostTranspileWithSource()
     {
-        $item = new ContentItem(new File('test/app.component.ts'), 'app.component', new StringReader(''));
+        $item = new ContentItem(new File('fixtures/test/app.component.ts'), 'app.component', new StringReader(''));
         $item->transition(ContentState::READY, file_get_contents(__DIR__ . '/fixtures/test/app2.component.js'), 'js');
 
         $this->config->cwd()->willReturn(__DIR__);

@@ -73,11 +73,7 @@ class AngularHtmlListener
         $file_path = $linked_file;
 
         if ($file_path[0] === '.' && $owning_file->dir !== '.' && !empty($owning_file->dir)) {
-            $file_path = $owning_file->dir . '/' . substr($file_path, 1);
-        }
-
-        if (!empty($this->config->getSourceRoot())) {
-            $file_path = $this->config->getSourceRoot() . '/' . $file_path;
+            $file_path = $owning_file->dir . '/' . $file_path;
         }
 
         $target = new Dependency(new File(File::clean($file_path)));
