@@ -1,11 +1,14 @@
 <?php
+declare(strict_types=1);
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
 
 namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
-
 
 /**
  * The content pipeline allows for pushing items through it to be assets. Once
