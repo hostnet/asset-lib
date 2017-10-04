@@ -7,17 +7,31 @@ namespace Hostnet\Component\Resolver\Import;
 
 use Hostnet\Component\Resolver\File;
 
+/**
+ * Collection of imports which are done by a file. These can be modules or
+ * other resources.
+ */
 final class ImportCollection
 {
     private $imports   = [];
     private $resources = [];
 
-    public function addImport(Import $import)
+    /**
+     * Add an import to the collection.
+     *
+     * @param Import $import
+     */
+    public function addImport(Import $import): void
     {
         $this->imports[] = $import;
     }
 
-    public function addResource(File $resource)
+    /**
+     * Add a resource to the collection.
+     *
+     * @param File $resource
+     */
+    public function addResource(File $resource): void
     {
         $this->resources[] = $resource;
     }
@@ -43,7 +57,7 @@ final class ImportCollection
      *
      * @param ImportCollection $imports
      */
-    public function extends(ImportCollection $imports)
+    public function extends(ImportCollection $imports): void
     {
         $this->imports   = array_merge($this->imports, $imports->getImports());
         $this->resources = array_merge($this->resources, $imports->getResources());

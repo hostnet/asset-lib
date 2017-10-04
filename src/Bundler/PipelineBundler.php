@@ -6,12 +6,10 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\FileSystem\FileWriter;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
@@ -28,7 +26,7 @@ class PipelineBundler
 
     public function __construct(
         ImportFinderInterface $finder,
-        ContentPipeline $pipeline,
+        ContentPipelineInterface $pipeline,
         LoggerInterface $logger,
         ConfigInterface $config
     ) {

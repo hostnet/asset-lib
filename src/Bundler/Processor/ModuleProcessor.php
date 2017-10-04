@@ -13,7 +13,7 @@ use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 /**
  * Wrap a javascript file such that can be used as a module.
  */
-class ModuleProcessor implements ContentProcessorInterface
+final class ModuleProcessor implements ContentProcessorInterface
 {
     public function supports(ContentState $state): bool
     {

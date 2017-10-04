@@ -9,9 +9,23 @@ namespace Hostnet\Component\Resolver\Bundler;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 
-class ContentItem
+/**
+ * Content items represent a file which needs to be processed through the bundler.
+ */
+final class ContentItem
 {
+    /**
+     * The original file for which this item is made.
+     *
+     * @var File
+     */
     public $file;
+
+    /**
+     * Module name of the item. In most cases this is simply the file name.
+     *
+     * @var string
+     */
     public $module_name;
 
     private $content;
@@ -40,6 +54,14 @@ class ContentItem
         return $this->content;
     }
 
+    /**
+     * Transition the Content to a new (or the same) state.
+     *
+     * @param string      $state
+     * @param string|null $new_content
+     * @param string|null $new_extension
+     * @param string|null $new_module_name
+     */
     public function transition(
         string $state,
         string $new_content = null,

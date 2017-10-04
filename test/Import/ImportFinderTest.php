@@ -36,7 +36,7 @@ class ImportFinderTest extends TestCase
                 return true;
             }
 
-            public function collect(string $cwd, File $file, ImportCollection $imports)
+            public function collect(string $cwd, File $file, ImportCollection $imports): void
             {
                 $imports->addImport(new Import('bar.js', new File('bar.js')));
                 $imports->addResource(new File('asset.js'));

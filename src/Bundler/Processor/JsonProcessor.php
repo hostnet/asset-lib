@@ -12,6 +12,9 @@ use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * Processes JSON files. These will be converted to JavaScript modules.
+ */
 final class JsonProcessor implements ContentProcessorInterface
 {
     public function supports(ContentState $state): bool

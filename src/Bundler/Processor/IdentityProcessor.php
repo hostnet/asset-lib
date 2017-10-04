@@ -9,6 +9,10 @@ use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 
+/**
+ * This processor doesn't really do anything but change the state. This is
+ * useful for files which need to be processed as is like HTML.
+ */
 final class IdentityProcessor implements ContentProcessorInterface
 {
     private $extension;

@@ -13,7 +13,7 @@ use Hostnet\Component\Resolver\Import\RootFile;
  * Entry points are the starting files for your application. This can be main
  * files, stylesheets or javascript libraries.
  */
-class EntryPoint
+final class EntryPoint
 {
     private $file;
     private $bundle_files;
@@ -42,12 +42,19 @@ class EntryPoint
         $walker->walk($file);
     }
 
+    /**
+     * Return the root file for the entry point.
+     *
+     * @return File
+     */
     public function getFile(): File
     {
         return $this->file;
     }
 
     /**
+     * Return all non-vendor files.
+     *
      * @return DependencyNodeInterface[]
      */
     public function getBundleFiles(): array
@@ -56,6 +63,8 @@ class EntryPoint
     }
 
     /**
+     * Return all vendor files.
+     *
      * @return DependencyNodeInterface[]
      */
     public function getVendorFiles(): array
@@ -64,6 +73,8 @@ class EntryPoint
     }
 
     /**
+     * Return all assets.
+     *
      * @return File[]
      */
     public function getAssetFiles(): array

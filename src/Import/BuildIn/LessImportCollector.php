@@ -27,7 +27,7 @@ final class LessImportCollector implements ImportCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(string $cwd, File $file, ImportCollection $imports)
+    public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         $content = file_get_contents($cwd . '/' . $file->path);
         $n       = preg_match_all('/@import (\([a-z,\s]*\)\s*)?(url\()?(\'([^\']+)\'|"([^"]+)")/', $content, $matches);

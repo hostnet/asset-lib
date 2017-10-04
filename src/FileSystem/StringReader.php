@@ -8,7 +8,15 @@ namespace Hostnet\Component\Resolver\FileSystem;
 
 use Hostnet\Component\Resolver\File;
 
-class StringReader implements ReaderInterface
+/**
+ * Implementation of the ReaderInterface which reads the content from a string.
+ * This ignores the file itself and just returns the content given in the
+ * constructor.
+ *
+ * This is useful when you already know the content and do not want to use the
+ * file system.
+ */
+final class StringReader implements ReaderInterface
 {
     private $content;
 

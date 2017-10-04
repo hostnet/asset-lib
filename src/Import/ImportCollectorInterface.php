@@ -28,5 +28,5 @@ interface ImportCollectorInterface
      * @param File             $file
      * @param ImportCollection $imports
      */
-    public function collect(string $cwd, File $file, ImportCollection $imports);
+    public function collect(string $cwd, File $file, ImportCollection $imports): void;
 }

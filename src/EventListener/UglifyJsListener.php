@@ -10,6 +10,12 @@ use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * The UglifyJS listener will push all JS content through the UglifyJs
+ * minimizer. This will reduce the total file size.
+ *
+ * @see https://github.com/mishoo/UglifyJS
+ */
 class UglifyJsListener
 {
     private $nodejs;
@@ -20,7 +26,7 @@ class UglifyJsListener
     }
 
     /**
-     * {@inheritdoc}
+     * @param AssetEvent $event
      */
     public function onPreWrite(AssetEvent $event): void
     {

@@ -5,7 +5,7 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
@@ -34,7 +34,7 @@ class PipelineBundlerTest extends TestCase
     protected function setUp()
     {
         $this->finder   = $this->prophesize(ImportFinderInterface::class);
-        $this->pipeline = $this->prophesize(ContentPipeline::class);
+        $this->pipeline = $this->prophesize(ContentPipelineInterface::class);
         $this->config   = $this->prophesize(ConfigInterface::class);
 
         $this->pipeline_bundler = new PipelineBundler(

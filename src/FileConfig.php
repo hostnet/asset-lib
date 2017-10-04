@@ -10,7 +10,7 @@ namespace Hostnet\Component\Resolver;
  * Generic config reader. This loads the resolve.config.json file and allows
  * for flexible configuration of all the parts.
  */
-class FileConfig implements ConfigInterface
+final class FileConfig implements ConfigInterface
 {
     private $is_dev;
     private $data;

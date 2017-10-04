@@ -27,7 +27,7 @@ class ContentPipelineTest extends TestCase
     private $config;
 
     /**
-     * @var ContentPipeline
+     * @var ContentPipelineInterface
      */
     private $content_pipeline;
 

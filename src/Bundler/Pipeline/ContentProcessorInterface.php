@@ -16,6 +16,12 @@ use Hostnet\Component\Resolver\Bundler\TranspileException;
  */
 interface ContentProcessorInterface
 {
+    /**
+     * Return if the content state is supported by the processor.
+     *
+     * @param ContentState $state
+     * @return bool
+     */
     public function supports(ContentState $state): bool;
 
     /**

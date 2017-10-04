@@ -8,7 +8,10 @@ namespace Hostnet\Component\Resolver\FileSystem;
 
 use Hostnet\Component\Resolver\File;
 
-class FileWriter implements WriterInterface
+/**
+ * Implementation of the WriterInterface which writes it to disk.
+ */
+final class FileWriter implements WriterInterface
 {
     private $cwd;
 
@@ -17,6 +20,10 @@ class FileWriter implements WriterInterface
         $this->cwd = $cwd;
     }
 
+    /**
+     * @param File   $file
+     * @param string $content
+     */
     public function write(File $file, string $content): void
     {
         $path = $this->cwd . DIRECTORY_SEPARATOR . $file->path;

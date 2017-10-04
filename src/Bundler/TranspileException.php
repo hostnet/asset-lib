@@ -19,6 +19,11 @@ final class TranspileException extends \RuntimeException
         $this->error_output = $error_output;
     }
 
+    /**
+     * Return the error output.
+     *
+     * @return string
+     */
     public function getErrorOutput(): string
     {
         return $this->error_output;

@@ -8,12 +8,15 @@ namespace Hostnet\Component\Resolver\Import;
 
 use Hostnet\Component\Resolver\File;
 
-class RootFile implements DependencyNodeInterface
+/**
+ * The RootFile is the root node of a dependency tree.
+ */
+final class RootFile implements DependencyNodeInterface
 {
     private $file;
 
     /**
-     * @var DependencyNodeInterface[]|array
+     * @var DependencyNodeInterface[]
      */
     private $children = [];
 
@@ -32,9 +35,6 @@ class RootFile implements DependencyNodeInterface
         $this->children[] = $dependency;
     }
 
-    /**
-     * @return array|DependencyNodeInterface[]
-     */
     public function getChildren(): array
     {
         return $this->children;

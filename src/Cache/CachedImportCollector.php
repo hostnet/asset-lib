@@ -36,7 +36,7 @@ final class CachedImportCollector implements ImportCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(string $cwd, File $file, ImportCollection $imports)
+    public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         $key = $file->path . get_class($this->inner);
 

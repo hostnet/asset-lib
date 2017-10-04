@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\Asset;
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
@@ -14,20 +14,26 @@ use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 
-class AngularHtmlListener
+/**
+ * The Angular listener checks all angular component files. If they contain a
+ * templateUrl or a styleUrls these files processed and inlined in the
+ * component. This will boost performance since you only have to load a single
+ * file containing all information. Furthermore it allows you to use more
+ * flexible resources like less files for stylesheets.
+ */
+final class AngularHtmlListener
 {
     private $config;
     private $pipeline;
-    private $file_reader;
 
-    public function __construct(ConfigInterface $config, ContentPipeline $pipeline)
+    public function __construct(ConfigInterface $config, ContentPipelineInterface $pipeline)
     {
         $this->config   = $config;
         $this->pipeline = $pipeline;
     }
 
     /**
-     * {@inheritdoc}
+     * @param AssetEvent $event
      */
     public function onPostTranspile(AssetEvent $event): void
     {
@@ -68,6 +74,12 @@ class AngularHtmlListener
         $item->transition($item->getState()->current(), $content);
     }
 
+    /**
+     * @param string          $linked_file
+     * @param File            $owning_file
+     * @param ReaderInterface $reader
+     * @return string
+     */
     private function getCompiledAssetFor(string $linked_file, File $owning_file, ReaderInterface $reader): string
     {
         $file_path = $linked_file;

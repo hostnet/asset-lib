@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\File;
 /**
  * Import finder which uses ImportCollectorInterface to find imports.
  */
-class ImportFinder implements ImportFinderInterface
+final class ImportFinder implements ImportFinderInterface
 {
     /**
      * @var ImportCollectorInterface[]

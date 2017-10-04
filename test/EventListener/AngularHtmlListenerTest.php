@@ -7,7 +7,7 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
+use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
@@ -33,7 +33,7 @@ class AngularHtmlListenerTest extends TestCase
     protected function setUp()
     {
         $this->config   = $this->prophesize(ConfigInterface::class);
-        $this->pipeline = $this->prophesize(ContentPipeline::class);
+        $this->pipeline = $this->prophesize(ContentPipelineInterface::class);
 
         $this->angular_html_listener = new AngularHtmlListener(
             $this->config->reveal(),

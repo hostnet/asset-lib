@@ -12,6 +12,9 @@ use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * Processes TypeScript files to JavaScript.
+ */
 final class TsContentProcessor implements ContentProcessorInterface
 {
     private $nodejs;

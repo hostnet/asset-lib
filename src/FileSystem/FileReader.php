@@ -8,7 +8,10 @@ namespace Hostnet\Component\Resolver\FileSystem;
 
 use Hostnet\Component\Resolver\File;
 
-class FileReader implements ReaderInterface
+/**
+ * Implementation of the ReaderInterface which reads a file.
+ */
+final class FileReader implements ReaderInterface
 {
     private $cwd;
 

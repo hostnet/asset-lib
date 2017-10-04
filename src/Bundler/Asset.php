@@ -16,7 +16,7 @@ use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
  *
  * For instance: sources/styles/layout.css will be outputted as web/styles/layout.css.
  */
-class Asset
+final class Asset
 {
     private $file;
     private $files;

@@ -6,11 +6,23 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler;
 
-class ContentState
+final class ContentState
 {
-    const READY       = 'ready';
+    /**
+     * The READY state tells the bundler the file can be written to disk.
+     */
+    const READY = 'ready';
+
+    /**
+     * The UNPROCESSED state tells the bundler the file requires processing.
+     */
     const UNPROCESSED = 'unprocessed';
-    const PROCESSED   = 'processed';
+
+    /**
+     * The PROCESSED state tells the bundler the file has been through
+     * processing and can be made ready.
+     */
+    const PROCESSED = 'processed';
 
     /**
      * Order of transitions, state should always be going down in this list.
@@ -30,16 +42,46 @@ class ContentState
         $this->state     = $state;
     }
 
+    /**
+     * Return the current state.
+     *
+     * @return string
+     */
     public function current(): string
     {
         return $this->state;
     }
 
+    /**
+     * Check if we are in a READY state. This is equivalent to doing:
+     * $state->current() === ContentState::READY
+     *
+     * @return bool
+     */
+    public function isReady(): bool
+    {
+        return $this->state === self::READY;
+    }
+
+    /**
+     * Return the current file extension. This can change when transitioning to
+     * a different state.
+     *
+     * @return string
+     */
     public function extension(): string
     {
         return $this->extension;
     }
 
+    /**
+     * Transition to a different (or the same) state. This can also update the
+     * extension.
+     *
+     * @param string      $state
+     * @param string|null $new_extension
+     * @throws \LogicException When transitioning backwards.
+     */
     public function transition(string $state, string $new_extension = null)
     {
         $i = array_search($this->state, self::TRANSITION_ORDER, true);
@@ -56,10 +98,5 @@ class ContentState
         if (null !== $new_extension) {
             $this->extension = $new_extension;
         }
-    }
-
-    public function isReady(): bool
-    {
-        return $this->state === self::READY;
     }
 }

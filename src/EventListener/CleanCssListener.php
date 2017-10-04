@@ -10,6 +10,12 @@ use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * The Clean CSS listener will push all CSS content through the CleanCSS
+ * minimizer. This will reduce the total file size.
+ *
+ * @see https://github.com/jakubpawlowicz/clean-css
+ */
 class CleanCssListener
 {
     private $nodejs;
@@ -20,7 +26,7 @@ class CleanCssListener
     }
 
     /**
-     * {@inheritdoc}
+     * @param AssetEvent $event
      */
     public function onPreWrite(AssetEvent $event): void
     {

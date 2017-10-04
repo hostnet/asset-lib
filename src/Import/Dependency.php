@@ -20,7 +20,7 @@ final class Dependency implements DependencyNodeInterface
     private $static;
 
     /**
-     * @var DependencyNodeInterface[]|array
+     * @var DependencyNodeInterface[]
      */
     private $children = [];
 
@@ -36,24 +36,11 @@ final class Dependency implements DependencyNodeInterface
         return $this->import;
     }
 
-    /**
-     * Return if the dependency was an inline dependency. These are
-     * dependencies which need to be checked but will be inlined in the final
-     * result and thus must not be compiled.
-     *
-     * @return bool
-     */
     public function isInlineDependency(): bool
     {
         return $this->inline;
     }
 
-    /**
-     * Return if the dependency was on a static file. This means that it is not
-     * a javascript module but an asset.
-     *
-     * @return bool
-     */
     public function isStatic(): bool
     {
         return $this->static;

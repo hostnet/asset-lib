@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * pushed, it will go through various processors until it is written to disk as
  * the given output file.
  */
-class ContentPipeline
+final class ContentPipeline implements ContentPipelineInterface
 {
     private $dispatcher;
     private $logger;
@@ -47,17 +47,18 @@ class ContentPipeline
         $this->processors = [];
     }
 
+    /**
+     * Add a processor to the content pipeline.
+     *
+     * @param ContentProcessorInterface $processor
+     */
     public function addProcessor(ContentProcessorInterface $processor): void
     {
         $this->processors[] = $processor;
     }
 
     /**
-     * Peek an item through the content pipeline. This will return the
-     * resulting file extension.
-     *
-     * @param File $input_file
-     * @return string
+     * {@inheritdoc}
      */
     public function peek(File $input_file): string
     {
@@ -72,12 +73,7 @@ class ContentPipeline
     }
 
     /**
-     * Push a bundled file on the pipeline with a list of dependencies.
-     *
-     * @param DependencyNodeInterface[] $dependencies
-     * @param File                      $target_file
-     * @param ReaderInterface           $file_reader
-     * @return string
+     * {@inheritdoc}
      */
     public function push(array $dependencies, File $target_file, ReaderInterface $file_reader): string
     {
@@ -149,11 +145,6 @@ class ContentPipeline
         return $item->getContent();
     }
 
-    /**
-     * Transition the item.
-     *
-     * @param ContentItem $item
-     */
     private function next(ContentItem $item): void
     {
         $current_state = $item->getState()->current();
@@ -177,11 +168,6 @@ class ContentPipeline
         }
     }
 
-    /**
-     * Transition the item.
-     *
-     * @param ContentState $item
-     */
     private function nextPeek(ContentState $item): void
     {
         $current_state = $item->current();
