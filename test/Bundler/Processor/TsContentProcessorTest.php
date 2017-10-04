@@ -52,7 +52,7 @@ class TsContentProcessorTest extends TestCase
 
         $this->ts_content_processor->transpile(__DIR__, $item);
 
-        self::assertContains('js/tsc.js', $item->getContent());
+        self::assertContains('js' . DIRECTORY_SEPARATOR . 'tsc.js', $item->getContent());
         self::assertSame('foobar', $item->module_name);
         self::assertSame(ContentState::PROCESSED, $item->getState()->current());
     }
