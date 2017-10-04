@@ -52,7 +52,7 @@ class LessContentProcessorTest extends TestCase
 
         $this->less_content_processor->transpile(__DIR__, $item);
 
-        self::assertContains('js/lessc.js', $item->getContent());
+        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $item->getContent());
         self::assertSame('foobar.less', $item->module_name);
         self::assertSame(ContentState::READY, $item->getState()->current());
     }
