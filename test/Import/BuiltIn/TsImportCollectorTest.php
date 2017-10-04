@@ -3,7 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
-namespace Hostnet\Component\Resolver\Import\BuildIn;
+namespace Hostnet\Component\Resolver\Import\BuiltIn;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
@@ -15,19 +15,20 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 /**
- * @covers \Hostnet\Component\Resolver\Import\BuildIn\JsImportCollector
+ * @covers \Hostnet\Component\Resolver\Import\BuiltIn\TsImportCollector
  */
-class JsImportCollectorTest extends TestCase
+class TsImportCollectorTest extends TestCase
 {
     /**
-     * @var JsImportCollector
+     * @var TsImportCollector
      */
-    private $js_import_collector;
+    private $ts_import_collector;
 
     protected function setUp()
     {
-        $this->js_import_collector = new JsImportCollector(
-            new FileResolver(__DIR__ . '/../../fixtures', ['.js', '.json', '.node'])
+        $this->ts_import_collector = new TsImportCollector(
+            new JsImportCollector(new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.js', '.json', '.node'])),
+            new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.d.ts', '.js', '.json', '.node'])
         );
     }
 
@@ -36,51 +37,45 @@ class JsImportCollectorTest extends TestCase
      */
     public function testSupports($expected, File $file)
     {
-        self::assertEquals($expected, $this->js_import_collector->supports($file));
+        self::assertEquals($expected, $this->ts_import_collector->supports($file));
     }
 
     public function supportsProvider()
     {
         return [
             [false, new File('foo')],
-            [false, new File('foo.ts')],
+            [false, new File('foo.js')],
             [false, new File('foo.less')],
             [false, new File('foo.jsx')],
-            [true, new File('foo.js')],
+            [true, new File('foo.ts')],
         ];
     }
 
     public function testCollect()
     {
         $imports = new ImportCollection();
-        $file    = new File('resolver/js/require-syntax/main.js');
+        $file    = new File('resolver/ts/import-syntax/main.ts');
 
-        $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
+        $this->ts_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
         self::assertEquals([
-            new Import('./single_quote', new File('resolver/js/require-syntax/single_quote.js')),
-            new Import('./double_quote', new File('resolver/js/require-syntax/double_quote.js')),
+            new Import('./Import', new File('resolver/ts/import-syntax/Import.ts')),
+            new Import('./DoubleQuote', new File('resolver/ts/import-syntax/DoubleQuote.ts')),
+            new Import('./SingleQuote', new File('resolver/ts/import-syntax/SingleQuote.ts')),
+            new Import('./Simple', new File('resolver/ts/import-syntax/Simple.ts')),
+            new Import('./Alias', new File('resolver/ts/import-syntax/Alias.ts')),
+            new Import('./All', new File('resolver/ts/import-syntax/All.ts')),
+            new Import('./Multiple', new File('resolver/ts/import-syntax/Multiple.ts')),
+            new Import('./module.js', new File('resolver/ts/import-syntax/module.js')),
             new Import('module_index', new Module('module_index', 'node_modules/module_index/index.js')),
             new Import('module_package', new Module('module_package', 'node_modules/module_package/main.js')),
             new Import(
                 'module_package_dir',
                 new Module('module_package_dir', 'node_modules/module_package_dir/src/index.js')
             ),
-            new Import('./relative', new File('resolver/js/require-syntax/relative.js')),
-            new Import('../relative', new File('resolver/js/relative.js')),
+            new Import('jquery', new Module('jquery', 'node_modules/jquery/jquery.js')),
         ], $imports->getImports());
 
-        self::assertEquals([], $imports->getResources());
-    }
-
-    public function testCollectBadRequires()
-    {
-        $imports = new ImportCollection();
-        $file    = new File('resolver/js/require-syntax/red_haring.js');
-
-        $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
-
-        self::assertEquals([], $imports->getImports());
         self::assertEquals([], $imports->getResources());
     }
 
@@ -91,10 +86,13 @@ class JsImportCollectorTest extends TestCase
 
         $resolver->asRequire(Argument::any(), Argument::any())->willThrow(new \RuntimeException());
 
-        $js_import_collector = new JsImportCollector($resolver->reveal());
-        $js_import_collector->collect(
+        $ts_import_collector = new TsImportCollector(
+            new JsImportCollector($resolver->reveal()),
+            $resolver->reveal()
+        );
+        $ts_import_collector->collect(
             __DIR__ . '/../../fixtures',
-            new File('resolver/js/require-syntax/main.js'),
+            new File('resolver/ts/import-syntax/main.ts'),
             $imports
         );
 

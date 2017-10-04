@@ -3,7 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
-namespace Hostnet\Component\Resolver\Import\BuildIn;
+namespace Hostnet\Component\Resolver\Import\BuiltIn;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Import;
@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\Import\ImportCollection;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Import\BuildIn\AngularImportCollector
+ * @covers \Hostnet\Component\Resolver\Import\BuiltIn\AngularImportCollector
  */
 class AngularImportCollectorTest extends TestCase
 {
