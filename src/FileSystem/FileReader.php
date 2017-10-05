@@ -22,6 +22,12 @@ final class FileReader implements ReaderInterface
 
     public function read(File $file): string
     {
-        return file_get_contents($this->cwd . DIRECTORY_SEPARATOR . $file->path);
+        $path = $file->path;
+
+        if (!File::isAbsolutePath($path)) {
+            $path = $this->cwd . '/' . $path;
+        }
+
+        return file_get_contents($path);
     }
 }
