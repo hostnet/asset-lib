@@ -131,8 +131,6 @@ class PipelineBundler
             return;
         }
 
-        $this->logger->debug(' * Compiling target {name}', ['name' => $target->path]);
-
         $writer->write($target, $this->pipeline->push($dependencies, $target, $reader));
     }
 
