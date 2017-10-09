@@ -44,6 +44,14 @@ final class FileConfig implements ConfigInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getIncludePaths(): array
+    {
+        return $this->data['include-paths'] ?? [];
+    }
+
+    /**
      * Return a list of entry point files. These are the files defined under 'files'.
      *
      * @return string[]

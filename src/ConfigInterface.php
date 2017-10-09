@@ -26,6 +26,13 @@ interface ConfigInterface
     public function cwd(): string;
 
     /**
+     * Return a list of additional include paths where node modules are located.
+     *
+     * @return string[]
+     */
+    public function getIncludePaths(): array;
+
+    /**
      * Return a list of entry point files. These are the files defined under 'files'.
      *
      * @return string[]

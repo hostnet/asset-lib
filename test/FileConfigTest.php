@@ -18,6 +18,7 @@ class FileConfigTest extends TestCase
 
         self::assertTrue($config->isDev());
         self::assertSame(__DIR__ . '/fixtures/configs', $config->cwd());
+        self::assertSame([], $config->getIncludePaths());
         self::assertSame([], $config->getEntryPoints());
         self::assertSame([], $config->getAssetFiles());
         self::assertSame('dev', $config->getOutputFolder());
@@ -30,12 +31,34 @@ class FileConfigTest extends TestCase
         self::assertFalse($config->isTsEnabled());
         self::assertFalse($config->isAngularEnabled());
     }
+
+    public function testIncludePaths()
+    {
+        $config = new FileConfig(true, __DIR__ . '/fixtures/configs/include-paths.config.json');
+
+        self::assertTrue($config->isDev());
+        self::assertSame(__DIR__ . '/fixtures/configs', $config->cwd());
+        self::assertSame(['some_other_dir'], $config->getIncludePaths());
+        self::assertSame([], $config->getEntryPoints());
+        self::assertSame([], $config->getAssetFiles());
+        self::assertSame('dev', $config->getOutputFolder());
+        self::assertSame('web', $config->getWebRoot());
+        self::assertSame('', $config->getSourceRoot());
+        self::assertSame(__DIR__ . '/fixtures/configs/var', $config->getCacheDir());
+        self::assertSame('/usr/bin/node', $config->getNodeJsBinary());
+        self::assertSame('/home/me/node_modules', $config->getNodeModulesPath());
+        self::assertFalse($config->isLessEnabled());
+        self::assertFalse($config->isTsEnabled());
+        self::assertFalse($config->isAngularEnabled());
+    }
+
     public function testMinimalRelativeNodePaths()
     {
         $config = new FileConfig(true, __DIR__ . '/fixtures/configs/minimal-relative.config.json');
 
         self::assertTrue($config->isDev());
         self::assertSame(__DIR__ . '/fixtures/configs', $config->cwd());
+        self::assertSame([], $config->getIncludePaths());
         self::assertSame([], $config->getEntryPoints());
         self::assertSame([], $config->getAssetFiles());
         self::assertSame('dev', $config->getOutputFolder());
