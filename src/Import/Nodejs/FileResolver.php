@@ -22,15 +22,18 @@ final class FileResolver implements FileResolverInterface
 {
     private $cwd;
     private $extensions;
+    private $include_paths;
 
     /**
      * @param string   $cwd
      * @param string[] $extensions
+     * @param string[] $include_paths
      */
-    public function __construct(string $cwd, array $extensions)
+    public function __construct(string $cwd, array $extensions, array $include_paths = [])
     {
-        $this->cwd        = $cwd;
-        $this->extensions = $extensions;
+        $this->cwd           = $cwd;
+        $this->extensions    = $extensions;
+        $this->include_paths = $include_paths;
     }
 
     /**
@@ -187,18 +190,23 @@ final class FileResolver implements FileResolverInterface
     private function asModule(string $name): string
     {
         // 1. let DIRS=NODE_MODULES_PATHS(START)
-        $module = 'node_modules/' . $name;
+        $dirs = array_merge(['node_modules'], $this->include_paths);
+
         // 2. for each DIR in DIRS:
-        // a. LOAD_AS_FILE(DIR/X)
-        try {
-            return $this->asFile($module);
-        } catch (FileNotFoundException $e) {
-            // b. LOAD_AS_DIRECTORY(DIR/X)
+        foreach ($dirs as $dir) {
+            // a. LOAD_AS_FILE(DIR/X)
             try {
-                return $this->asDir($module);
+                return $this->asFile($dir . '/' . $name);
             } catch (FileNotFoundException $e) {
-                throw new FileNotFoundException(sprintf('File %s could not be be found!', $name), 0, $e);
+                // b. LOAD_AS_DIRECTORY(DIR/X)
+                try {
+                    return $this->asDir($dir . '/' . $name);
+                } catch (FileNotFoundException $e) {
+                    continue; // skip
+                }
             }
         }
+
+        throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
     }
 }
