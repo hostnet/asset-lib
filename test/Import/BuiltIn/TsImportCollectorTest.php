@@ -5,6 +5,7 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\BuiltIn;
 
+use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
@@ -26,9 +27,13 @@ class TsImportCollectorTest extends TestCase
 
     protected function setUp()
     {
+        $config = $this->prophesize(ConfigInterface::class);
+        $config->cwd()->willReturn(__DIR__ . '/../../fixtures');
+        $config->getIncludePaths()->willReturn([]);
+
         $this->ts_import_collector = new TsImportCollector(
-            new JsImportCollector(new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.js', '.json', '.node'])),
-            new FileResolver(__DIR__ . '/../../fixtures', ['.ts', '.d.ts', '.js', '.json', '.node'])
+            new JsImportCollector(new FileResolver($config->reveal(), ['.ts', '.js', '.json', '.node'])),
+            new FileResolver($config->reveal(), ['.ts', '.d.ts', '.js', '.json', '.node'])
         );
     }
 

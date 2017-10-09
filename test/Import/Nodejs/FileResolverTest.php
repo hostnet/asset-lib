@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\Nodejs;
 
+use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Module;
@@ -23,7 +24,11 @@ class FileResolverTest extends TestCase
 
     protected function setUp()
     {
-        $this->file_resolver = new FileResolver(__DIR__ . '/../../fixtures', ['.js', '.json', '.node'], ['some_other_location']);
+        $config = $this->prophesize(ConfigInterface::class);
+        $config->cwd()->willReturn(__DIR__ . '/../../fixtures');
+        $config->getIncludePaths()->willReturn(['some_other_location']);
+
+        $this->file_resolver = new FileResolver($config->reveal(), ['.js', '.json', '.node']);
     }
 
     public function testAsRequireFile()
