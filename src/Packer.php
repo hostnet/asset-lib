@@ -52,7 +52,7 @@ final class Packer
         );
 
         $js_collector = new JsImportCollector(
-            new FileResolver($config->cwd(), ['.js', '.json', '.node'], $config->getIncludePaths())
+            new FileResolver($config, ['.js', '.json', '.node'])
         );
 
         if ($config->isDev()) {
@@ -84,9 +84,9 @@ final class Packer
         if ($config->isTsEnabled()) {
             $ts_collector = new TsImportCollector(
                 new JsImportCollector(
-                    new FileResolver($config->cwd(), ['.ts', '.js', '.json', '.node'], $config->getIncludePaths())
+                    new FileResolver($config, ['.ts', '.js', '.json', '.node'])
                 ),
-                new FileResolver($config->cwd(), ['.ts', '.d.ts', '.js', '.json', '.node'], $config->getIncludePaths())
+                new FileResolver($config, ['.ts', '.d.ts', '.js', '.json', '.node'])
             );
             if ($config->isDev()) {
                 $ts_collector = new CachedImportCollector($ts_collector, $cache);

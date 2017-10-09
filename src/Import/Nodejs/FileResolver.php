@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\Nodejs;
 
+use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
@@ -20,20 +21,17 @@ use Hostnet\Component\Resolver\Module;
  */
 final class FileResolver implements FileResolverInterface
 {
-    private $cwd;
+    private $config;
     private $extensions;
-    private $include_paths;
 
     /**
-     * @param string   $cwd
-     * @param string[] $extensions
-     * @param string[] $include_paths
+     * @param ConfigInterface $config
+     * @param string[]        $extensions
      */
-    public function __construct(string $cwd, array $extensions, array $include_paths = [])
+    public function __construct(ConfigInterface $config, array $extensions)
     {
-        $this->cwd           = $cwd;
-        $this->extensions    = $extensions;
-        $this->include_paths = $include_paths;
+        $this->config     = $config;
+        $this->extensions = $extensions;
     }
 
     /**
@@ -94,7 +92,7 @@ final class FileResolver implements FileResolverInterface
         $path = $name;
 
         if (!File::isAbsolutePath($path)) {
-            $path = $this->cwd . '/' . $path;
+            $path = $this->config->cwd() . '/' . $path;
         }
 
         // 1. If X is a file, load X as JavaScript text.  STOP
@@ -126,7 +124,7 @@ final class FileResolver implements FileResolverInterface
         $path = $name;
 
         if (!File::isAbsolutePath($path)) {
-            $path = $this->cwd . '/' . $path;
+            $path = $this->config->cwd() . '/' . $path;
         }
 
         // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
@@ -158,13 +156,13 @@ final class FileResolver implements FileResolverInterface
         $package_info_path = $name . '/package.json';
 
         if (!File::isAbsolutePath($package_info_path)) {
-            $package_info_path = $this->cwd . '/' . $package_info_path;
+            $package_info_path = $this->config->cwd() . '/' . $package_info_path;
         }
 
         // 1. If X/package.json is a file,
         if (is_file($package_info_path)) {
             // a. Parse X/package.json, and look for "main" field.
-            $package_info = json_decode(file_get_contents($this->cwd . '/' . $name . '/package.json'), true);
+            $package_info = json_decode(file_get_contents($this->config->cwd() . '/' . $name . '/package.json'), true);
 
             // b. let M = X + (json main field)
             // c. LOAD_AS_FILE(M)
@@ -190,7 +188,7 @@ final class FileResolver implements FileResolverInterface
     private function asModule(string $name): string
     {
         // 1. let DIRS=NODE_MODULES_PATHS(START)
-        $dirs = array_merge(['node_modules'], $this->include_paths);
+        $dirs = array_merge(['node_modules'], $this->config->getIncludePaths());
 
         // 2. for each DIR in DIRS:
         foreach ($dirs as $dir) {
