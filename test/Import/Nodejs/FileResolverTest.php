@@ -23,7 +23,7 @@ class FileResolverTest extends TestCase
 
     protected function setUp()
     {
-        $this->file_resolver = new FileResolver(__DIR__ . '/../../fixtures', ['.js', '.json', '.node']);
+        $this->file_resolver = new FileResolver(__DIR__ . '/../../fixtures', ['.js', '.json', '.node'], ['some_other_location']);
     }
 
     public function testAsRequireFile()
@@ -132,6 +132,16 @@ class FileResolverTest extends TestCase
         self::assertInstanceOf(Module::class, $import->getImportedFile());
         self::assertSame('node_modules/module_package_dir/src/index.js', $import->getImportedFile()->path);
         self::assertSame('module_package_dir', $import->getImportedFile()->getName());
+    }
+
+    public function testAsRequireModuleFromOtherPath()
+    {
+        $parent = new File('node_modules/bar/baz.js');
+        $import = $this->file_resolver->asRequire('uikit', $parent);
+
+        self::assertInstanceOf(Module::class, $import->getImportedFile());
+        self::assertSame('some_other_location/uikit/index.js', $import->getImportedFile()->path);
+        self::assertSame('uikit', $import->getImportedFile()->getName());
     }
 
     /**
