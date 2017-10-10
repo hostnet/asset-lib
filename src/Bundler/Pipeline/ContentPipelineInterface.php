@@ -27,12 +27,15 @@ interface ContentPipelineInterface
     public function peek(File $input_file): string;
 
     /**
-     * Push a bundled file on the pipeline with a list of dependencies.
+     * Bundles a list of dependencies into a single string.
+     *
+     * When passing a $target_file in dev mode it will take the modified time
+     * of that. It has no use otherwise.
      *
      * @param DependencyNodeInterface[] $dependencies
-     * @param File                      $target_file
-     * @param ReaderInterface           $file_reader
+     * @param ReaderInterface $file_reader
+     * @param File|null $target_file
      * @return string
      */
-    public function push(array $dependencies, File $target_file, ReaderInterface $file_reader): string;
+    public function push(array $dependencies, ReaderInterface $file_reader, File $target_file = null): string;
 }

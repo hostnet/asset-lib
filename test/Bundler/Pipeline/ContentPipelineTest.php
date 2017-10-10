@@ -58,6 +58,7 @@ class ContentPipelineTest extends TestCase
     {
         $this->config->isDev()->willReturn(false);
         $this->config->getSourceRoot()->willReturn('fixtures');
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
 
         $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo'));
         $target_file = new File('output.foo');
@@ -70,7 +71,7 @@ class ContentPipelineTest extends TestCase
 
         self::assertEquals(
             "foobar\nfoobar\n",
-            $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader)
+            $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
         );
     }
 
@@ -94,7 +95,7 @@ class ContentPipelineTest extends TestCase
 
         self::assertEquals(
             "foobar\nfoobar\n",
-            $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader)
+            $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
         );
     }
 
@@ -115,7 +116,7 @@ class ContentPipelineTest extends TestCase
 
         self::assertEquals(
             "foobar\nfoobar\n",
-            $this->content_pipeline->push([$input_file, $d1, $d2], $target_file, $reader)
+            $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
         );
     }
 
@@ -127,6 +128,7 @@ class ContentPipelineTest extends TestCase
     {
         $this->config->isDev()->willReturn(false);
         $this->config->getSourceRoot()->willReturn('fixtures');
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
 
         $input_file  = new RootFile(new Module('fixtures/input.js', 'fixtures/input.js'));
         $target_file = new File('output.foo');
@@ -134,6 +136,6 @@ class ContentPipelineTest extends TestCase
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
 
-        self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file], $target_file, $reader));
+        self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file], $reader, $target_file));
     }
 }

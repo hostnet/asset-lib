@@ -77,16 +77,16 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($entry_point3);
 
         $this->pipeline
-            ->push([$entry_point1], new File('dev/foo.bundle.js'), $reader->reveal())
+            ->push([$entry_point1], $reader->reveal(), new File('dev/foo.bundle.js'))
             ->willReturn('foo.js bundle');
         $this->pipeline
-            ->push([], new File('dev/foo.vendor.js'), $reader->reveal())
+            ->push([], $reader->reveal(), new File('dev/foo.vendor.js'))
             ->willReturn('foo.js vendor');
         $this->pipeline
-            ->push([$entry_point2], new File('dev/bar.js'), $reader->reveal())
+            ->push([$entry_point2], $reader->reveal(), new File('dev/bar.js'))
             ->willReturn('bar.js content');
         $this->pipeline
-            ->push([$entry_point3], new File('dev/asset.js'), $reader->reveal())
+            ->push([$entry_point3], $reader->reveal(), new File('dev/asset.js'))
             ->willReturn('asset.js content');
         $this->pipeline->peek(new File('bar.js'))->willReturn('js');
         $this->pipeline->peek(new File('asset.js'))->willReturn('js');
@@ -135,10 +135,10 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($entry_point1);
 
         $this->pipeline
-            ->push([$entry_point1], new File('dev/foobar.bundle.js'), $reader->reveal())
+            ->push([$entry_point1], $reader->reveal(), new File('dev/foobar.bundle.js'))
             ->willReturn('foobar.js bundle');
         $this->pipeline
-            ->push([], new File('dev/foobar.vendor.js'), $reader->reveal())
+            ->push([], $reader->reveal(), new File('dev/foobar.vendor.js'))
             ->willReturn('foobar.js vendor');
 
         $reader->read(Argument::that(function (File $file) {

@@ -93,8 +93,8 @@ final class AngularHtmlListener
 
         return $this->pipeline->push(
             $asset->getFiles(),
-            $asset->getAssetFile($this->config->getOutputFolder(), $this->config->getSourceRoot()),
-            $reader
+            $reader,
+            $asset->getAssetFile($this->config->getOutputFolder(), $this->config->getSourceRoot())
         );
     }
 }

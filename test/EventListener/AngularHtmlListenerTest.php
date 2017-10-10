@@ -56,10 +56,10 @@ class AngularHtmlListenerTest extends TestCase
         $this->pipeline->peek($html)->willReturn('html');
         $this->pipeline->peek($less)->willReturn('css');
         $this->pipeline
-            ->push([new Dependency($html)], new File('dev/app.component.html'), Argument::type(FileReader::class))
+            ->push([new Dependency($html)], Argument::type(FileReader::class), new File('dev/app.component.html'))
             ->willReturn('<html>foobar</html>');
         $this->pipeline
-            ->push([new Dependency($less)], new File('dev/app.component.css'), Argument::type(FileReader::class))
+            ->push([new Dependency($less)], Argument::type(FileReader::class), new File('dev/app.component.css'))
             ->willReturn('div {color: red;}');
 
         $this->angular_html_listener->onPostTranspile(new AssetEvent($item));
@@ -83,10 +83,10 @@ class AngularHtmlListenerTest extends TestCase
         $this->pipeline->peek($html)->willReturn('html');
         $this->pipeline->peek($less)->willReturn('css');
         $this->pipeline
-            ->push([new Dependency($html)], new File('dev/test/app.component.html'), Argument::type(FileReader::class))
+            ->push([new Dependency($html)], Argument::type(FileReader::class), new File('dev/test/app.component.html'))
             ->willReturn('<html>foobar</html>');
         $this->pipeline
-            ->push([new Dependency($less)], new File('dev/test/app.component.css'), Argument::type(FileReader::class))
+            ->push([new Dependency($less)], Argument::type(FileReader::class), new File('dev/test/app.component.css'))
             ->willReturn('div {color: red;}');
 
         $this->angular_html_listener->onPostTranspile(new AssetEvent($item));

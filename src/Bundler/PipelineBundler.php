@@ -131,7 +131,7 @@ class PipelineBundler
             return;
         }
 
-        $writer->write($target, $this->pipeline->push($dependencies, $target, $reader));
+        $writer->write($target, $this->pipeline->push($dependencies, $reader, $target));
     }
 
     /**
