@@ -134,4 +134,20 @@ describe("Require.js module register method test", function() {
 
         expect(lib.require('this/is/spartha')).toEqual('HENK');
     });
+
+    it("with relative require path dependencies", function() {
+        lib.register("pathdeps", function (define, require, module, exports) {
+            define('pathdeps/pathdepsfoo', [], function () {
+                return 'FOO';
+            });
+            define('pathdeps/pathdepsbar', ['./pathdepsfoo'], function (foo) {
+                return 'BAR';
+            });
+        });
+
+        lib.require('pathdeps');
+
+        expect(lib.require('pathdeps/pathdepsfoo')).toEqual('FOO');
+        expect(lib.require('pathdeps/pathdepsbar')).toEqual('BAR');
+    });
 });

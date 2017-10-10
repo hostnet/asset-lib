@@ -100,7 +100,7 @@
                 } else if (dependency_name === 'exports') {
                     dependency = _module.exports;
                 } else {
-                    dependency = _require(dependency_name);
+                    dependency = window.require(_resolveRelativeName(dependency_name, module_name));
                 }
 
                 args.push(dependency);
