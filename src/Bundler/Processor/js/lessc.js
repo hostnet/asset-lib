@@ -6,8 +6,9 @@ function compile(source) {
         "filename": path.resolve(process.argv[2])
     }, function (error, output) {
         if (null !== error) {
-            process.stdout.write(error.message);
-            process.stdout.write("\n");
+            console.error(error.message);
+            console.error('In', error.filename, 'on line', error.line);
+            console.error('Near ', error.extract);
 
             process.exit(1);
         }
