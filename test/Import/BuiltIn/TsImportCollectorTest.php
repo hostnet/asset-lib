@@ -71,6 +71,7 @@ class TsImportCollectorTest extends TestCase
             new Import('./Alias', new File('resolver/ts/import-syntax/Alias.ts')),
             new Import('./All', new File('resolver/ts/import-syntax/All.ts')),
             new Import('./Multiple', new File('resolver/ts/import-syntax/Multiple.ts')),
+            new Import('./Multiple2', new File('resolver/ts/import-syntax/Multiple2.ts')),
             new Import('./module.js', new File('resolver/ts/import-syntax/module.js')),
             new Import('module_index', new Module('module_index', 'node_modules/module_index/index.js')),
             new Import('module_package', new Module('module_package', 'node_modules/module_package/main.js')),

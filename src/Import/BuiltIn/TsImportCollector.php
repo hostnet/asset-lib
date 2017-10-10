@@ -39,7 +39,7 @@ final class TsImportCollector implements ImportCollectorInterface
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         $content = file_get_contents($cwd . '/' . $file->path);
-        $n       = preg_match_all('/import(.*from)?\s+["\'](.*)["\'];/', $content, $matches);
+        $n       = preg_match_all('/import([^;\'"]*from)?\s+["\'](.*?)["\'];/', $content, $matches);
 
         $this->js_import_collector->collect($cwd, $file, $imports);
 
