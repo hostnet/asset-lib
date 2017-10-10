@@ -3,9 +3,6 @@ var path = require('path');
 
 function compile(source) {
     less.render(source, {
-        "sourceMap": {
-            "sourceMapFileInline": true
-        },
         "filename": path.resolve(process.argv[2])
     }, function (error, output) {
         if (null !== error) {
