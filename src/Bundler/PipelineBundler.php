@@ -170,9 +170,7 @@ class PipelineBundler
         }
 
         // Did the files change?
-        $file_path = (File::isAbsolutePath($output_file->path)
-                ? ''
-                : ($this->config->cwd() . '/')) . $output_file->path;
+        $file_path = File::makeAbsolutePath($output_file->path, $this->config->cwd());
         $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
@@ -180,11 +178,7 @@ class PipelineBundler
         }
 
         foreach ($input_files as $input_file) {
-            $path = $input_file->getFile()->path;
-
-            if (!File::isAbsolutePath($path)) {
-                $path = $this->config->cwd() . '/' . $path;
-            }
+            $path = File::makeAbsolutePath($input_file->getFile()->path, $this->config->cwd());
 
             if ($mtime < filemtime($path)) {
                 return true;

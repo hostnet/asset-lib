@@ -32,5 +32,12 @@ class FileTest extends TestCase
         self::assertFalse(File::isAbsolutePath('some/other/path'));
         self::assertFalse(File::isAbsolutePath('./some/other/path'));
         self::assertFalse(File::isAbsolutePath('../some/other/path'));
+
+        self::assertEquals(File::clean(__FILE__), File::makeAbsolutePath(__FILE__, __DIR__));
+        self::assertEquals(File::clean(__FILE__), File::makeAbsolutePath(basename(__FILE__), __DIR__));
+        self::assertEquals(
+            File::clean(__DIR__ . '/../some/other/path'),
+            File::makeAbsolutePath('../some/other/path', __DIR__)
+        );
     }
 }

@@ -29,7 +29,7 @@ final class AngularImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
-        $content = file_get_contents($cwd . '/' . $file->path);
+        $content = file_get_contents(File::makeAbsolutePath($file->path, $cwd));
 
         if (preg_match_all('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', $content, $matches) > 0) {
             foreach ($matches[2] as $match) {

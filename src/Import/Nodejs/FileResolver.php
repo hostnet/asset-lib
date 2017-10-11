@@ -89,11 +89,7 @@ final class FileResolver implements FileResolverInterface
      */
     private function asFile(string $name): string
     {
-        $path = $name;
-
-        if (!File::isAbsolutePath($path)) {
-            $path = $this->config->cwd() . '/' . $path;
-        }
+        $path = File::makeAbsolutePath($name, $this->config->cwd());
 
         // 1. If X is a file, load X as JavaScript text.  STOP
         if (is_file($path)) {
@@ -121,11 +117,7 @@ final class FileResolver implements FileResolverInterface
      */
     private function asIndex(string $name): string
     {
-        $path = $name;
-
-        if (!File::isAbsolutePath($path)) {
-            $path = $this->config->cwd() . '/' . $path;
-        }
+        $path = File::makeAbsolutePath($name, $this->config->cwd());
 
         // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
         if (is_file($path . '/index.js')) {
@@ -153,16 +145,12 @@ final class FileResolver implements FileResolverInterface
      */
     private function asDir(string $name): string
     {
-        $package_info_path = $name . '/package.json';
-
-        if (!File::isAbsolutePath($package_info_path)) {
-            $package_info_path = $this->config->cwd() . '/' . $package_info_path;
-        }
+        $package_info_path = File::makeAbsolutePath($name . '/package.json', $this->config->cwd());
 
         // 1. If X/package.json is a file,
         if (is_file($package_info_path)) {
             // a. Parse X/package.json, and look for "main" field.
-            $package_info = json_decode(file_get_contents($this->config->cwd() . '/' . $name . '/package.json'), true);
+            $package_info = json_decode(file_get_contents($package_info_path), true);
 
             // b. let M = X + (json main field)
             // c. LOAD_AS_FILE(M)
