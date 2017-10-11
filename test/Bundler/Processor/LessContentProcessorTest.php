@@ -7,6 +7,7 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
@@ -17,6 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class LessContentProcessorTest extends TestCase
 {
+    private $runner;
     /**
      * @var LessContentProcessor
      */
@@ -24,7 +26,11 @@ class LessContentProcessorTest extends TestCase
 
     protected function setUp()
     {
-        $this->less_content_processor = new LessContentProcessor(new Executable('echo', __DIR__));
+        $this->runner = $this->prophesize(LessRunner::class);
+
+        $this->less_content_processor = new LessContentProcessor(
+            $this->runner->reveal()
+        );
     }
 
     public function testSupports()
@@ -50,22 +56,12 @@ class LessContentProcessorTest extends TestCase
     {
         $item = new ContentItem(new File(basename(__FILE__)), 'foobar.less', new FileReader(__DIR__));
 
+        $this->runner->execute($item, __DIR__)->willReturn('less code');
+
         $this->less_content_processor->transpile(__DIR__, $item);
 
-        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $item->getContent());
+        self::assertContains('less code', $item->getContent());
         self::assertSame('foobar.less', $item->module_name);
         self::assertSame(ContentState::READY, $item->getState()->current());
-    }
-
-    /**
-     * @expectedException \Hostnet\Component\Resolver\Bundler\TranspileException
-     */
-    public function testTranspileBad()
-    {
-        $processor = new LessContentProcessor(new Executable('false', __DIR__));
-
-        $item = new ContentItem(new File(basename(__FILE__)), 'foobar', new FileReader(__DIR__));
-
-        $processor->transpile(__DIR__, $item);
     }
 }

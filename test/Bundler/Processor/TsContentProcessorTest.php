@@ -7,6 +7,7 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\Runner\TsRunner;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
@@ -17,6 +18,8 @@ use PHPUnit\Framework\TestCase;
  */
 class TsContentProcessorTest extends TestCase
 {
+    private $ts_runner;
+
     /**
      * @var TsContentProcessor
      */
@@ -24,7 +27,11 @@ class TsContentProcessorTest extends TestCase
 
     protected function setUp()
     {
-        $this->ts_content_processor = new TsContentProcessor(new Executable('echo', __DIR__));
+        $this->ts_runner = $this->prophesize(TsRunner::class);
+
+        $this->ts_content_processor = new TsContentProcessor(
+            $this->ts_runner->reveal()
+        );
     }
 
     public function testSupports()
@@ -50,22 +57,12 @@ class TsContentProcessorTest extends TestCase
     {
         $item = new ContentItem(new File(basename(__FILE__)), 'foobar.ts', new FileReader(__DIR__));
 
+        $this->ts_runner->execute($item)->willReturn('ts code');
+
         $this->ts_content_processor->transpile(__DIR__, $item);
 
-        self::assertContains('js' . DIRECTORY_SEPARATOR . 'tsc.js', $item->getContent());
+        self::assertContains('ts code', $item->getContent());
         self::assertSame('foobar', $item->module_name);
         self::assertSame(ContentState::PROCESSED, $item->getState()->current());
-    }
-
-    /**
-     * @expectedException \Hostnet\Component\Resolver\Bundler\TranspileException
-     */
-    public function testTranspileBad()
-    {
-        $processor = new TsContentProcessor(new Executable('false', __DIR__));
-
-        $item = new ContentItem(new File(basename(__FILE__)), 'foobar', new FileReader(__DIR__));
-
-        $processor->transpile(__DIR__, $item);
     }
 }
