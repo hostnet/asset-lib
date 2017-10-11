@@ -11,6 +11,10 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\StringInput;
 
 /**
  * @covers \Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor
@@ -55,9 +59,12 @@ class LessContentProcessorTest extends TestCase
 
         $this->less_content_processor->transpile($cwd, $item);
 
+        $input = new StringInput($item->getContent());
+        $input->bind(new InputDefinition([new InputArgument('cmd'), new InputArgument('target_path')]));
+
         self::assertSame('foobar.less', $item->module_name);
-        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $item->getContent());
-        self::assertContains(' ' . $target_path, $item->getContent());
+        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $input->getArgument('cmd'));
+        self::assertSame($target_path, $input->getArgument('target_path'));
         self::assertSame(ContentState::READY, $item->getState()->current());
     }
 
