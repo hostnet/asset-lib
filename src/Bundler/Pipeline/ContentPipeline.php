@@ -75,9 +75,10 @@ final class ContentPipeline implements ContentPipelineInterface
     /**
      * {@inheritdoc}
      */
-    public function push(array $dependencies, File $target_file, ReaderInterface $file_reader): string
+    public function push(array $dependencies, ReaderInterface $file_reader, File $target_file = null): string
     {
-        $this->logger->debug(' * Compiling target {name}', ['name' => $target_file->path]);
+        $name = $target_file ? $target_file->path : '';
+        $this->logger->debug(' * Compiling target {name}', ['name' => $name]);
 
         $buffer = '';
 
@@ -101,14 +102,16 @@ final class ContentPipeline implements ContentPipelineInterface
                 $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
             }
 
-            $cache_key = Cache::createFileCacheKey($file);
+            $cache_key   = Cache::createFileCacheKey($file);
+            $cache_file  = $this->config->getCacheDir() . '/' . $cache_key;
+            $target_file = $target_file ?: new File($cache_file);
 
             if ($this->config->isDev()
-                && file_exists($this->config->getCacheDir() . '/' . $cache_key)
+                && file_exists($cache_file)
                 && !$this->checkIfChanged($target_file, $dependency)
             ) {
                 [$content, $extension] = unserialize(file_get_contents(
-                    $this->config->getCacheDir() . '/' . $cache_key
+                    $cache_file
                 ), []);
 
                 $item = new ContentItem($file, $module_name, $file_reader);
@@ -125,7 +128,7 @@ final class ContentPipeline implements ContentPipelineInterface
                 if ($this->config->isDev()) {
                     // cache the contents of the item
                     file_put_contents(
-                        $this->config->getCacheDir() . '/' . $cache_key,
+                        $cache_file,
                         serialize([$item->getContent(), $item->getState()->extension()])
                     );
                 }
@@ -193,8 +196,11 @@ final class ContentPipeline implements ContentPipelineInterface
 
     private function checkIfChanged(File $output_file, DependencyNodeInterface $dependency)
     {
-        $file_path = $this->config->cwd() . '/' . $output_file->path;
-        $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
+        $file_path = $output_file->path;
+        if (! File::isAbsolutePath($file_path)) {
+            $file_path = $this->config->cwd() . '/' . $file_path;
+        }
+        $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
             return true;

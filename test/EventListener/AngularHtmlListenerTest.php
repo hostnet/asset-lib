@@ -14,6 +14,8 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Import\RootFile;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
@@ -24,6 +26,7 @@ class AngularHtmlListenerTest extends TestCase
 {
     private $config;
     private $pipeline;
+    private $finder;
 
     /**
      * @var AngularHtmlListener
@@ -34,10 +37,12 @@ class AngularHtmlListenerTest extends TestCase
     {
         $this->config   = $this->prophesize(ConfigInterface::class);
         $this->pipeline = $this->prophesize(ContentPipelineInterface::class);
+        $this->finder   = $this->prophesize(ImportFinderInterface::class);
 
         $this->angular_html_listener = new AngularHtmlListener(
             $this->config->reveal(),
-            $this->pipeline->reveal()
+            $this->pipeline->reveal(),
+            $this->finder->reveal()
         );
     }
 
@@ -50,16 +55,21 @@ class AngularHtmlListenerTest extends TestCase
         $this->config->getSourceRoot()->willReturn('');
         $this->config->getOutputFolder()->willReturn('dev');
 
-        $html = new File('app.component.html');
-        $less = new File('app.component.less');
+        $less      = new File('app.component.less');
+        $less_root = new RootFile($less);
+        $this->finder->all($less)->willReturn($less_root);
+
+        $html      = new File('app.component.html');
+        $html_root = new RootFile($html);
+        $this->finder->all($html)->willReturn($html_root);
 
         $this->pipeline->peek($html)->willReturn('html');
         $this->pipeline->peek($less)->willReturn('css');
         $this->pipeline
-            ->push([new Dependency($html)], new File('dev/app.component.html'), Argument::type(FileReader::class))
+            ->push([$html_root], Argument::type(FileReader::class))
             ->willReturn('<html>foobar</html>');
         $this->pipeline
-            ->push([new Dependency($less)], new File('dev/app.component.css'), Argument::type(FileReader::class))
+            ->push([$less_root], Argument::type(FileReader::class))
             ->willReturn('div {color: red;}');
 
         $this->angular_html_listener->onPostTranspile(new AssetEvent($item));
@@ -77,16 +87,21 @@ class AngularHtmlListenerTest extends TestCase
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getOutputFolder()->willReturn('dev');
 
-        $html = new File('fixtures/test/app.component.html');
-        $less = new File('fixtures/test/app.component.less');
+        $less      = new File('fixtures/test/app.component.less');
+        $less_root = new RootFile($less);
+        $this->finder->all($less)->willReturn($less_root);
+
+        $html      = new File('fixtures/test/app.component.html');
+        $html_root = new RootFile($html);
+        $this->finder->all($html)->willReturn($html_root);
 
         $this->pipeline->peek($html)->willReturn('html');
         $this->pipeline->peek($less)->willReturn('css');
         $this->pipeline
-            ->push([new Dependency($html)], new File('dev/test/app.component.html'), Argument::type(FileReader::class))
+            ->push([$html_root], Argument::type(FileReader::class))
             ->willReturn('<html>foobar</html>');
         $this->pipeline
-            ->push([new Dependency($less)], new File('dev/test/app.component.css'), Argument::type(FileReader::class))
+            ->push([$less_root], Argument::type(FileReader::class))
             ->willReturn('div {color: red;}');
 
         $this->angular_html_listener->onPostTranspile(new AssetEvent($item));

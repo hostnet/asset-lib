@@ -13,6 +13,7 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 
 /**
  * The Angular listener checks all angular component files. If they contain a
@@ -25,11 +26,16 @@ final class AngularHtmlListener
 {
     private $config;
     private $pipeline;
+    private $finder;
 
-    public function __construct(ConfigInterface $config, ContentPipelineInterface $pipeline)
-    {
+    public function __construct(
+        ConfigInterface $config,
+        ContentPipelineInterface $pipeline,
+        ImportFinderInterface $finder
+    ) {
         $this->config   = $config;
         $this->pipeline = $pipeline;
+        $this->finder   = $finder;
     }
 
     /**
@@ -88,12 +94,11 @@ final class AngularHtmlListener
             $file_path = $owning_file->dir . '/' . $file_path;
         }
 
-        $target = new Dependency(new File(File::clean($file_path)));
-        $asset  = new Asset($target, $this->pipeline->peek($target->getFile()));
+        $target_file = new File(File::clean($file_path));
+        $asset       = new Asset($this->finder->all($target_file), $this->pipeline->peek($target_file));
 
         return $this->pipeline->push(
             $asset->getFiles(),
-            $asset->getAssetFile($this->config->getOutputFolder(), $this->config->getSourceRoot()),
             $reader
         );
     }
