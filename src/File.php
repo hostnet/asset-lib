@@ -95,4 +95,21 @@ class File
 
         return $path[0] === '/';
     }
+
+    /**
+     * Return an absolute path (from the cwd) based on a given path. If this
+     * was already absolute, no changes are made.
+     *
+     * @param string $path
+     * @param string $cwd
+     * @return string
+     */
+    public static function makeAbsolutePath(string $path, string $cwd): string
+    {
+        if (self::isAbsolutePath($path)) {
+            return self::clean($path);
+        }
+
+        return self::clean($cwd . '/' . $path);
+    }
 }

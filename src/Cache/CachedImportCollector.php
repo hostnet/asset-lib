@@ -38,13 +38,14 @@ final class CachedImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
-        $key = $file->path . get_class($this->inner);
+        $key    = $file->path . get_class($this->inner);
+        $fmtime = filemtime(File::makeAbsolutePath($file->path, $cwd));
 
         if ($this->cache->has($key)) {
             $item = $this->cache->get($key);
 
             // Did the file change? If so, do not use the cached item...
-            if (isset($item['deps']) && $item['info'] === filemtime($cwd . '/' . $file->path)) {
+            if (isset($item['deps']) && $item['info'] === $fmtime) {
                 $imports->extends($item['deps']);
 
                 return;
@@ -53,7 +54,7 @@ final class CachedImportCollector implements ImportCollectorInterface
         $inner_imports = new ImportCollection();
         $this->inner->collect($cwd, $file, $inner_imports);
 
-        $this->cache->set($key, ['info' => filemtime($cwd . '/' . $file->path), 'deps' => $inner_imports]);
+        $this->cache->set($key, ['info' => $fmtime, 'deps' => $inner_imports]);
 
         $imports->extends($inner_imports);
     }

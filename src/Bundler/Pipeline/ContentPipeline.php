@@ -196,11 +196,8 @@ final class ContentPipeline implements ContentPipelineInterface
 
     private function checkIfChanged(File $output_file, DependencyNodeInterface $dependency)
     {
-        $file_path = $output_file->path;
-        if (! File::isAbsolutePath($file_path)) {
-            $file_path = $this->config->cwd() . '/' . $file_path;
-        }
-        $mtime = file_exists($file_path) ? filemtime($file_path) : -1;
+        $file_path = File::makeAbsolutePath($output_file->path, $this->config->cwd());
+        $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
             return true;
@@ -220,7 +217,7 @@ final class ContentPipeline implements ContentPipelineInterface
 
         // Check if any of them changed.
         foreach ($files as $path) {
-            if ($mtime < filemtime($this->config->cwd() . '/' . $path)) {
+            if ($mtime < filemtime(File::makeAbsolutePath($path, $this->config->cwd()))) {
                 return true;
             }
         }
