@@ -46,15 +46,29 @@ class LessContentProcessorTest extends TestCase
         self::assertSame(ContentState::READY, $state->current());
     }
 
-    public function testTranspile()
+    /**
+     * @dataProvider transpileProvider
+     */
+    public function testTranspile(string $path, string $cwd, string $target_path)
     {
-        $item = new ContentItem(new File(basename(__FILE__)), 'foobar.less', new FileReader(__DIR__));
+        $item = new ContentItem(new File($path), 'foobar.less', new FileReader($cwd));
 
-        $this->less_content_processor->transpile(__DIR__, $item);
+        $this->less_content_processor->transpile($cwd, $item);
 
-        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $item->getContent());
         self::assertSame('foobar.less', $item->module_name);
+        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $item->getContent());
+        self::assertContains(' ' . $target_path, $item->getContent());
         self::assertSame(ContentState::READY, $item->getState()->current());
+    }
+
+    public function transpileProvider()
+    {
+        $clean = File::clean(__FILE__);
+
+        return [
+            [basename(__FILE__), __DIR__, $clean],
+            [__FILE__, __DIR__, $clean],
+        ];
     }
 
     /**

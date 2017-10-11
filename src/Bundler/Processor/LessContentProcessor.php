@@ -9,6 +9,7 @@ use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 use Hostnet\Component\Resolver\Bundler\TranspileException;
+use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -39,7 +40,7 @@ final class LessContentProcessor implements ContentProcessorInterface
         $process = ProcessBuilder::create()
             ->add($this->nodejs->getBinary())
             ->add(__DIR__ . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lessc.js')
-            ->add($cwd . DIRECTORY_SEPARATOR . $item->file->path)
+            ->add(File::makeAbsolutePath($item->file->path, $cwd))
             ->setInput($item->getContent())
             ->setEnv('NODE_PATH', $this->nodejs->getNodeModulesLocation())
             ->getProcess();
