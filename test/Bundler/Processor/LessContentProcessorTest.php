@@ -11,10 +11,6 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\StringInput;
 
 /**
  * @covers \Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor
@@ -50,32 +46,15 @@ class LessContentProcessorTest extends TestCase
         self::assertSame(ContentState::READY, $state->current());
     }
 
-    /**
-     * @dataProvider transpileProvider
-     */
-    public function testTranspile(string $path, string $cwd, string $target_path)
+    public function testTranspile()
     {
-        $item = new ContentItem(new File($path), 'foobar.less', new FileReader($cwd));
+        $item = new ContentItem(new File(basename(__FILE__)), 'foobar.less', new FileReader(__DIR__));
 
-        $this->less_content_processor->transpile($cwd, $item);
+        $this->less_content_processor->transpile(__DIR__, $item);
 
-        $input = new StringInput($item->getContent());
-        $input->bind(new InputDefinition([new InputArgument('cmd'), new InputArgument('target_path')]));
-
+        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $item->getContent());
         self::assertSame('foobar.less', $item->module_name);
-        self::assertContains('js' . DIRECTORY_SEPARATOR . 'lessc.js', $input->getArgument('cmd'));
-        self::assertSame($target_path, $input->getArgument('target_path'));
         self::assertSame(ContentState::READY, $item->getState()->current());
-    }
-
-    public function transpileProvider()
-    {
-        $clean = File::clean(__FILE__);
-
-        return [
-            [basename(__FILE__), __DIR__, $clean],
-            [__FILE__, __DIR__, $clean],
-        ];
     }
 
     /**
