@@ -81,7 +81,7 @@ final class Packer
                 $less_collector = new CachedImportCollector($less_collector, $cache);
             }
             $finder->addCollector($less_collector);
-            $pipeline->addProcessor(new LessContentProcessor(new LessRunner($nodejs)));
+            $pipeline->addProcessor(new LessContentProcessor(new LessRunner($nodejs, $config)));
         }
 
         // TS
@@ -113,6 +113,7 @@ final class Packer
         }
 
         $uglify_runner = new UglifyJsRunner($nodejs);
+
         if (!$config->isDev()) {
             $uglify_listener   = new UglifyJsListener($uglify_runner);
             $cleancss_listener = new CleanCssListener(new CleanCssRunner($nodejs));
