@@ -8,9 +8,6 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
-use Hostnet\Component\Resolver\Bundler\TranspileException;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
-use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * Processes JSON files. These will be converted to JavaScript modules.

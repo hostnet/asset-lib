@@ -7,10 +7,12 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
+use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
@@ -23,17 +25,20 @@ class PipelineBundler
     private $pipeline;
     private $logger;
     private $config;
+    private $uglify_js_runner;
 
     public function __construct(
         ImportFinderInterface $finder,
         ContentPipelineInterface $pipeline,
         LoggerInterface $logger,
-        ConfigInterface $config
+        ConfigInterface $config,
+        UglifyJsRunner $uglify_js_runner
     ) {
-        $this->finder   = $finder;
-        $this->pipeline = $pipeline;
-        $this->logger   = $logger;
-        $this->config   = $config;
+        $this->finder           = $finder;
+        $this->pipeline         = $pipeline;
+        $this->logger           = $logger;
+        $this->config           = $config;
+        $this->uglify_js_runner = $uglify_js_runner;
     }
 
     /**
@@ -49,16 +54,21 @@ class PipelineBundler
         $output_folder .= (!empty($output_folder) ? '/' : '') . $this->config->getOutputFolder();
         $source_dir     = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
-        $require_file_name = 'require' . ($this->config->isDev() ? '' : '.min') . '.js';
-
         // put the require.js in the web folder
-        $require_file        = new File(File::clean(__DIR__ . '/../Resources/' . $require_file_name));
+        $require_file        = new File(File::clean(__DIR__ . '/../Resources/require.js'));
         $output_require_file = new File($output_folder . '/require.js');
 
         if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
             $this->logger->debug('Writing require.js file to {name}', ['name' => $output_require_file->path]);
 
-            $writer->write($output_require_file, $reader->read($require_file));
+            // Create an item for the file to write to disk.
+            $item = new ContentItem(
+                $require_file,
+                $output_require_file->getName(),
+                new StringReader($reader->read($require_file))
+            );
+
+            $writer->write($output_require_file, $this->uglify_js_runner->execute($item));
         }
 
         // Entry points

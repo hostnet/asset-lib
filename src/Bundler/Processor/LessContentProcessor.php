@@ -8,21 +8,18 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
-use Hostnet\Component\Resolver\Bundler\TranspileException;
-use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
-use Symfony\Component\Process\ProcessBuilder;
+use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
 
 /**
  * Process LESS files to CSS.
  */
 final class LessContentProcessor implements ContentProcessorInterface
 {
-    private $nodejs;
+    private $less_runner;
 
-    public function __construct(Executable $nodejs)
+    public function __construct(LessRunner $less_runner)
     {
-        $this->nodejs = $nodejs;
+        $this->less_runner = $less_runner;
     }
 
     public function supports(ContentState $state): bool
@@ -37,23 +34,7 @@ final class LessContentProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $process = ProcessBuilder::create()
-            ->add($this->nodejs->getBinary())
-            ->add(__DIR__ . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'lessc.js')
-            ->add(File::makeAbsolutePath($item->file->path, $cwd))
-            ->setInput($item->getContent())
-            ->setEnv('NODE_PATH', $this->nodejs->getNodeModulesLocation())
-            ->getProcess();
-
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new TranspileException(
-                sprintf('Cannot compile "%s" due to compiler error.', $item->file->path),
-                $process->getOutput() . $process->getErrorOutput()
-            );
-        }
-
-        $item->transition(ContentState::READY, $process->getOutput(), 'css');
+        $output = $this->less_runner->execute($item, $cwd);
+        $item->transition(ContentState::READY, $output, 'css');
     }
 }

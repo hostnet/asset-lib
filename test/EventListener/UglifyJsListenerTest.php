@@ -7,6 +7,7 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
@@ -18,6 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 class UglifyJsListenerTest extends TestCase
 {
+    private $runner;
+
     /**
      * @var UglifyJsListener
      */
@@ -25,13 +28,17 @@ class UglifyJsListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->uglify_js_listener = new UglifyJsListener(new Executable('echo', __DIR__));
+        $this->runner = $this->prophesize(UglifyJsRunner::class);
+
+        $this->uglify_js_listener = new UglifyJsListener($this->runner->reveal());
     }
 
     public function testOnPreWrite()
     {
         $item = new ContentItem(new File('foobar.js'), 'foobar.js', new StringReader(''));
         $item->transition(ContentState::PROCESSED, 'foobar');
+
+        $this->runner->execute($item)->willReturn('uglify.js');
 
         $this->uglify_js_listener->onPreWrite(new AssetEvent($item));
 
@@ -48,17 +55,5 @@ class UglifyJsListenerTest extends TestCase
 
         self::assertSame(ContentState::PROCESSED, $item->getState()->current());
         self::assertContains('foobar', $item->getContent());
-    }
-
-    /**
-     * @expectedException \Hostnet\Component\Resolver\Bundler\TranspileException
-     */
-    public function testOnPreWriteError()
-    {
-        $item = new ContentItem(new File('foobar.js'), 'foobar.js', new StringReader(''));
-        $item->transition(ContentState::PROCESSED, 'foobar');
-
-        $listener = new UglifyJsListener(new Executable('false', __DIR__));
-        $listener->onPreWrite(new AssetEvent($item));
     }
 }

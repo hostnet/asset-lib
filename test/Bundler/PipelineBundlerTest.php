@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
@@ -25,6 +26,7 @@ class PipelineBundlerTest extends TestCase
     private $finder;
     private $pipeline;
     private $config;
+    private $runner;
 
     /**
      * @var PipelineBundler
@@ -36,12 +38,14 @@ class PipelineBundlerTest extends TestCase
         $this->finder   = $this->prophesize(ImportFinderInterface::class);
         $this->pipeline = $this->prophesize(ContentPipelineInterface::class);
         $this->config   = $this->prophesize(ConfigInterface::class);
+        $this->runner   = $this->prophesize(UglifyJsRunner::class);
 
         $this->pipeline_bundler = new PipelineBundler(
             $this->finder->reveal(),
             $this->pipeline->reveal(),
             new NullLogger(),
-            $this->config->reveal()
+            $this->config->reveal(),
+            $this->runner->reveal()
         );
     }
 
@@ -91,13 +95,17 @@ class PipelineBundlerTest extends TestCase
         $this->pipeline->peek(new File('bar.js'))->willReturn('js');
         $this->pipeline->peek(new File('asset.js'))->willReturn('js');
 
+        $this->runner->execute(Argument::that(function (ContentItem $item) {
+            return false !== strpos($item->file->path, '/src/Resources/require.js');
+        }))->willReturn('foobar uglified');
+
         $reader->read(Argument::that(function (File $file) {
             return false !== strpos($file->path, '/src/Resources/require.js');
         }))->willReturn('foobar');
 
         $writer->write(Argument::that(function (File $file) {
             return $file->path === 'dev/require.js';
-        }), 'foobar')->shouldBeCalled();
+        }), 'foobar uglified')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
             return $file->path === 'dev/foo.bundle.js';
         }), 'foo.js bundle')->shouldBeCalled();
@@ -141,13 +149,17 @@ class PipelineBundlerTest extends TestCase
             ->push([], $reader->reveal(), new File('dev/foobar.vendor.js'))
             ->willReturn('foobar.js vendor');
 
+        $this->runner->execute(Argument::that(function (ContentItem $item) {
+            return false !== strpos($item->file->path, '/src/Resources/require.js');
+        }))->willReturn('uglified foobar');
+
         $reader->read(Argument::that(function (File $file) {
             return false !== strpos($file->path, '/src/Resources/require.js');
         }))->willReturn('foobar');
 
         $writer->write(Argument::that(function (File $file) {
             return $file->path === 'dev/require.js';
-        }), 'foobar')->shouldBeCalled();
+        }), 'uglified foobar')->shouldBeCalled();
 
         $this->pipeline_bundler->execute($reader->reveal(), $writer->reveal());
     }

@@ -14,6 +14,10 @@ use Hostnet\Component\Resolver\Bundler\Processor\JsonProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\TsContentProcessor;
+use Hostnet\Component\Resolver\Bundler\Runner\CleanCssRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\TsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Event\AssetEvents;
@@ -38,7 +42,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 final class Packer
 {
-    public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false)
+    public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false): void
     {
         $config = new FileConfig($dev, $project_root . '/resolve.config.json');
         $cache  = new Cache($config->getCacheDir() . '/dependencies');
@@ -77,7 +81,7 @@ final class Packer
                 $less_collector = new CachedImportCollector($less_collector, $cache);
             }
             $finder->addCollector($less_collector);
-            $pipeline->addProcessor(new LessContentProcessor($nodejs));
+            $pipeline->addProcessor(new LessContentProcessor(new LessRunner($nodejs, $config)));
         }
 
         // TS
@@ -92,7 +96,7 @@ final class Packer
                 $ts_collector = new CachedImportCollector($ts_collector, $cache);
             }
             $finder->addCollector($ts_collector);
-            $pipeline->addProcessor(new TsContentProcessor($nodejs));
+            $pipeline->addProcessor(new TsContentProcessor(new TsRunner($nodejs)));
         }
 
         // ANGULAR
@@ -108,9 +112,11 @@ final class Packer
             $dispatcher->addListener(AssetEvents::POST_PROCESS, [$listener, 'onPostTranspile']);
         }
 
+        $uglify_runner = new UglifyJsRunner($nodejs);
+
         if (!$config->isDev()) {
-            $uglify_listener   = new UglifyJsListener($nodejs);
-            $cleancss_listener = new CleanCssListener($nodejs);
+            $uglify_listener   = new UglifyJsListener($uglify_runner);
+            $cleancss_listener = new CleanCssListener(new CleanCssRunner($nodejs));
 
             $dispatcher->addListener(AssetEvents::READY, [$uglify_listener, 'onPreWrite']);
             $dispatcher->addListener(AssetEvents::READY, [$cleancss_listener, 'onPreWrite']);
@@ -120,7 +126,8 @@ final class Packer
             $finder,
             $pipeline,
             $logger,
-            $config
+            $config,
+            $uglify_runner
         );
         $bundler->execute(new FileReader($config->cwd()), new FileWriter($config->cwd()));
 
