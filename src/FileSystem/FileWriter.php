@@ -26,7 +26,7 @@ final class FileWriter implements WriterInterface
      */
     public function write(File $file, string $content): void
     {
-        $path = $this->cwd . DIRECTORY_SEPARATOR . $file->path;
+        $path = File::makeAbsolutePath($file->path, $this->cwd);
 
         if (!file_exists(dirname($path))) {
             mkdir(dirname($path), 0777, true);
