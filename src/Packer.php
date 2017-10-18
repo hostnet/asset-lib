@@ -66,7 +66,8 @@ final class Packer
         $finder = new ImportFinder($config->cwd());
         $finder->addCollector($js_collector);
 
-        $pipeline = new ContentPipeline($dispatcher, $logger, $config);
+        $writer   = new FileWriter($config->cwd());
+        $pipeline = new ContentPipeline($dispatcher, $logger, $config, $writer);
 
         $pipeline->addProcessor(new IdentityProcessor('css'));
         $pipeline->addProcessor(new IdentityProcessor('html'));
@@ -129,7 +130,7 @@ final class Packer
             $config,
             $uglify_runner
         );
-        $bundler->execute(new FileReader($config->cwd()), new FileWriter($config->cwd()));
+        $bundler->execute(new FileReader($config->cwd()), $writer);
 
         if ($config->isDev()) {
             $cache->save();
