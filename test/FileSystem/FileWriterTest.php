@@ -19,11 +19,15 @@ class FileWriterTest extends TestCase
         $writer->write(new File('output/foobar.txt'), 'foobar');
 
         self::assertSame('foobar', file_get_contents(__DIR__ . '/output/foobar.txt'));
+
+        $writer->write(new File(__DIR__ . '/output/baz.txt'), 'baz');
+        self::assertSame('baz', file_get_contents(__DIR__ . '/output/baz.txt'));
     }
 
     protected function tearDown()
     {
         unlink(__DIR__ . '/output/foobar.txt');
+        unlink(__DIR__ . '/output/baz.txt');
         rmdir(__DIR__ . '/output');
     }
 }
