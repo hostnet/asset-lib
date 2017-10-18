@@ -9,12 +9,12 @@ use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
 use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
+use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
 use Hostnet\Component\Resolver\Module;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
+use Prophecy\Argument;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,6 +25,7 @@ class ContentPipelineTest extends TestCase
 {
     private $dispatcher;
     private $config;
+    private $writer;
 
     /**
      * @var ContentPipelineInterface
@@ -35,13 +36,15 @@ class ContentPipelineTest extends TestCase
     {
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $this->config     = $this->prophesize(ConfigInterface::class);
+        $this->writer     = $this->prophesize(WriterInterface::class);
 
         $this->config->cwd()->willReturn(__DIR__);
 
         $this->content_pipeline = new ContentPipeline(
             $this->dispatcher->reveal(),
             new NullLogger(),
-            $this->config->reveal()
+            $this->config->reveal(),
+            $this->writer->reveal()
         );
     }
 
@@ -92,6 +95,8 @@ class ContentPipelineTest extends TestCase
         $input_file->addChild($d2 = new Dependency(new Module('fixtures/foo/bar.foo', 'fixtures/foo/bar.foo')));
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
+
+        $this->writer->write(Argument::type(File::class), Argument::type('string'))->shouldBeCalled();
 
         self::assertEquals(
             "foobar\nfoobar\n",

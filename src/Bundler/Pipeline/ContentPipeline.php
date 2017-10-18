@@ -16,6 +16,7 @@ use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
+use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,6 +31,7 @@ final class ContentPipeline implements ContentPipelineInterface
     private $dispatcher;
     private $logger;
     private $config;
+    private $writer;
 
     /**
      * @var ContentProcessorInterface[]
@@ -39,11 +41,13 @@ final class ContentPipeline implements ContentPipelineInterface
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        ConfigInterface $config
+        ConfigInterface $config,
+        WriterInterface $writer
     ) {
         $this->dispatcher = $dispatcher;
         $this->logger     = $logger;
         $this->config     = $config;
+        $this->writer     = $writer;
         $this->processors = [];
     }
 
@@ -127,8 +131,8 @@ final class ContentPipeline implements ContentPipelineInterface
 
                 if ($this->config->isDev()) {
                     // cache the contents of the item
-                    file_put_contents(
-                        $cache_file,
+                    $this->writer->write(
+                        new File($cache_file),
                         serialize([$item->getContent(), $item->getState()->extension()])
                     );
                 }
