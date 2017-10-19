@@ -3,6 +3,11 @@ var UglifyJS = require("uglify-js");
 function compile(source) {
     var result = UglifyJS.minify(source);
 
+    if (result.error) {
+        console.error(result.error);
+        process.exit(1);
+    }
+
     process.stdout.write(result.code);
 }
 
