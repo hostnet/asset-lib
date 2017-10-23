@@ -4,7 +4,12 @@
  */
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver;
+namespace Hostnet\Component\Resolver\Config;
+
+use Hostnet\Component\Resolver\Import\Nodejs\Executable;
+use Hostnet\Component\Resolver\Plugin\PluginInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Generic config reader. This loads the entry-points.json file.
@@ -23,7 +28,7 @@ interface ConfigInterface
      *
      * @return string
      */
-    public function cwd(): string;
+    public function getProjectRoot(): string;
 
     /**
      * Return a list of additional include paths where node modules are located.
@@ -47,19 +52,18 @@ interface ConfigInterface
     public function getAssetFiles(): array;
 
     /**
-     * Return the output folder in which to dump the compiled assets. This is
-     * relative to the web root.
+     * Returns a list of plugins.
+     *
+     * @return PluginInterface[]
+     */
+    public function getPlugins(): array;
+
+    /**
+     * Return the output folder in which to dump the compiled assets.
      *
      * @return string
      */
     public function getOutputFolder(): string;
-
-    /**
-     * Return the web root folder in which to dump the compiled assets.
-     *
-     * @return string
-     */
-    public function getWebRoot(): string;
 
     /**
      * Return the source root folder in which the assets are located.
@@ -74,4 +78,25 @@ interface ConfigInterface
      * @return string
      */
     public function getCacheDir(): string;
+
+    /**
+     * Returns configuration where to find the node.js executable and node_modules path.
+     *
+     * @return Executable
+     */
+    public function getNodeJsExecutable(): Executable;
+
+    /**
+     * Returns a logger used for debugging asset buildings.
+     *
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface;
+
+    /**
+     * Returns event dispatcher used for adding listeners to compiling assets.
+     *
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface;
 }

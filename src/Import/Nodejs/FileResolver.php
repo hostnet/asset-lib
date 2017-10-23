@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Import\Nodejs;
 
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
@@ -89,7 +89,7 @@ final class FileResolver implements FileResolverInterface
      */
     private function asFile(string $name): string
     {
-        $path = File::makeAbsolutePath($name, $this->config->cwd());
+        $path = File::makeAbsolutePath($name, $this->config->getProjectRoot());
 
         // 1. If X is a file, load X as JavaScript text.  STOP
         if (is_file($path)) {
@@ -117,7 +117,7 @@ final class FileResolver implements FileResolverInterface
      */
     private function asIndex(string $name): string
     {
-        $path = File::makeAbsolutePath($name, $this->config->cwd());
+        $path = File::makeAbsolutePath($name, $this->config->getProjectRoot());
 
         // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
         if (is_file($path . '/index.js')) {
@@ -145,7 +145,7 @@ final class FileResolver implements FileResolverInterface
      */
     private function asDir(string $name): string
     {
-        $package_info_path = File::makeAbsolutePath($name . '/package.json', $this->config->cwd());
+        $package_info_path = File::makeAbsolutePath($name . '/package.json', $this->config->getProjectRoot());
 
         // 1. If X/package.json is a file,
         if (is_file($package_info_path)) {

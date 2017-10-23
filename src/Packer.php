@@ -11,30 +11,21 @@ use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
 use Hostnet\Component\Resolver\Bundler\PipelineBundler;
 use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\JsonProcessor;
-use Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
-use Hostnet\Component\Resolver\Bundler\Processor\TsContentProcessor;
 use Hostnet\Component\Resolver\Bundler\Runner\CleanCssRunner;
-use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
-use Hostnet\Component\Resolver\Bundler\Runner\TsRunner;
 use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvents;
-use Hostnet\Component\Resolver\EventListener\AngularHtmlListener;
 use Hostnet\Component\Resolver\EventListener\CleanCssListener;
 use Hostnet\Component\Resolver\EventListener\UglifyJsListener;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\FileWriter;
-use Hostnet\Component\Resolver\Import\BuiltIn\AngularImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
-use Hostnet\Component\Resolver\Import\BuiltIn\LessImportCollector;
-use Hostnet\Component\Resolver\Import\BuiltIn\TsImportCollector;
 use Hostnet\Component\Resolver\Import\ImportFinder;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Hostnet\Component\Resolver\Plugin\PluginApi;
 
 /**
  * Simple facade that registered JS, CSS, TS and LESS compilation and runs it
@@ -42,18 +33,16 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 final class Packer
 {
-    public static function pack(string $project_root, LoggerInterface $logger, bool $dev = false): void
+    public static function pack(ConfigInterface $config): void
     {
-        $config = new FileConfig($dev, $project_root . '/resolve.config.json');
-        $cache  = new Cache($config->getCacheDir() . '/dependencies');
+        $cache = new Cache($config->getCacheDir() . '/dependencies');
         $cache->load();
 
-        $dispatcher = new EventDispatcher();
+        $dispatcher = $config->getEventDispatcher();
 
-        $nodejs = new Executable(
-            $config->getNodeJsBinary(),
-            $config->getNodeModulesPath()
-        );
+        $nodejs = $config->getNodeJsExecutable();
+
+        $logger = $config->getLogger();
 
         $js_collector = new JsImportCollector(
             new FileResolver($config, ['.js', '.json', '.node'])
@@ -63,10 +52,10 @@ final class Packer
             $js_collector = new CachedImportCollector($js_collector, $cache);
         }
 
-        $finder = new ImportFinder($config->cwd());
+        $finder = new ImportFinder($config->getProjectRoot());
         $finder->addCollector($js_collector);
 
-        $writer   = new FileWriter($config->cwd());
+        $writer   = new FileWriter($config->getProjectRoot());
         $pipeline = new ContentPipeline($dispatcher, $logger, $config, $writer);
 
         $pipeline->addProcessor(new IdentityProcessor('css'));
@@ -75,42 +64,10 @@ final class Packer
         $pipeline->addProcessor(new ModuleProcessor());
         $pipeline->addProcessor(new JsonProcessor());
 
-        // LESS
-        if ($config->isLessEnabled()) {
-            $less_collector = new LessImportCollector();
-            if ($config->isDev()) {
-                $less_collector = new CachedImportCollector($less_collector, $cache);
-            }
-            $finder->addCollector($less_collector);
-            $pipeline->addProcessor(new LessContentProcessor(new LessRunner($nodejs, $config)));
-        }
+        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
 
-        // TS
-        if ($config->isTsEnabled()) {
-            $ts_collector = new TsImportCollector(
-                new JsImportCollector(
-                    new FileResolver($config, ['.ts', '.js', '.json', '.node'])
-                ),
-                new FileResolver($config, ['.ts', '.d.ts', '.js', '.json', '.node'])
-            );
-            if ($config->isDev()) {
-                $ts_collector = new CachedImportCollector($ts_collector, $cache);
-            }
-            $finder->addCollector($ts_collector);
-            $pipeline->addProcessor(new TsContentProcessor(new TsRunner($nodejs)));
-        }
-
-        // ANGULAR
-        if ($config->isAngularEnabled()) {
-            $angular_collector = new AngularImportCollector();
-            if ($config->isDev()) {
-                $angular_collector = new CachedImportCollector($angular_collector, $cache);
-            }
-            $finder->addCollector($angular_collector);
-
-            $listener = new AngularHtmlListener($config, $pipeline, $finder);
-
-            $dispatcher->addListener(AssetEvents::POST_PROCESS, [$listener, 'onPostTranspile']);
+        foreach ($config->getPlugins() as $plugin) {
+            $plugin->activate($plugin_api);
         }
 
         $uglify_runner = new UglifyJsRunner($nodejs);
@@ -130,7 +87,7 @@ final class Packer
             $config,
             $uglify_runner
         );
-        $bundler->execute(new FileReader($config->cwd()), $writer);
+        $bundler->execute(new FileReader($config->getProjectRoot()), $writer);
 
         if ($config->isDev()) {
             $cache->save();

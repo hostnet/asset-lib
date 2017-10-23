@@ -7,7 +7,7 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
@@ -54,12 +54,11 @@ class PipelineBundlerTest extends TestCase
         $reader = $this->prophesize(ReaderInterface::class);
         $writer = $this->prophesize(WriterInterface::class);
 
-        $this->config->getWebRoot()->willReturn('');
-        $this->config->getOutputFolder()->willReturn('dev');
+        $this->config->getOutputFolder()->willReturn('dev1');
         $this->config->getSourceRoot()->willReturn('');
         $this->config->isDev()->willReturn(true);
-        $this->config->getCacheDir()->willReturn(__DIR__ . '/dev');
-        $this->config->cwd()->willReturn(__DIR__);
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/dev1-cache');
+        $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn(['bar.js']);
 
@@ -81,16 +80,16 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($entry_point3);
 
         $this->pipeline
-            ->push([$entry_point1], $reader->reveal(), new File('dev/foo.bundle.js'))
+            ->push([$entry_point1], $reader->reveal(), new File('dev1/foo.bundle.js'))
             ->willReturn('foo.js bundle');
         $this->pipeline
-            ->push([], $reader->reveal(), new File('dev/foo.vendor.js'))
+            ->push([], $reader->reveal(), new File('dev1/foo.vendor.js'))
             ->willReturn('foo.js vendor');
         $this->pipeline
-            ->push([$entry_point2], $reader->reveal(), new File('dev/bar.js'))
+            ->push([$entry_point2], $reader->reveal(), new File('dev1/bar.js'))
             ->willReturn('bar.js content');
         $this->pipeline
-            ->push([$entry_point3], $reader->reveal(), new File('dev/asset.js'))
+            ->push([$entry_point3], $reader->reveal(), new File('dev1/asset.js'))
             ->willReturn('asset.js content');
         $this->pipeline->peek(new File('bar.js'))->willReturn('js');
         $this->pipeline->peek(new File('asset.js'))->willReturn('js');
@@ -104,19 +103,19 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn('foobar');
 
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev/require.js';
+            return $file->path === 'dev1/require.js';
         }), 'foobar uglified')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev/foo.bundle.js';
+            return $file->path === 'dev1/foo.bundle.js';
         }), 'foo.js bundle')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev/foo.vendor.js';
+            return $file->path === 'dev1/foo.vendor.js';
         }), 'foo.js vendor')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev/bar.js';
+            return $file->path === 'dev1/bar.js';
         }), 'bar.js content')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev/asset.js';
+            return $file->path === 'dev1/asset.js';
         }), 'asset.js content')->shouldBeCalled();
 
         $this->pipeline_bundler->execute($reader->reveal(), $writer->reveal());
@@ -127,12 +126,11 @@ class PipelineBundlerTest extends TestCase
         $reader = $this->prophesize(ReaderInterface::class);
         $writer = $this->prophesize(WriterInterface::class);
 
-        $this->config->getWebRoot()->willReturn('');
-        $this->config->getOutputFolder()->willReturn('dev');
+        $this->config->getOutputFolder()->willReturn('dev2');
         $this->config->getSourceRoot()->willReturn('');
         $this->config->isDev()->willReturn(true);
-        $this->config->getCacheDir()->willReturn(__DIR__ . '/dev');
-        $this->config->cwd()->willReturn(__DIR__);
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/dev2-cache');
+        $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foobar.js']);
         $this->config->getAssetFiles()->willReturn([]);
 
@@ -143,10 +141,10 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($entry_point1);
 
         $this->pipeline
-            ->push([$entry_point1], $reader->reveal(), new File('dev/foobar.bundle.js'))
+            ->push([$entry_point1], $reader->reveal(), new File('dev2/foobar.bundle.js'))
             ->willReturn('foobar.js bundle');
         $this->pipeline
-            ->push([], $reader->reveal(), new File('dev/foobar.vendor.js'))
+            ->push([], $reader->reveal(), new File('dev2/foobar.vendor.js'))
             ->willReturn('foobar.js vendor');
 
         $this->runner->execute(Argument::that(function (ContentItem $item) {
@@ -158,7 +156,7 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn('foobar');
 
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev/require.js';
+            return $file->path === 'dev2/require.js';
         }), 'uglified foobar')->shouldBeCalled();
 
         $this->pipeline_bundler->execute($reader->reveal(), $writer->reveal());

@@ -9,7 +9,7 @@ namespace Hostnet\Component\Resolver\Bundler;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\Cache\Cache;
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
@@ -50,9 +50,8 @@ class PipelineBundler
      */
     public function execute(ReaderInterface $reader, WriterInterface $writer)
     {
-        $output_folder  = $this->config->getWebRoot();
-        $output_folder .= (!empty($output_folder) ? '/' : '') . $this->config->getOutputFolder();
-        $source_dir     = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
+        $output_folder = $this->config->getOutputFolder();
+        $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
         // put the require.js in the web folder
         $require_file        = new File(File::clean(__DIR__ . '/../Resources/require.js'));
@@ -180,7 +179,7 @@ class PipelineBundler
         }
 
         // Did the files change?
-        $file_path = File::makeAbsolutePath($output_file->path, $this->config->cwd());
+        $file_path = File::makeAbsolutePath($output_file->path, $this->config->getProjectRoot());
         $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
@@ -188,7 +187,7 @@ class PipelineBundler
         }
 
         foreach ($input_files as $input_file) {
-            $path = File::makeAbsolutePath($input_file->getFile()->path, $this->config->cwd());
+            $path = File::makeAbsolutePath($input_file->getFile()->path, $this->config->getProjectRoot());
 
             if ($mtime < filemtime($path)) {
                 return true;
