@@ -3,11 +3,12 @@
 bin/
 vendor/
 var/
-node_modules/
+/node_modules/
 test/fixtures/var/
 test/fixtures/web/
 package-lock.json
 composer.lock
 yarn.lock
 composer.phar
-/test/Bundler/dev/104a7_dev.require.js.sources
+/test/Bundler/dev1-cache
+/test/Bundler/dev2-cache/eb43a_dev2.require.js.sources

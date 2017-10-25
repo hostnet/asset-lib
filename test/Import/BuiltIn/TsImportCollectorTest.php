@@ -5,7 +5,7 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import\BuiltIn;
 
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Import;
@@ -28,7 +28,7 @@ class TsImportCollectorTest extends TestCase
     protected function setUp()
     {
         $config = $this->prophesize(ConfigInterface::class);
-        $config->cwd()->willReturn(__DIR__ . '/../../fixtures');
+        $config->getProjectRoot()->willReturn(__DIR__.'/../../fixtures');
         $config->getIncludePaths()->willReturn([]);
 
         $this->ts_import_collector = new TsImportCollector(
@@ -61,7 +61,7 @@ class TsImportCollectorTest extends TestCase
         $imports = new ImportCollection();
         $file    = new File('resolver/ts/import-syntax/main.ts');
 
-        $this->ts_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
+        $this->ts_import_collector->collect(__DIR__.'/../../fixtures', $file, $imports);
 
         self::assertEquals([
             new Import('./Import', new File('resolver/ts/import-syntax/Import.ts')),
@@ -97,7 +97,7 @@ class TsImportCollectorTest extends TestCase
             $resolver->reveal()
         );
         $ts_import_collector->collect(
-            __DIR__ . '/../../fixtures',
+            __DIR__.'/../../fixtures',
             new File('resolver/ts/import-syntax/main.ts'),
             $imports
         );

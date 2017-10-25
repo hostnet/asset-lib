@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Runner;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
@@ -25,10 +25,10 @@ class LessRunnerTest extends TestCase
     protected function setUp()
     {
         $config = $this->prophesize(ConfigInterface::class);
-        $config->cwd()->willReturn('cwd');
+        $config->getNodeJsExecutable()->willReturn(new Executable('echo', __DIR__));
+        $config->getProjectRoot()->willReturn('cwd');
 
         $this->less_runner = new LessRunner(
-            new Executable('echo', __DIR__),
             $config->reveal()
         );
     }
@@ -51,11 +51,12 @@ class LessRunnerTest extends TestCase
     public function testExecuteWriteError()
     {
         $config = $this->prophesize(ConfigInterface::class);
-        $config->cwd()->willReturn('cwd');
+        $config->getProjectRoot()->willReturn('cwd');
+        $config->getNodeJsExecutable()->willReturn(new Executable('false', __DIR__));
 
         $item = new ContentItem(new File('foobar.js'), 'foobar.js', new StringReader(''));
 
-        $listener = new LessRunner(new Executable('false', __DIR__), $config->reveal());
+        $listener = new LessRunner($config->reveal());
         $listener->execute($item);
     }
 }

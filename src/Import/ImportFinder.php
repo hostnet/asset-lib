@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\File;
 /**
  * Import finder which uses ImportCollectorInterface to find imports.
  */
-final class ImportFinder implements ImportFinderInterface
+final class ImportFinder implements MutableImportFinderInterface
 {
     /**
      * @var ImportCollectorInterface[]
@@ -26,11 +26,9 @@ final class ImportFinder implements ImportFinderInterface
     }
 
     /**
-     * Add a collector the the finder.
-     *
-     * @param ImportCollectorInterface $import_collector
+     * {@inheritdoc}
      */
-    public function addCollector(ImportCollectorInterface $import_collector)
+    public function addCollector(ImportCollectorInterface $import_collector): void
     {
         $this->import_collectors[] = $import_collector;
     }

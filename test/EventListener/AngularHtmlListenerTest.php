@@ -7,17 +7,18 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
-use Hostnet\Component\Resolver\Import\Dependency;
-use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
 use Hostnet\Component\Resolver\Import\RootFile;
+use Hostnet\Component\Resolver\Plugin\PluginApi;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * @covers \Hostnet\Component\Resolver\EventListener\AngularHtmlListener
@@ -25,8 +26,12 @@ use Prophecy\Argument;
 class AngularHtmlListenerTest extends TestCase
 {
     private $config;
-    private $pipeline;
+
     private $finder;
+
+    private $pipeline;
+
+    private $plugin_api;
 
     /**
      * @var AngularHtmlListener
@@ -35,14 +40,19 @@ class AngularHtmlListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->config   = $this->prophesize(ConfigInterface::class);
-        $this->pipeline = $this->prophesize(ContentPipelineInterface::class);
-        $this->finder   = $this->prophesize(ImportFinderInterface::class);
+        $this->config     = $this->prophesize(ConfigInterface::class);
+        $this->finder     = $this->prophesize(MutableImportFinderInterface::class);
+        $this->pipeline   = $this->prophesize(MutableContentPipelineInterface::class);
+        $this->cache      = $this->prophesize(CacheInterface::class);
+        $this->plugin_api = new PluginApi(
+            $this->pipeline->reveal(),
+            $this->finder->reveal(),
+            $this->config->reveal(),
+            $this->cache->reveal()
+        );
 
         $this->angular_html_listener = new AngularHtmlListener(
-            $this->config->reveal(),
-            $this->pipeline->reveal(),
-            $this->finder->reveal()
+            $this->plugin_api
         );
     }
 
@@ -51,7 +61,7 @@ class AngularHtmlListenerTest extends TestCase
         $item = new ContentItem(new File('app.component.ts'), 'app.component', new StringReader(''));
         $item->transition(ContentState::READY, file_get_contents(__DIR__ . '/fixtures/app.component.js'), 'js');
 
-        $this->config->cwd()->willReturn(__DIR__ . '/fixtures');
+        $this->config->getProjectRoot()->willReturn(__DIR__ . '/fixtures');
         $this->config->getSourceRoot()->willReturn('');
         $this->config->getOutputFolder()->willReturn('dev');
 
@@ -83,7 +93,7 @@ class AngularHtmlListenerTest extends TestCase
         $item = new ContentItem(new File('fixtures/test/app.component.ts'), 'app.component', new StringReader(''));
         $item->transition(ContentState::READY, file_get_contents(__DIR__ . '/fixtures/test/app2.component.js'), 'js');
 
-        $this->config->cwd()->willReturn(__DIR__);
+        $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getOutputFolder()->willReturn('dev');
 

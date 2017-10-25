@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
@@ -38,7 +38,7 @@ class ContentPipelineTest extends TestCase
         $this->config     = $this->prophesize(ConfigInterface::class);
         $this->writer     = $this->prophesize(WriterInterface::class);
 
-        $this->config->cwd()->willReturn(__DIR__);
+        $this->config->getProjectRoot()->willReturn(__DIR__);
 
         $this->content_pipeline = new ContentPipeline(
             $this->dispatcher->reveal(),

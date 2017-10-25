@@ -10,7 +10,7 @@ use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\TreeWalker;
 use Hostnet\Component\Resolver\Cache\Cache;
-use Hostnet\Component\Resolver\ConfigInterface;
+use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\File;
@@ -26,7 +26,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * pushed, it will go through various processors until it is written to disk as
  * the given output file.
  */
-final class ContentPipeline implements ContentPipelineInterface
+final class ContentPipeline implements MutableContentPipelineInterface
 {
     private $dispatcher;
     private $logger;
@@ -160,7 +160,7 @@ final class ContentPipeline implements ContentPipelineInterface
             if ($processor->supports($item->getState())) {
                 $this->dispatcher->dispatch(AssetEvents::PRE_PROCESS, new AssetEvent($item));
 
-                $processor->transpile($this->config->cwd(), $item);
+                $processor->transpile($this->config->getProjectRoot(), $item);
 
                 $this->dispatcher->dispatch(AssetEvents::POST_PROCESS, new AssetEvent($item));
 
@@ -181,7 +181,7 @@ final class ContentPipeline implements ContentPipelineInterface
 
         foreach ($this->processors as $processor) {
             if ($processor->supports($item)) {
-                $processor->peek($this->config->cwd(), $item);
+                $processor->peek($this->config->getProjectRoot(), $item);
 
                 break;
             }
@@ -200,7 +200,7 @@ final class ContentPipeline implements ContentPipelineInterface
 
     private function checkIfChanged(File $output_file, DependencyNodeInterface $dependency)
     {
-        $file_path = File::makeAbsolutePath($output_file->path, $this->config->cwd());
+        $file_path = File::makeAbsolutePath($output_file->path, $this->config->getProjectRoot());
         $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
 
         if ($mtime === -1) {
@@ -221,7 +221,7 @@ final class ContentPipeline implements ContentPipelineInterface
 
         // Check if any of them changed.
         foreach ($files as $path) {
-            if ($mtime < filemtime(File::makeAbsolutePath($path, $this->config->cwd()))) {
+            if ($mtime < filemtime(File::makeAbsolutePath($path, $this->config->getProjectRoot()))) {
                 return true;
             }
         }

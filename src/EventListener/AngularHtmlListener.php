@@ -6,14 +6,11 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\Asset;
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
-use Hostnet\Component\Resolver\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
-use Hostnet\Component\Resolver\Import\Dependency;
-use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Plugin\PluginApi;
 
 /**
  * The Angular listener checks all angular component files. If they contain a
@@ -24,18 +21,12 @@ use Hostnet\Component\Resolver\Import\ImportFinderInterface;
  */
 final class AngularHtmlListener
 {
-    private $config;
-    private $pipeline;
-    private $finder;
+    private $plugin_api;
 
     public function __construct(
-        ConfigInterface $config,
-        ContentPipelineInterface $pipeline,
-        ImportFinderInterface $finder
+        PluginApi $plugin_api
     ) {
-        $this->config   = $config;
-        $this->pipeline = $pipeline;
-        $this->finder   = $finder;
+        $this->plugin_api = $plugin_api;
     }
 
     /**
@@ -55,7 +46,7 @@ final class AngularHtmlListener
         }
 
         $content = $item->getContent();
-        $reader  = new FileReader($this->config->cwd());
+        $reader  = new FileReader($this->plugin_api->getConfig()->getProjectRoot());
 
         $content = preg_replace_callback(
             '/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m',
@@ -95,9 +86,10 @@ final class AngularHtmlListener
         }
 
         $target_file = new File(File::clean($file_path));
-        $asset       = new Asset($this->finder->all($target_file), $this->pipeline->peek($target_file));
+        $pipeline    = $this->plugin_api->getPipeline();
+        $asset       = new Asset($this->plugin_api->getFinder()->all($target_file), $pipeline->peek($target_file));
 
-        return $this->pipeline->push(
+        return $pipeline->push(
             $asset->getFiles(),
             $reader
         );
