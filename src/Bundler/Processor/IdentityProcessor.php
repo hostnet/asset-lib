@@ -7,7 +7,6 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 
 /**
  * This processor doesn't really do anything but change the state. This is
