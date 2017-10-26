@@ -38,7 +38,7 @@ class AngularPluginTest extends TestCase
         $plugin_api     = new PluginApi($pipeline->reveal(), $finder->reveal(), $config->reveal(), $cache->reveal());
         $angular_plugin = new AngularPlugin();
         $angular_plugin->activate($plugin_api);
-        $this->assertCount(1, $event_dispatcher->getListeners(AssetEvents::POST_PROCESS));
+        self::assertCount(1, $event_dispatcher->getListeners(AssetEvents::POST_PROCESS));
     }
 
     public function activateProvider(): array

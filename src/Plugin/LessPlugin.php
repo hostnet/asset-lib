@@ -15,7 +15,7 @@ use Hostnet\Component\Resolver\Import\BuiltIn\LessImportCollector;
  */
 final class LessPlugin implements PluginInterface
 {
-    public function activate(PluginApi $plugin_api)
+    public function activate(PluginApi $plugin_api): void
     {
         $plugin_api->addProcessor(
             new LessContentProcessor(new LessRunner($plugin_api->getConfig()))
