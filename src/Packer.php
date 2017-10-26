@@ -25,6 +25,7 @@ use Hostnet\Component\Resolver\FileSystem\FileWriter;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
+use Hostnet\Component\Resolver\Plugin\PluginActivator;
 use Hostnet\Component\Resolver\Plugin\PluginApi;
 
 /**
@@ -65,10 +66,7 @@ final class Packer
         $pipeline->addProcessor(new JsonProcessor());
 
         $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
-
-        foreach ($config->getPlugins() as $plugin) {
-            $plugin->activate($plugin_api);
-        }
+        (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
         $uglify_runner = new UglifyJsRunner($nodejs);
 
