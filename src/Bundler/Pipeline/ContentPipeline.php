@@ -8,6 +8,7 @@ namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
 use Hostnet\Component\Resolver\Bundler\TreeWalker;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
@@ -52,9 +53,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
     }
 
     /**
-     * Add a processor to the content pipeline.
-     *
-     * @param ContentProcessorInterface $processor
+     * {@inheritdoc}
      */
     public function addProcessor(ContentProcessorInterface $processor): void
     {

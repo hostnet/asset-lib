@@ -5,8 +5,8 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentProcessorInterface;
 use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
+use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
