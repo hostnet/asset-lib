@@ -63,13 +63,19 @@ describe("Require.js module register method test", function() {
     });
 
     it("with AMD define and reserved requirements", function() {
-        lib.register("baz", function (define, require, module, exports) {
-            define(['jquery', 'require', 'module', 'exports'], function ($, require, module, exports) {
+        lib.register("amd_define/foo", function (define, require, module, exports) {
+            define([], function () {
+                return 'FOO';
+            });
+        });
+
+        lib.register("amd_define/baz", function (define, require, module, exports) {
+            define(['amd_define/foo', 'require', 'module', 'exports'], function ($, require, module, exports) {
                 return 'BAZ';
             });
         });
 
-        expect(lib.require('foo')).toEqual('FOO');
+        expect(lib.require('amd_define/baz')).toEqual('BAZ');
     });
 
     it("with AMD define no params", function() {
@@ -99,21 +105,28 @@ describe("Require.js module register method test", function() {
     });
 
     it("with CommonJS module.exports", function() {
-        lib.register("foo/bar", function (define, require, module, exports) {
+        lib.register("with_module_exports", function (define, require, module, exports) {
             module.exports = {'Foo' : true};
         });
 
-        expect(lib.require('foo/bar')).toEqual({'Foo' : true});
+        expect(lib.require('with_module_exports')).toEqual({'Foo' : true});
     });
 
     it("with CommonJS exports", function() {
-        lib.register("foo/baz", function (define, require, module, exports) {
-            var bar = require('./bar');
+        lib.register("commonjs_exports/foo", function (define, require, module, exports) {
+            define([], function () {
+                return 'commonjs_exports/foo';
+            });
+        });
+
+
+        lib.register("commonjs_exports/bar", function (define, require, module, exports) {
+            var bar = require('./foo');
 
             exports.Foo = true;
         });
 
-        expect(lib.require('foo/baz')).toEqual({'Foo' : true});
+        expect(lib.require('commonjs_exports/bar')).toEqual({'Foo' : true});
     });
 
     it("with return property", function() {
