@@ -9,6 +9,7 @@ use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
+use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
@@ -142,5 +143,20 @@ class ContentPipelineTest extends TestCase
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
 
         self::assertEquals("foobar\nfoobar\n", $this->content_pipeline->push([$input_file], $reader, $target_file));
+    }
+
+    public function testPushWithTrailingSlashInSourceRoot()
+    {
+        $this->config->isDev()->willReturn(true);
+        $this->config->getSourceRoot()->willReturn('fixtures/'); // Note this trailing slash
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+
+        $file       = new File('fixtures/bla.foo');
+        $dependency = new Dependency($file);
+        $reader     = $this->prophesize(ReaderInterface::class);
+        $reader->read($file)->willReturn('waddup');
+
+        $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
+        self::assertSame('waddup', $this->content_pipeline->push([$dependency], $reader->reveal()));
     }
 }
