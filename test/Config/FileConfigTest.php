@@ -28,6 +28,7 @@ class FileConfigTest extends TestCase
         self::assertSame([], $config->getEntryPoints());
         self::assertSame([], $config->getAssetFiles());
         self::assertSame(self::EXPECTED_OUTPUT, $config->getOutputFolder());
+        self::assertSame('dev', $config->getOutputFolder(false));
         self::assertSame('', $config->getSourceRoot());
         self::assertSame(__DIR__ . '/../fixtures/configs/var', $config->getCacheDir());
         self::assertSame('/usr/bin/node', $config->getNodeJsExecutable()->getBinary());
@@ -55,6 +56,7 @@ class FileConfigTest extends TestCase
         self::assertSame([], $config->getEntryPoints());
         self::assertSame([], $config->getAssetFiles());
         self::assertSame(self::EXPECTED_OUTPUT, $config->getOutputFolder());
+        self::assertSame('dev', $config->getOutputFolder(false));
         self::assertSame('', $config->getSourceRoot());
         self::assertSame(__DIR__ . '/../fixtures/configs/var', $config->getCacheDir());
         self::assertSame('/usr/bin/node', $config->getNodeJsExecutable()->getBinary());
@@ -74,6 +76,7 @@ class FileConfigTest extends TestCase
         self::assertSame([], $config->getEntryPoints());
         self::assertSame([], $config->getAssetFiles());
         self::assertSame(self::EXPECTED_OUTPUT, $config->getOutputFolder());
+        self::assertSame('dev', $config->getOutputFolder(false));
         self::assertSame('', $config->getSourceRoot());
         self::assertSame(__DIR__.'/../fixtures/configs/var', $config->getCacheDir());
         self::assertSame(

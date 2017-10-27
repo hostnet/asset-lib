@@ -61,9 +61,10 @@ interface ConfigInterface
     /**
      * Return the output folder in which to dump the compiled assets.
      *
+     * @param bool $include_public_folder Whether to include the web/ directory
      * @return string
      */
-    public function getOutputFolder(): string;
+    public function getOutputFolder(bool $include_public_folder = true): string;
 
     /**
      * Return the source root folder in which the assets are located.

@@ -115,13 +115,16 @@ final class FileConfig implements ConfigInterface
      *
      * @return string
      */
-    public function getOutputFolder(): string
+    public function getOutputFolder(bool $include_public_folder = true): string
     {
-        $web_root      = $this->config_file_contents['web-root'];
         $output_folder = $this->isDev()
             ? ($this->config_file_contents['output-folder-dev'] ?? 'dev')
             : ($this->config_file_contents['output-folder'] ?? 'dist');
+        if (! $include_public_folder) {
+            return $output_folder;
+        }
 
+        $web_root = $this->config_file_contents['web-root'];
         return rtrim($web_root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $output_folder;
     }
 
