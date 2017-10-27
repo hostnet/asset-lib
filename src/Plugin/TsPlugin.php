@@ -17,7 +17,7 @@ use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
  */
 final class TsPlugin implements PluginInterface
 {
-    public function activate(PluginApi $plugin_api)
+    public function activate(PluginApi $plugin_api): void
     {
         $plugin_api->addProcessor(new TsContentProcessor(new TsRunner($plugin_api->getNodeJsExecutable())));
         $ts_collector = new TsImportCollector(

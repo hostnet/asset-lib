@@ -15,7 +15,7 @@ use Hostnet\Component\Resolver\Import\BuiltIn\AngularImportCollector;
  */
 final class AngularPlugin implements PluginInterface
 {
-    public function activate(PluginApi $plugin_api)
+    public function activate(PluginApi $plugin_api): void
     {
         $angular_collector = new AngularImportCollector();
         if ($plugin_api->getConfig()->isDev()) {

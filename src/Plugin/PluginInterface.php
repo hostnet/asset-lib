@@ -34,5 +34,5 @@ namespace Hostnet\Component\Resolver\Plugin;
  */
 interface PluginInterface
 {
-    public function activate(PluginApi $plugin_api);
+    public function activate(PluginApi $plugin_api): void;
 }
