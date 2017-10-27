@@ -96,7 +96,8 @@ final class ContentPipeline implements MutableContentPipelineInterface
             if (!empty($this->config->getSourceRoot())
                 && false !== strpos($module_name, $this->config->getSourceRoot())
             ) {
-                $base_dir = trim(substr($file->dir, strlen($this->config->getSourceRoot())), '/');
+                $chopped  = substr($file->dir, strlen($this->config->getSourceRoot()));
+                $base_dir = $chopped ? trim($chopped, '/') : '';
 
                 if (strlen($base_dir) > 0) {
                     $base_dir .= '/';
