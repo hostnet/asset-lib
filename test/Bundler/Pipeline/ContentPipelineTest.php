@@ -67,7 +67,7 @@ class ContentPipelineTest extends TestCase
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
 
-        $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo'));
+        $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo', 'test/fixtures/test'));
         $target_file = new File('output.foo');
         $reader      = new FileReader(__DIR__);
 
@@ -76,6 +76,7 @@ class ContentPipelineTest extends TestCase
         $input_file->addChild($d3 = new Dependency(
             new Module('node_modules/fixtures/foo/abc.def', 'node_modules/fixtures/foo/abc.def')
         ));
+        $input_file->addChild($d4 = new Dependency(new Module('test/fixtures/test', 'fixtures/foo/bla.foo')));
 
         $def_processor = new class implements ContentProcessorInterface
         {
@@ -101,8 +102,8 @@ class ContentPipelineTest extends TestCase
         $this->content_pipeline->addProcessor($def_processor);
 
         self::assertEquals(
-            "foobar\nfoobar\nbla\n",
-            $this->content_pipeline->push([$input_file, $d1, $d2, $d3], $reader, $target_file)
+            "foobar\nfoobar\nbla\nblaS",
+            $this->content_pipeline->push([$input_file, $d1, $d2, $d3, $d4], $reader, $target_file)
         );
     }
 

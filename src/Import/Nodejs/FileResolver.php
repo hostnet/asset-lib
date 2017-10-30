@@ -23,6 +23,13 @@ final class FileResolver implements FileResolverInterface
 {
     private $config;
     private $extensions;
+    /**
+     * Caching properties. Required since file IO is slow and finding the same resource again and again is slow.
+     */
+    private $as_module = [];
+    private $as_file   = [];
+    private $as_index  = [];
+    private $as_dir    = [];
 
     /**
      * @param ConfigInterface $config
@@ -31,7 +38,11 @@ final class FileResolver implements FileResolverInterface
     public function __construct(ConfigInterface $config, array $extensions)
     {
         $this->config     = $config;
-        $this->extensions = $extensions;
+        $this->extensions = array_map(function (string $extension) {
+
+
+            return '.' . ltrim($extension, '.');
+        }, $extensions);
     }
 
     /**
@@ -89,11 +100,17 @@ final class FileResolver implements FileResolverInterface
      */
     private function asFile(string $name): string
     {
+        if (isset($this->as_file[$name])) {
+            if ($this->as_file[$name] === false) {
+                throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
+            }
+            return $this->as_file[$name];
+        }
         $path = File::makeAbsolutePath($name, $this->config->getProjectRoot());
 
         // 1. If X is a file, load X as JavaScript text.  STOP
         if (is_file($path)) {
-            return File::clean($name);
+            return $this->as_file[$name] = File::clean($name);
         }
 
         // 2, If X.js is a file, load X.js as JavaScript text.  STOP
@@ -101,10 +118,11 @@ final class FileResolver implements FileResolverInterface
         // 4. If X.node is a file, load X.node as binary addon.  STOP
         foreach ($this->extensions as $ext) {
             if (is_file($path . $ext)) {
-                return File::clean($name . $ext);
+                return $this->as_file[$name] = File::clean($name . $ext);
             }
         }
 
+        $this->as_file[$name] = false;
         throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
     }
 
@@ -117,21 +135,22 @@ final class FileResolver implements FileResolverInterface
      */
     private function asIndex(string $name): string
     {
+        if (isset($this->as_index[$name])) {
+            if ($this->as_index[$name] === false) {
+                throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
+            }
+            return $this->as_index[$name];
+        }
+
         $path = File::makeAbsolutePath($name, $this->config->getProjectRoot());
 
-        // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
-        if (is_file($path . '/index.js')) {
-            return File::clean($name . '/index.js');
-        }
-        // 2. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
-        if (is_file($path . '/index.json')) {
-            return File::clean($name . '/index.json');
-        }
-        // 3. If X/index.node is a file, load X/index.node as binary addon.  STOP
-        if (is_file($path . '/index.node')) {
-            return File::clean($name . '/index.node');
+        foreach ($this->extensions as $ext) {
+            if (is_file($path . '/index' . $ext)) {
+                return $this->as_index[$name] = File::clean($name . '/index' . $ext);
+            }
         }
 
+        $this->as_index[$name] = false;
         // ERROR
         throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
     }
@@ -145,8 +164,14 @@ final class FileResolver implements FileResolverInterface
      */
     private function asDir(string $name): string
     {
-        $package_info_path = File::makeAbsolutePath($name . '/package.json', $this->config->getProjectRoot());
+        if (isset($this->as_dir[$name])) {
+            if ($this->as_dir[$name] === false) {
+                throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
+            }
+            return $this->as_dir[$name];
+        }
 
+        $package_info_path = File::makeAbsolutePath($name . '/package.json', $this->config->getProjectRoot());
         // 1. If X/package.json is a file,
         if (is_file($package_info_path)) {
             // a. Parse X/package.json, and look for "main" field.
@@ -155,15 +180,15 @@ final class FileResolver implements FileResolverInterface
             // b. let M = X + (json main field)
             // c. LOAD_AS_FILE(M)
             try {
-                return $this->asFile($name . '/' . $package_info['main']);
+                return $this->as_dir[$name] = $this->asFile($name . '/' . $package_info['main']);
             } catch (FileNotFoundException $e) {
                 // d. LOAD_INDEX(M)
-                return $this->asIndex($name . '/' . $package_info['main']);
+                return $this->as_dir[$name] = $this->asIndex($name . '/' . $package_info['main']);
             }
         }
 
         // 2. LOAD_INDEX(X)
-        return $this->asIndex($name);
+        return $this->as_dir[$name] = $this->asIndex($name);
     }
 
     /**
@@ -175,6 +200,12 @@ final class FileResolver implements FileResolverInterface
      */
     private function asModule(string $name): string
     {
+        if (isset($this->as_module[$name])) {
+            if ($this->as_module[$name] === false) {
+                throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
+            }
+            return $this->as_module[$name];
+        }
         // 1. let DIRS=NODE_MODULES_PATHS(START)
         $dirs = array_merge(['node_modules'], $this->config->getIncludePaths());
 
@@ -182,17 +213,18 @@ final class FileResolver implements FileResolverInterface
         foreach ($dirs as $dir) {
             // a. LOAD_AS_FILE(DIR/X)
             try {
-                return $this->asFile($dir . '/' . $name);
+                return $this->as_module[$name] = $this->asFile($dir . '/' . $name);
             } catch (FileNotFoundException $e) {
                 // b. LOAD_AS_DIRECTORY(DIR/X)
                 try {
-                    return $this->asDir($dir . '/' . $name);
+                    return $this->as_module[$name] = $this->asDir($dir . '/' . $name);
                 } catch (FileNotFoundException $e) {
                     continue; // skip
                 }
             }
         }
 
+        $this->as_module[$name] = false;
         throw new FileNotFoundException(sprintf('File %s could not be be found!', $name));
     }
 }

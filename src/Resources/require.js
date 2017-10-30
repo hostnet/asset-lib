@@ -12,8 +12,8 @@
         this.message = 'Cannot initialize module "' + name + '".';
         this.parent = parent;
     };
-    var ModuleRedeclareError = function (name) {
-        this.message = 'Cannot redeclare module "' + name + '".';
+    var ModuleRedeclareError = function (name, stacktrace) {
+        this.message = 'Cannot redeclare module "' + name + '". Previous declaration:\n' + stacktrace;
     };
 
     RequireError.prototype = new Error();
@@ -133,12 +133,13 @@
 
     window.register = function (name, initializer) {
         if (_modules[name]) {
-            throw new ModuleRedeclareError(name);
+            throw new ModuleRedeclareError(name, _modules[name]._stack);
         }
 
         _modules[name] = {
             _initializer: initializer,
-            _module: null
+            _module: null,
+            _stack: (new TypeError).stack
         };
     };
 })(typeof window !== "undefined" ? window : this);

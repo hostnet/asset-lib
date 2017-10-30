@@ -17,7 +17,7 @@ final class AngularPlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
-        $angular_collector = new AngularImportCollector();
+        $angular_collector = new AngularImportCollector($plugin_api->getConfig()->getEventDispatcher());
         if ($plugin_api->getConfig()->isDev()) {
             $angular_collector = new CachedImportCollector($angular_collector, $plugin_api->getCache());
         }
