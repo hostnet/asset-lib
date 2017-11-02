@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Processor\TsContentProcessor;
-use Hostnet\Component\Resolver\Bundler\Runner\TsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\TsImportCollector;
@@ -19,7 +19,7 @@ final class TsPlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
-        $plugin_api->addProcessor(new TsContentProcessor(new TsRunner($plugin_api->getNodeJsExecutable())));
+        $plugin_api->addProcessor(new TsContentProcessor($plugin_api->getRunner()));
         $ts_collector = new TsImportCollector(
             new JsImportCollector(
                 new FileResolver($plugin_api->getConfig(), ['.ts', '.js', '.json', '.node'])

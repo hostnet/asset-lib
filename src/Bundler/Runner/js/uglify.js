@@ -1,14 +1,9 @@
-var UglifyJS = require("uglify-js");
+var path = require('path');
+var processor = require("../../Resources/processor");
 
 function compile(source) {
-    var result = UglifyJS.minify(source);
-
-    if (result.error) {
-        console.error(result.error);
-        process.exit(1);
-    }
-
-    process.stdout.write(result.code);
+    var fileName = path.resolve(process.argv[2]);
+    process.stdout.write(processor.process(processor.UGL, fileName, source));
 }
 
 var content = '';

@@ -1,10 +1,9 @@
-var CleanCSS = require("clean-css");
+var path = require('path');
+var processor = require("../../Resources/processor");
 
 function compile(source) {
-    var options = {/* options */};
-    var output = new CleanCSS(options).minify(source);
-
-    process.stdout.write(output.styles);
+    var fileName = path.resolve(process.argv[2]);
+    process.stdout.write(processor.process(processor.CLE, fileName, source));
 }
 
 var content = '';

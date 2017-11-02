@@ -6,7 +6,8 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
-use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
@@ -38,7 +39,7 @@ class PipelineBundlerTest extends TestCase
         $this->finder   = $this->prophesize(ImportFinderInterface::class);
         $this->pipeline = $this->prophesize(ContentPipelineInterface::class);
         $this->config   = $this->prophesize(ConfigInterface::class);
-        $this->runner   = $this->prophesize(UglifyJsRunner::class);
+        $this->runner   = $this->prophesize(RunnerInterface::class);
 
         $this->pipeline_bundler = new PipelineBundler(
             $this->finder->reveal(),
@@ -94,7 +95,7 @@ class PipelineBundlerTest extends TestCase
         $this->pipeline->peek(new File('bar.js'))->willReturn('js');
         $this->pipeline->peek(new File('asset.js'))->willReturn('js');
 
-        $this->runner->execute(Argument::that(function (ContentItem $item) {
+        $this->runner->execute(RunnerType::UGLIFY, Argument::that(function (ContentItem $item) {
             return false !== strpos($item->file->path, '/src/Resources/require.js');
         }))->willReturn('foobar uglified');
 
@@ -147,7 +148,7 @@ class PipelineBundlerTest extends TestCase
             ->push([], $reader->reveal(), new File('dev2/foobar.vendor.js'))
             ->willReturn('foobar.js vendor');
 
-        $this->runner->execute(Argument::that(function (ContentItem $item) {
+        $this->runner->execute(RunnerType::UGLIFY, Argument::that(function (ContentItem $item) {
             return false !== strpos($item->file->path, '/src/Resources/require.js');
         }))->willReturn('uglified foobar');
 

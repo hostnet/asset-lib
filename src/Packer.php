@@ -6,9 +6,12 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
 
+use Hostnet\Component\Resolver\Bundler\CachedPipelineBundler;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
 use Hostnet\Component\Resolver\Bundler\PipelineBundler;
-use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
+use Hostnet\Component\Resolver\Bundler\PluginAwarePipelineBundler;
+use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
@@ -25,32 +28,28 @@ final class Packer
 {
     public static function pack(ConfigInterface $config): void
     {
-        $cache = new Cache($config->getCacheDir() . '/dependencies');
-        $cache->load();
-
         $dispatcher = $config->getEventDispatcher();
-        $node_js    = $config->getNodeJsExecutable();
         $logger     = $config->getLogger();
+        $runner     = $config->getRunner();
 
         $finder = new ImportFinder($config->getProjectRoot());
 
         $writer   = new FileWriter($config->getProjectRoot());
         $pipeline = new ContentPipeline($dispatcher, $logger, $config, $writer);
 
-        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
-        (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
-
         $bundler = new PipelineBundler(
             $finder,
             $pipeline,
             $logger,
             $config,
-            new UglifyJsRunner($node_js)
+            $runner
         );
-        $bundler->execute(new FileReader($config->getProjectRoot()), $writer);
 
-        if ($config->isDev()) {
-            $cache->save();
-        }
+        $cache      = new Cache($config->getCacheDir() . '/dependencies');
+        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache, $runner);
+        $activator  = new PluginActivator($plugin_api);
+        $bundler    = new PluginAwarePipelineBundler($bundler, $activator);
+
+        $bundler->execute(new FileReader($config->getProjectRoot()), $writer);
     }
 }

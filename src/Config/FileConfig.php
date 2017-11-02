@@ -6,6 +6,9 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Config;
 
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
@@ -194,5 +197,19 @@ final class FileConfig implements ConfigInterface
     public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->dispatcher;
+    }
+
+    /**
+     * Which runner should we use for the transitions?
+     *
+     * @return RunnerInterface
+     */
+    public function getRunner(): RunnerInterface
+    {
+        if ($this->config_file_contents['enable-unix-socket'] ?? false) {
+            return new UnixSocketRunner($this);
+        }
+
+        return new SingleProcessRunner($this);
     }
 }

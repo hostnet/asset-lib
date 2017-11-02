@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Config;
 
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
 use Psr\Log\LoggerInterface;
@@ -100,4 +101,11 @@ interface ConfigInterface
      * @return EventDispatcherInterface
      */
     public function getEventDispatcher(): EventDispatcherInterface;
+
+    /**
+     * Which runner should we use for the transitions?
+     *
+     * @return RunnerInterface
+     */
+    public function getRunner(): RunnerInterface;
 }

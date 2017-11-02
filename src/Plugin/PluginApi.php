@@ -8,6 +8,7 @@ namespace Hostnet\Component\Resolver\Plugin;
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
@@ -21,6 +22,7 @@ class PluginApi
     private $finder;
     private $config;
     private $cache;
+    private $runner;
 
     public function __construct(
         MutableContentPipelineInterface $pipeline,
@@ -67,5 +69,13 @@ class PluginApi
     public function getCache(): CacheInterface
     {
         return $this->cache;
+    }
+
+    public function getRunner(): RunnerInterface
+    {
+        if (! $this->runner) {
+            $this->runner = $this->config->getRunner();
+        }
+        return $this->runner;
     }
 }

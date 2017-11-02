@@ -7,6 +7,7 @@ namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvents;
@@ -35,6 +36,7 @@ class LessPluginTest extends TestCase
         $config = $this->prophesize(ConfigInterface::class);
         $config->isDev()->willReturn($is_dev);
         $config->getEventDispatcher()->willReturn($event_dispatcher);
+        $config->getRunner()->willReturn($this->prophesize(RunnerInterface::class));
         $finder = $this->prophesize(MutableImportFinderInterface::class);
         $finder->addCollector(Argument::type($expected_collector_class))->shouldBeCalled();
         $plugin_api     = new PluginApi($pipeline->reveal(), $finder->reveal(), $config->reveal(), $cache->reveal());

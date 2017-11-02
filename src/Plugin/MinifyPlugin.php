@@ -6,8 +6,6 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Bundler\Runner\CleanCssRunner;
-use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
 use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\EventListener\CleanCssListener;
 use Hostnet\Component\Resolver\EventListener\UglifyJsListener;
@@ -29,9 +27,8 @@ final class MinifyPlugin implements PluginInterface
     public function activate(PluginApi $plugin_api): void
     {
         $node_js            = $plugin_api->getNodeJsExecutable();
-        $uglify_runner      = new UglifyJsRunner($node_js);
-        $uglify_listener    = new UglifyJsListener($uglify_runner);
-        $clean_css_listener = new CleanCssListener(new CleanCssRunner($node_js));
+        $uglify_listener    = new UglifyJsListener($plugin_api->getRunner());
+        $clean_css_listener = new CleanCssListener($plugin_api->getRunner());
 
         $dispatcher = $plugin_api->getConfig()->getEventDispatcher();
         $dispatcher->addListener(AssetEvents::READY, [$uglify_listener, 'onPreWrite']);
