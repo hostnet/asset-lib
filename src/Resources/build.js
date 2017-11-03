@@ -9,7 +9,9 @@ process.umask(0o000);
 
 // This server listens on a Unix socket at process.argv[2]
 var numberOfRequestsHandled = 0,
-    unixServer = net.createServer(function (client) {
+    unixServer;
+
+unixServer = net.createServer(function (client) {
 
     var chunkProcessor = new ChunkProcessor();
 
