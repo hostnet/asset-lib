@@ -5,6 +5,8 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Config;
 
+use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +37,7 @@ class FileConfigTest extends TestCase
         self::assertSame('/home/me/node_modules', $config->getNodeJsExecutable()->getNodeModulesLocation());
         self::assertInstanceOf(NullLogger::class, $config->getLogger());
         self::assertSame([], $config->getPlugins());
+        self::assertInstanceOf(SingleProcessRunner::class, $config->getRunner());
     }
 
     public function testIncludePaths()
@@ -64,6 +67,7 @@ class FileConfigTest extends TestCase
         self::assertSame($plugins, $config->getPlugins());
         self::assertSame($logger, $config->getLogger());
         self::assertSame($dispatcher, $config->getEventDispatcher());
+        self::assertInstanceOf(UnixSocketRunner::class, $config->getRunner());
     }
 
     public function testMinimalRelativeNodePaths()

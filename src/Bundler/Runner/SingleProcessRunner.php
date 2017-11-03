@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Runner;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
+use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Symfony\Component\Process\ProcessBuilder;

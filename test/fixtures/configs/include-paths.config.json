@@ -7,5 +7,6 @@
   "node": {
     "bin" : "/usr/bin/node",
     "node_modules" : "/home/me/node_modules"
-  }
+  },
+  "enable-unix-socket": true
 }

@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Runner;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
+use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
@@ -66,5 +67,19 @@ class SingleProcessRunnerTest extends TestCase
             [RunnerType::CLEAN_CSS, 'cleancss.js'],
             ['bla', '/blah.js']
         ];
+    }
+
+    public function testUnsuccessfulProcess()
+    {
+        $this->config->getNodeJsExecutable()->willReturn(
+            new Executable('if-this-command-exists-the-test-will-fail', 'node_modules')
+        );
+
+        $this->config->getProjectRoot()->willReturn(__DIR__);
+
+        $this->reader->read(Argument::type(File::class))->willReturn('wazzup');
+
+        $this->expectException(TranspileException::class);
+        $this->runner->execute(RunnerType::UGLIFY, $this->item);
     }
 }
