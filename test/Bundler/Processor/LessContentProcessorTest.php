@@ -7,10 +7,10 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,7 +26,7 @@ class LessContentProcessorTest extends TestCase
 
     protected function setUp()
     {
-        $this->runner = $this->prophesize(LessRunner::class);
+        $this->runner = $this->prophesize(RunnerInterface::class);
 
         $this->less_content_processor = new LessContentProcessor(
             $this->runner->reveal()
@@ -56,7 +56,7 @@ class LessContentProcessorTest extends TestCase
     {
         $item = new ContentItem(new File(basename(__FILE__)), 'foobar.less', new FileReader(__DIR__));
 
-        $this->runner->execute($item, __DIR__)->willReturn('less code');
+        $this->runner->execute(RunnerType::LESS, $item)->willReturn('less code');
 
         $this->less_content_processor->transpile(__DIR__, $item);
 

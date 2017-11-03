@@ -7,11 +7,11 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -28,7 +28,7 @@ class UglifyJsListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->runner = $this->prophesize(UglifyJsRunner::class);
+        $this->runner = $this->prophesize(RunnerInterface::class);
 
         $this->uglify_js_listener = new UglifyJsListener($this->runner->reveal());
     }
@@ -38,7 +38,7 @@ class UglifyJsListenerTest extends TestCase
         $item = new ContentItem(new File('foobar.js'), 'foobar.js', new StringReader(''));
         $item->transition(ContentState::PROCESSED, 'foobar');
 
-        $this->runner->execute($item)->willReturn('uglify.js');
+        $this->runner->execute(RunnerType::UGLIFY, $item)->willReturn('uglify.js');
 
         $this->uglify_js_listener->onPreWrite(new AssetEvent($item));
 

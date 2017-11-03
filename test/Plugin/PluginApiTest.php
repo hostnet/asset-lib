@@ -7,6 +7,7 @@ namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
@@ -71,5 +72,10 @@ class PluginApiTest extends TestCase
         self::assertSame($this->finder->reveal(), $this->plugin_api->getFinder());
         self::assertSame($this->config->reveal(), $this->plugin_api->getConfig());
         self::assertSame($this->cache->reveal(), $this->plugin_api->getCache());
+        self::assertSame($this->cache->reveal(), $this->plugin_api->getCache());
+
+        $runner = $this->prophesize(RunnerInterface::class);
+        $this->config->getRunner()->willReturn($runner);
+        self::assertSame($runner->reveal(), $this->plugin_api->getRunner());
     }
 }

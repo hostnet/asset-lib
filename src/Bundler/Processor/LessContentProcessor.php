@@ -7,18 +7,19 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 
 /**
  * Process LESS files to CSS.
  */
 final class LessContentProcessor implements ContentProcessorInterface
 {
-    private $less_runner;
+    private $runner;
 
-    public function __construct(LessRunner $less_runner)
+    public function __construct(RunnerInterface $runner)
     {
-        $this->less_runner = $less_runner;
+        $this->runner = $runner;
     }
 
     public function supports(ContentState $state): bool
@@ -33,7 +34,7 @@ final class LessContentProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $output = $this->less_runner->execute($item, $cwd);
+        $output = $this->runner->execute(RunnerType::LESS, $item);
         $item->transition(ContentState::READY, $output, 'css');
     }
 }

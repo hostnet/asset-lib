@@ -7,7 +7,8 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
-use Hostnet\Component\Resolver\Bundler\Runner\UglifyJsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
@@ -25,30 +26,26 @@ class PipelineBundler
     private $pipeline;
     private $logger;
     private $config;
-    private $uglify_js_runner;
+    private $runner;
 
     public function __construct(
         ImportFinderInterface $finder,
         ContentPipelineInterface $pipeline,
         LoggerInterface $logger,
         ConfigInterface $config,
-        UglifyJsRunner $uglify_js_runner
+        RunnerInterface $runner
     ) {
-        $this->finder           = $finder;
-        $this->pipeline         = $pipeline;
-        $this->logger           = $logger;
-        $this->config           = $config;
-        $this->uglify_js_runner = $uglify_js_runner;
+        $this->finder   = $finder;
+        $this->pipeline = $pipeline;
+        $this->logger   = $logger;
+        $this->config   = $config;
+        $this->runner   = $runner;
     }
 
     /**
-     * Execute the bundler. This will compile all the entry points and assets
-     * defined in the config.
-     *
-     * @param ReaderInterface $reader
-     * @param WriterInterface $writer
+     * {@inheritdoc}
      */
-    public function execute(ReaderInterface $reader, WriterInterface $writer)
+    public function execute(ReaderInterface $reader, WriterInterface $writer): void
     {
         $output_folder = $this->config->getOutputFolder();
         $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
@@ -67,7 +64,7 @@ class PipelineBundler
                 new StringReader($reader->read($require_file))
             );
 
-            $writer->write($output_require_file, $this->uglify_js_runner->execute($item));
+            $writer->write($output_require_file, $this->runner->execute(RunnerType::UGLIFY, $item));
         }
 
         // Entry points

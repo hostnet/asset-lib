@@ -5,7 +5,8 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\EventListener;
 
-use Hostnet\Component\Resolver\Bundler\Runner\CleanCssRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 
 /**
@@ -18,7 +19,7 @@ class CleanCssListener
 {
     private $runner;
 
-    public function __construct(CleanCssRunner $runner)
+    public function __construct(RunnerInterface $runner)
     {
         $this->runner = $runner;
     }
@@ -36,6 +37,6 @@ class CleanCssListener
         }
 
         // Keep the current state, but update the content.
-        $item->transition($item->getState()->current(), $this->runner->execute($item));
+        $item->transition($item->getState()->current(), $this->runner->execute(RunnerType::CLEAN_CSS, $item));
     }
 }

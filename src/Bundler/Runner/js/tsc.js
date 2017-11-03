@@ -1,18 +1,9 @@
-var ts = require("typescript");
+var path = require('path');
+var processor = require("../../Resources/processor");
 
 function compile(source) {
-    var result = ts.transpileModule(source, {
-        compilerOptions: {
-            inlineSourceMap: false,
-            skipLibCheck: true,
-            target: ts.ScriptTarget.ES5,
-            module: ts.ModuleKind.CommonJS,
-            moduleResolution: ts.ModuleResolutionKind.NodeJs,
-            experimentalDecorators: true
-        }
-    });
-
-    process.stdout.write(result.outputText);
+    var fileName = path.resolve(process.argv[2]);
+    process.stdout.write(processor.process(processor.TSC, fileName, source));
 }
 
 var content = '';

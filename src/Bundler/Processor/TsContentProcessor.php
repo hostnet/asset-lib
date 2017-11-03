@@ -7,18 +7,19 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Runner\TsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 
 /**
  * Processes TypeScript files to JavaScript.
  */
 final class TsContentProcessor implements ContentProcessorInterface
 {
-    private $ts_runner;
+    private $runner;
 
-    public function __construct(TsRunner $ts_runner)
+    public function __construct(RunnerInterface $runner)
     {
-        $this->ts_runner = $ts_runner;
+        $this->runner = $runner;
     }
 
     public function supports(ContentState $state): bool
@@ -41,7 +42,7 @@ final class TsContentProcessor implements ContentProcessorInterface
 
         $item->transition(
             ContentState::PROCESSED,
-            $this->ts_runner->execute($item),
+            $this->runner->execute(RunnerType::TYPE_SCRIPT, $item),
             'js',
             $module_name
         );

@@ -9,6 +9,6 @@
   "files": [
     "src/Resources/require.js"
   ],
-  "stopSpecOnExpectationFailure": false,
+  "stopSpecOnExpectationFailure": true,
   "random": true
 }

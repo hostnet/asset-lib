@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
@@ -28,6 +29,7 @@ class MinifyPluginTest extends TestCase
         $config   = $this->prophesize(ConfigInterface::class);
         $config->getNodeJsExecutable()->willReturn(new Executable('a', 'b'));
         $config->getEventDispatcher()->willReturn($event_dispatcher);
+        $config->getRunner()->willReturn($this->prophesize(RunnerInterface::class));
         $finder     = $this->prophesize(MutableImportFinderInterface::class);
         $plugin_api = new PluginApi($pipeline->reveal(), $finder->reveal(), $config->reveal(), $cache->reveal());
 

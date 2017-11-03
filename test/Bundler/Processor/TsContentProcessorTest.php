@@ -7,10 +7,10 @@ namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Runner\TsRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,7 +27,7 @@ class TsContentProcessorTest extends TestCase
 
     protected function setUp()
     {
-        $this->ts_runner = $this->prophesize(TsRunner::class);
+        $this->ts_runner = $this->prophesize(RunnerInterface::class);
 
         $this->ts_content_processor = new TsContentProcessor(
             $this->ts_runner->reveal()
@@ -57,7 +57,7 @@ class TsContentProcessorTest extends TestCase
     {
         $item = new ContentItem(new File(basename(__FILE__)), 'foobar.ts', new FileReader(__DIR__));
 
-        $this->ts_runner->execute($item)->willReturn('ts code');
+        $this->ts_runner->execute(RunnerType::TYPE_SCRIPT, $item)->willReturn('ts code');
 
         $this->ts_content_processor->transpile(__DIR__, $item);
 

@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Processor\LessContentProcessor;
-use Hostnet\Component\Resolver\Bundler\Runner\LessRunner;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\LessImportCollector;
 
@@ -17,9 +16,7 @@ final class LessPlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
-        $plugin_api->addProcessor(
-            new LessContentProcessor(new LessRunner($plugin_api->getConfig()))
-        );
+        $plugin_api->addProcessor(new LessContentProcessor($plugin_api->getRunner()));
 
         $less_collector = new LessImportCollector();
         if ($plugin_api->getConfig()->isDev()) {

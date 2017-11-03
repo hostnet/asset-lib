@@ -1,11 +1,11 @@
-describe("Require.js module register method test", function() {
+describe("Require.js module register method test", function () {
     var lib;
 
     beforeEach(function () {
         lib = require('../src/Resources/require');
     });
 
-    it("with jquery and a plugin", function() {
+    it("with jquery and a plugin", function () {
         lib.register("jquery", function (define, require, module, exports) {
             // jquery
             define('jquery', [], function () {

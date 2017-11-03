@@ -7,11 +7,11 @@ namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Runner\CleanCssRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Event\AssetEvent;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -28,7 +28,7 @@ class CleanCssListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->runner = $this->prophesize(CleanCssRunner::class);
+        $this->runner = $this->prophesize(RunnerInterface::class);
 
         $this->clean_css_listener = new CleanCssListener($this->runner->reveal());
     }
@@ -38,7 +38,7 @@ class CleanCssListenerTest extends TestCase
         $item = new ContentItem(new File('foobar.css'), 'foobar.css', new StringReader(''));
         $item->transition(ContentState::PROCESSED, 'foobar');
 
-        $this->runner->execute($item)->willReturn('cleancss.js');
+        $this->runner->execute(RunnerType::CLEAN_CSS, $item)->willReturn('cleancss.js');
 
         $this->clean_css_listener->onPreWrite(new AssetEvent($item));
 
