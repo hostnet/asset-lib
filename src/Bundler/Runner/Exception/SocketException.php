@@ -6,6 +6,14 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler\Runner\Exception;
 
-class SocketException extends \Exception
+use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
+
+/**
+ * This exception is thrown whenever something goes wrong with the unix socket
+ * communication.
+ *
+ * @see UnixSocketRunner
+ */
+class SocketException extends \RuntimeException
 {
 }

@@ -1,16 +1,13 @@
 "use strict";
 
-var fs_1 = require("fs");
-var ts = require("typescript");
 var net = require("net");
 var ChunkProcessor = require("./chunk-processor");
 var replySender = require("./reply-sender");
 var processor = require('./processor');
 
-var newMask = 0o000;
-var oldMask = process.umask(newMask);
+process.umask(0o000);
 
-// This server listens on a Unix socket at /tmp/build
+// This server listens on a Unix socket at process.argv[2]
 var numberOfRequestsHandled = 0,
     unixServer = net.createServer(function (client) {
 
@@ -20,18 +17,12 @@ var numberOfRequestsHandled = 0,
 
     function sendReply(isSuccessful, message)
     {
-        console.log('numberOfRequestsHandled', numberOfRequestsHandled);
-        var stopProcess = numberOfRequestsHandled >= 1000;
         numberOfRequestsHandled++;
+        var stopProcess = numberOfRequestsHandled >= 1000,
+            callback = function() {};
 
-        //console.log("hi", typeof message, message, message.toString());
-        //message = typeof message === 'string' ? message : JSON.stringify(message);
-
-        //console.log(message);
-
-        var callback = function() {};
         if (stopProcess) {
-            callback = function () { unixServer.close();};
+            callback = function () { unixServer.close(); };
         }
 
         replySender.sendReply(client, isSuccessful, stopProcess, message, callback);
@@ -66,29 +57,9 @@ var numberOfRequestsHandled = 0,
                     throw "Unknown type " + request.type;
             }
         }
-        //console.log("Writable", client.writable);
-        //client.write('Hola');
-        //console.log(client.constructor.name);
-
-
-        // return;
-        //
-        // var chunk,
-        //     N = 4;
-        //
-        // while (null !== (chunk = client.read(N))) {
-        //     var x = chunk.charCodeAt(0) << (8*3) +
-        //     chunk.charCodeAt(1) << (8*2) +
-        //     chunk.charCodeAt(2) << (8*1) +
-        //     chunk.charCodeAt(3) << (8*0);
-        //
-        //     console.log('got %d bytes of data', x);
-        //     console.log(chunk.toString());
-        // }
     });
 });
 var _close = function () {
-    console.log('EXITING');
     unixServer.close();
 };
 process.on('SIGTERM', function () {
@@ -100,5 +71,4 @@ process.on('SIGINT', function () {
 process.on('exit', function () {
     _close();
 });
-unixServer.listen('/tmp/build');
-
+unixServer.listen(process.argv[2]);

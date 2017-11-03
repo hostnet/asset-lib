@@ -8,16 +8,33 @@ namespace Hostnet\Component\Resolver\Bundler\Runner;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\Runner\Exception\SocketException;
+use Hostnet\Component\Resolver\Bundler\Runner\Exception\TimeoutException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
+use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * This runs JavaScript commands using a unix socket.
+ *
+ * This way allows the javascript commands to run in the background, thus
+ * preventing the startup time usually related to starting node commands.
+ *
+ * Consider using this if you're running a unix based system.
+ *
+ * You can enable this via the configuration.
+ *
+ * This assumes the sockets extension is enabled.
+ * @see http://php.net/manual/en/book.sockets.php
+ */
 class UnixSocketRunner implements RunnerInterface
 {
     private $config;
+    private $socket_location;
 
     public function __construct(ConfigInterface $config)
     {
-        $this->config = $config;
+        $this->config          = $config;
+        $this->socket_location = $config->getCacheDir() . '/asset-lib.socket';
     }
 
     public function execute(string $type, ContentItem $item): string
@@ -28,20 +45,19 @@ class UnixSocketRunner implements RunnerInterface
 
         while (true) {
             if (microtime(true) - $start > 30) {
-                throw new \RuntimeException('Timeout of 30s');
+                throw new TimeoutException('Socket communication', 30);
             }
 
             $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
             // Ensure we have a process running
-            // TODO $this->config->getCacheDir()
-            if (!file_exists('/tmp/build')) {
+            if (!file_exists($this->socket_location)) {
                 $this->startBuildProcess();
                 usleep(500000);
                 continue;
             }
 
-            if (!@socket_connect($socket, '/tmp/build')) {
+            if (!@socket_connect($socket, $this->socket_location)) {
                 usleep(100000);
                 continue;
             }
@@ -120,14 +136,18 @@ class UnixSocketRunner implements RunnerInterface
 
     private function startBuildProcess()
     {
+        if (!is_dir($this->config->getCacheDir())) {
+            mkdir($this->config->getCacheDir(), 0777, true);
+        }
+
         $node_js = $this->config->getNodeJsExecutable();
         $cmd     = sprintf(
-            'nohup %s %s > /dev/null &',
-            $node_js->getBinary(),
-            implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])
+            'nohup %s %s %s > %s 2>&1 &',
+            escapeshellarg($node_js->getBinary()),
+            escapeshellarg(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])),
+            escapeshellarg($this->socket_location),
+            escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
         `$cmd`;
     }
-
-    private function get
 }

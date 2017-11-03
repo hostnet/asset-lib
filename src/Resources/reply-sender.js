@@ -17,7 +17,7 @@
 
             reply.writeUInt8(flags, 4);
 
-            client.write(reply, function () { console.log('...?')});
+            client.write(reply, function () {});
             client.write(message, callback);
         }
     };

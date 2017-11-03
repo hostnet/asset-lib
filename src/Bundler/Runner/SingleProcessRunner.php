@@ -9,6 +9,7 @@ namespace Hostnet\Component\Resolver\Bundler\Runner;
 use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * Executes the given javascript file with node.
@@ -22,22 +23,22 @@ class SingleProcessRunner implements RunnerInterface
     private $config;
     private $files;
 
-    public const BUILT_IN_FILES = [
+    private const BUILT_IN_FILES = [
         RunnerType::CLEAN_CSS => 'cleancss.js',
         RunnerType::LESS => 'lessc.js',
         RunnerType::TYPE_SCRIPT => 'tsc.js',
         RunnerType::UGLIFY => 'uglify.js'
     ];
 
-    public function __construct(ConfigInterface $config, array $files = null)
+    public function __construct(ConfigInterface $config, array $files = [])
     {
         $this->config = $config;
-        $this->files  = $files ?: self::BUILT_IN_FILES;
+        $this->files  = array_merge(self::BUILT_IN_FILES, $files);
     }
 
     public function execute(string $type, ContentItem $item): string
     {
-        if (!isset($this->files[type])) {
+        if (!isset($this->files[$type])) {
             throw new \DomainException(sprintf('Unexpected type "%s"', $type));
         }
 
