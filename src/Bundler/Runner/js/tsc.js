@@ -1,5 +1,5 @@
 var path = require('path');
-var processor = require("../../Resources/processor");
+var processor = require("../../../Resources/processor");
 
 function compile(source) {
     var fileName = path.resolve(process.argv[2]);

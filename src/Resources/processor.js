@@ -25,7 +25,8 @@ var UglifyJS = require("uglify-js");
         LES: function (filename, source) {
             var css = null;
             less.render(source, {
-                "filename": path.resolve(filename)
+                "filename": path.resolve(filename),
+                "syncImport": true
             }, function (error, output) {
                 if (null !== error) {
                     throw error.message + ' in ' + error.filename + ' on line ' + error.line;
