@@ -20,6 +20,9 @@ class UnixSocketTest extends TestCase
 
     protected function setUp()
     {
+        if (! function_exists('socket_create')) {
+            self::markTestSkipped('Not available without socket extension');
+        }
         $this->unix_socket = new UnixSocket();
     }
 

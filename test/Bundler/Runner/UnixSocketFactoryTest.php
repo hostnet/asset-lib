@@ -15,6 +15,10 @@ class UnixSocketFactoryTest extends TestCase
     public function testMake()
     {
         $factory = new UnixSocketFactory();
+
+        if (! function_exists('socket_create')) {
+            self::markTestSkipped('Not available without socket extension');
+        }
         self::assertInstanceOf(UnixSocket::class, $factory->make());
     }
 }
