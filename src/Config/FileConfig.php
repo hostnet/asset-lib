@@ -8,6 +8,7 @@ namespace Hostnet\Component\Resolver\Config;
 
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
+use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketFactory;
 use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
@@ -207,7 +208,7 @@ final class FileConfig implements ConfigInterface
     public function getRunner(): RunnerInterface
     {
         if ($this->config_file_contents['enable-unix-socket'] ?? false) {
-            return new UnixSocketRunner($this);
+            return new UnixSocketRunner($this, new UnixSocketFactory());
         }
 
         return new SingleProcessRunner($this);

@@ -9,8 +9,8 @@ describe("chunk-processor", function () {
         expect(sent.length).toEqual(2);
 
         expect(sent[0].constructor.name).toEqual('Buffer');
-        expect(sent[0].readUInt32LE()).toEqual(9);
-        expect(sent[0].readUInt8(4)).toEqual(3);
+        expect(sent[0].readUInt8()).toEqual(3);
+        expect(sent[0].readUInt32LE(1)).toEqual(9);
 
         expect(sent[1]).toEqual('ABCDE𒍅');
     });

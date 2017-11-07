@@ -30,11 +30,21 @@ class UnixSocketRunner implements RunnerInterface
 {
     private $config;
     private $socket_location;
+    private $factory;
+    private $start_timeout;
+    private $small_timeout;
 
-    public function __construct(ConfigInterface $config)
-    {
+    public function __construct(
+        ConfigInterface $config,
+        UnixSocketFactory $factory,
+        int $start_timeout = 500000,
+        int $small_timeout = 100000
+    ) {
         $this->config          = $config;
         $this->socket_location = $config->getCacheDir() . '/asset-lib.socket';
+        $this->factory         = $factory;
+        $this->start_timeout   = $start_timeout;
+        $this->small_timeout   = $small_timeout;
     }
 
     public function execute(string $type, ContentItem $item): string
@@ -48,17 +58,19 @@ class UnixSocketRunner implements RunnerInterface
                 throw new TimeoutException('Socket communication', 30);
             }
 
-            $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
+            $socket = $this->factory->make();
 
             // Ensure we have a process running
             if (!file_exists($this->socket_location)) {
                 $this->startBuildProcess();
-                usleep(500000);
+                usleep($this->start_timeout);
                 continue;
             }
 
-            if (!@socket_connect($socket, $this->socket_location)) {
-                usleep(100000);
+            try {
+                $socket->connect($this->socket_location);
+            } catch (SocketException $e) {
+                usleep($this->small_timeout);
                 continue;
             }
 
@@ -66,40 +78,41 @@ class UnixSocketRunner implements RunnerInterface
                 $response = $this->sendMessage($socket, $type, $file_name, $item->getContent());
                 break;
             } catch (SocketException $e) {
-                usleep(100000);
+                usleep($this->small_timeout);
                 continue;
+            } finally {
+                $socket->close();
             }
         }
-
-        socket_close($socket);
 
         return $response;
     }
 
-    private function sendMessage($socket, $type, $file_name, $msg)
+    private function sendMessage(UnixSocket $socket, string $type, string $file_name, string $msg): string
     {
         /*
-         * The request header is 7 bytes:
-         * - 4 bytes File length, unsigned long (32 bit, little endian byte order)
+         * The request
          * - 3 bytes for a three character system name of the operation to perform
-         *
-         * After that the file is sent.
+         * - 4 bytes File name length, unsigned long (32 bit, little endian byte order)
+         * - <length> bytes of file name
+         * - 4 bytes File length, unsigned long (32 bit, little endian byte order)
+         * - <length> bytes of file
          */
         if (strlen($type) !== 3) {
-            throw new \Exception('Type is always three bytes');
+            throw new \DomainException('Type is always three bytes');
         }
-        $msg_length = strlen($msg);
+        $file_name_length = strlen($file_name);
+        $msg_length       = strlen($msg);
 
-        $to_send = pack('V', $msg_length) . $type . $file_name . "\0" . $msg;
-        $length  = 4 + 3 + strlen($file_name) + 1 + $msg_length;
-        if (false === @socket_send($socket, $to_send, $length, 0)) {
-            throw new SocketException('Problem sending to the socket');
-        }
+        $to_send = $type . pack('V', $file_name_length) . $file_name . pack('V', $msg_length) . $msg;
+        $length  = 3 + 4 + $file_name_length + 4 + $msg_length;
+
+        $socket->send($to_send, $length);
 
         /**
          * The response header is
-         * - 4 bytes Resulting file length, unsigned long (32 bit, little endian byte order)
          * - 1 byte boolean flags
+         * - 4 bytes Resulting file length, unsigned long (32 bit, little endian byte order)
          *
          * $flags & 1 => Success
          * $flags & 2 => I just killed myself
@@ -107,21 +120,15 @@ class UnixSocketRunner implements RunnerInterface
          *
          * After that the result is sent.
          */
-        $buffer = null;
-        if (false === @socket_recv($socket, $buffer, 4, MSG_WAITALL)) {
-            throw new SocketException('Problem receiving from the socket');
-        }
-        $length = unpack('Vlength', $buffer)['length'];
-        if (false === @socket_recv($socket, $buffer, 1, MSG_WAITALL)) {
-            throw new SocketException('Problem receiving from the socket');
-        }
+        $buffer  = $socket->receive(1);
         $flags   = ord($buffer);
         $success = $flags & 1;
         $restart = $flags & 2;
 
-        if (false === @socket_recv($socket, $buffer, $length, MSG_WAITALL)) {
-            throw new SocketException('Problem receiving from the socket');
-        }
+        $buffer = $socket->receive(4);
+        $length = unpack('Vlength', $buffer)['length'];
+
+        $buffer = $socket->receive($length);
 
         if ($success) {
             return $buffer;
@@ -131,7 +138,7 @@ class UnixSocketRunner implements RunnerInterface
             $this->startBuildProcess();
         }
 
-        throw new \Exception(sprintf('Error with %s compile: %s', $type, $buffer));
+        throw new \DomainException(sprintf('Error with %s compile: %s', $type, $buffer));
     }
 
     private function startBuildProcess()
