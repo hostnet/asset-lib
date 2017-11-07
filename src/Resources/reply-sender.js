@@ -5,17 +5,16 @@
                 reply = Buffer.alloc(5),
                 flags = 0;
 
-            reply.writeUInt32LE(messageReplyLength);
-
             if (isSuccessful) {
+
                 flags |= 1;
             }
-
             if (stopProcess) {
+
                 flags |= 2;
             }
-
-            reply.writeUInt8(flags, 4);
+            reply.writeUInt8(flags);
+            reply.writeUInt32LE(messageReplyLength, 1);
 
             client.write(reply, function () {});
             client.write(message, callback);

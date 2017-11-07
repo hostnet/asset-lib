@@ -11,6 +11,7 @@
     },
     "require-dev": {
         "hostnet/phpcs-tool": "^5.2",
+        "mikey179/vfsStream": "^1.6",
         "phpunit/phpunit":    "^6.2",
         "symfony/process":    "^3.3"
     },

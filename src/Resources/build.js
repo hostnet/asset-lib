@@ -32,7 +32,7 @@ unixServer = net.createServer(function (client) {
 
     client.on('readable', function() {
 
-        var chunk, bytes = chunkProcessor.protocolReceiveBytes;
+        var chunk, bytes = chunkProcessor.numberOfBytesToAsk();
 
         while (null !== (chunk = client.read(Math.min(1024, bytes)))) {
             var request = chunkProcessor.processChunk(chunk);
@@ -42,7 +42,7 @@ unixServer = net.createServer(function (client) {
                     break;
 
                 case "message-received":
-                    bytes = chunkProcessor.protocolReceiveBytes;
+                    bytes = chunkProcessor.numberOfBytesToAsk();
                     try {
                         sendReply(true, processor.process(request.compileType, request.fileName, request.message));
                     } catch (e) {
