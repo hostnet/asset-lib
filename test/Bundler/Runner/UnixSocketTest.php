@@ -44,6 +44,11 @@ class UnixSocketTest extends TestCase
         $this->unix_socket->receive(1);
     }
 
+    public function testReceiveZeroBytes()
+    {
+        self::assertSame('', $this->unix_socket->receive(0));
+    }
+
     public function testClose()
     {
         $this->unix_socket->close();
