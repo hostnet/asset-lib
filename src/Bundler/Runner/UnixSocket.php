@@ -41,6 +41,10 @@ class UnixSocket
 
     public function receive(int $bytes): string
     {
+        if ($bytes === 0) {
+            return '';
+        }
+
         $buffer = '';
         if (false === @socket_recv($this->socket, $buffer, $bytes, MSG_WAITALL)) {
             throw new SocketException('Problem receiving from the socket');
