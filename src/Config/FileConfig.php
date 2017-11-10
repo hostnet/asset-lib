@@ -208,7 +208,7 @@ final class FileConfig implements ConfigInterface
     public function getRunner(): RunnerInterface
     {
         if ($this->config_file_contents['enable-unix-socket'] ?? false) {
-            return new UnixSocketRunner($this, new UnixSocketFactory());
+            return new UnixSocketRunner($this, new UnixSocketFactory(), $this->logger);
         }
 
         return new SingleProcessRunner($this);

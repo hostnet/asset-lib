@@ -11,7 +11,8 @@ use Hostnet\Component\Resolver\Bundler\Runner\Exception\SocketException;
 use Hostnet\Component\Resolver\Bundler\Runner\Exception\TimeoutException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
-use Symfony\Component\Process\ProcessBuilder;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * This runs JavaScript commands using a unix socket.
@@ -31,55 +32,61 @@ class UnixSocketRunner implements RunnerInterface
     private $config;
     private $socket_location;
     private $factory;
+    private $logger;
     private $start_timeout;
     private $small_timeout;
 
     public function __construct(
         ConfigInterface $config,
         UnixSocketFactory $factory,
-        int $start_timeout = 500000,
+        LoggerInterface $logger = null,
+        int $start_timeout = 5000000,
         int $small_timeout = 100000
     ) {
         $this->config          = $config;
         $this->socket_location = $config->getCacheDir() . '/asset-lib.socket';
         $this->factory         = $factory;
+        $this->logger          = $logger ?? new NullLogger();
         $this->start_timeout   = $start_timeout;
         $this->small_timeout   = $small_timeout;
     }
 
     public function execute(string $type, ContentItem $item): string
     {
+        $this->logger->debug('[UnixSocketRunner] Executing '.$type.' for ' . $item->file->path);
         $file_name = File::makeAbsolutePath($item->file->path, $this->config->getProjectRoot());
         $start     = microtime(true);
         $response  = '';
 
         while (true) {
-            if (microtime(true) - $start > 30) {
-                throw new TimeoutException('Socket communication', 30);
+            if (microtime(true) - $start > 10) {
+                throw new TimeoutException('Socket communication', 10);
             }
 
             $socket = $this->factory->make();
 
-            // Ensure we have a process running
-            if (!file_exists($this->socket_location)) {
-                $this->startBuildProcess();
-                usleep($this->start_timeout);
-                continue;
-            }
-
             try {
-                $socket->connect($this->socket_location);
-            } catch (SocketException $e) {
-                usleep($this->small_timeout);
-                continue;
-            }
+                // Ensure we have a process running
+                if (!file_exists($this->socket_location)) {
+                    $this->startBuildProcess();
+                    usleep($this->start_timeout);
+                    continue;
+                }
 
-            try {
-                $response = $this->sendMessage($socket, $type, $file_name, $item->getContent());
-                break;
-            } catch (SocketException $e) {
-                usleep($this->small_timeout);
-                continue;
+                try {
+                    $socket->connect($this->socket_location);
+                } catch (SocketException $e) {
+                    usleep($this->small_timeout);
+                    continue;
+                }
+
+                try {
+                    $response = $this->sendMessage($socket, $type, $file_name, $item->getContent());
+                    break;
+                } catch (SocketException $e) {
+                    usleep($this->small_timeout);
+                    continue;
+                }
             } finally {
                 $socket->close();
             }
@@ -143,18 +150,21 @@ class UnixSocketRunner implements RunnerInterface
 
     private function startBuildProcess()
     {
+        $this->logger->debug('buuuuuurp');
         if (!is_dir($this->config->getCacheDir())) {
             mkdir($this->config->getCacheDir(), 0777, true);
         }
 
         $node_js = $this->config->getNodeJsExecutable();
         $cmd     = sprintf(
-            'nohup %s %s %s > %s 2>&1 &',
+            'nohup %s %s %s < /dev/null > %s 2>&1 &',
             escapeshellarg($node_js->getBinary()),
             escapeshellarg(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])),
             escapeshellarg($this->socket_location),
             escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
+
+        $this->logger->debug($cmd);
         `$cmd`;
     }
 }
