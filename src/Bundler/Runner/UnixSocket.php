@@ -33,8 +33,7 @@ class UnixSocket
     public function connect(string $address): void
     {
         if (!@socket_connect($this->socket, $address)) {
-            $this->logger->debug('[UnixSocket] Connection exception');
-            throw new SocketException('Problem connecting to the socket');
+            throw new SocketException('[UnixSocket] Connecting exception ' . $this->getSocketError());
         }
     }
 
@@ -42,8 +41,7 @@ class UnixSocket
     {
         $this->logger->debug('[UnixSocket] Sending ' . $bytes);
         if (!@socket_send($this->socket, $to_send, $bytes, 0)) {
-            $this->logger->debug('[UnixSocket] Sending exception');
-            throw new SocketException('Problem sending to the socket');
+            throw new SocketException('[UnixSocket] Sending exception ' . $this->getSocketError());
         }
         $this->logger->debug('[UnixSocket] Sending done');
     }
@@ -61,17 +59,13 @@ class UnixSocket
             $this->logger->debug('[UnixSocket] Reading ' . ($bytes - $length) . ' bytes');
             $res = @socket_read($this->socket, $bytes - $length);
             if ($res === false) {
-                $this->logger->debug(
-                    '[UnixSocket] Reading exception '
-                    . socket_last_error() . ' (' . socket_strerror(socket_last_error()) . ')'
-                );
-                throw new SocketException('Problem receiving from the socket');
+                throw new SocketException('[UnixSocket] Reading exception ' . $this->getSocketError());
             }
             $length += strlen($res);
             $buffer .= $res;
         }
 
-        $this->logger->debug('[UnixSocket] Read');
+        $this->logger->debug('[UnixSocket] Reading done');
 
         return $buffer;
     }
@@ -79,5 +73,10 @@ class UnixSocket
     public function close(): void
     {
         socket_close($this->socket);
+    }
+
+    private function getSocketError(): string
+    {
+        return socket_last_error() . ' (' . socket_strerror(socket_last_error()) . ')';
     }
 }
