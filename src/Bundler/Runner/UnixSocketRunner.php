@@ -59,8 +59,8 @@ class UnixSocketRunner implements RunnerInterface
         $response  = '';
 
         while (true) {
-            if (microtime(true) - $start > 10) {
-                throw new TimeoutException('Socket communication', 10);
+            if (microtime(true) - $start > 30) {
+                throw new TimeoutException('Socket communication', 30);
             }
 
             $socket = $this->factory->make();
@@ -150,7 +150,7 @@ class UnixSocketRunner implements RunnerInterface
 
     private function startBuildProcess()
     {
-        $this->logger->debug('buuuuuurp');
+        $this->logger->debug('[UnixSocketRunner] Starting build process');
         if (!is_dir($this->config->getCacheDir())) {
             mkdir($this->config->getCacheDir(), 0777, true);
         }
@@ -163,8 +163,6 @@ class UnixSocketRunner implements RunnerInterface
             escapeshellarg($this->socket_location),
             escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
-
-        $this->logger->debug($cmd);
         `$cmd`;
     }
 }

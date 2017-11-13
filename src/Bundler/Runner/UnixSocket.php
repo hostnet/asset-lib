@@ -58,9 +58,6 @@ class UnixSocket
         $length = 0;
 
         while ($bytes > $length) {
-            $care = '';
-            $res  = @socket_recv($this->socket, $care, 1, MSG_PEEK);
-
             $this->logger->debug('[UnixSocket] Reading ' . ($bytes - $length) . ' bytes');
             $res = @socket_read($this->socket, $bytes - $length);
             if ($res === false) {
