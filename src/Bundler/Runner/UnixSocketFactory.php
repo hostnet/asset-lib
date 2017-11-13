@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Bundler\Runner;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Factory that creates unix sockets.
  *
@@ -13,8 +15,15 @@ namespace Hostnet\Component\Resolver\Bundler\Runner;
  */
 class UnixSocketFactory
 {
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     public function make(): UnixSocket
     {
-        return new UnixSocket();
+        return new UnixSocket($this->logger);
     }
 }
