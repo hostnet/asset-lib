@@ -13,6 +13,7 @@ use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * @covers \Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner
@@ -40,6 +41,7 @@ class UnixSocketRunnerTest extends TestCase
         $this->config->getCacheDir()->willReturn(vfsStream::url('unixSocketCacheDir'));
         $this->config->getProjectRoot()->willReturn('/dir');
         $this->config->getNodeJsExecutable()->willReturn(new Executable('echo', 'node_modules'));
+        $this->config->getLogger()->willReturn(new NullLogger());
         $this->socket  = $this->prophesize(UnixSocket::class);
         $this->factory = $this->prophesize(UnixSocketFactory::class);
         $this->factory->make()->willReturn($this->socket);

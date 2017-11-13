@@ -39,14 +39,13 @@ class UnixSocketRunner implements RunnerInterface
     public function __construct(
         ConfigInterface $config,
         UnixSocketFactory $factory,
-        LoggerInterface $logger = null,
         int $start_timeout = 5000000,
         int $small_timeout = 100000
     ) {
         $this->config          = $config;
         $this->socket_location = $config->getCacheDir() . '/asset-lib.socket';
         $this->factory         = $factory;
-        $this->logger          = $logger ?? new NullLogger();
+        $this->logger          = $config->getLogger();
         $this->start_timeout   = $start_timeout;
         $this->small_timeout   = $small_timeout;
     }
@@ -76,6 +75,7 @@ class UnixSocketRunner implements RunnerInterface
                 try {
                     $socket->connect($this->socket_location);
                 } catch (SocketException $e) {
+                    $this->logger->debug($e->getMessage(), ['exception' => $e]);
                     usleep($this->small_timeout);
                     continue;
                 }
@@ -84,6 +84,7 @@ class UnixSocketRunner implements RunnerInterface
                     $response = $this->sendMessage($socket, $type, $file_name, $item->getContent());
                     break;
                 } catch (SocketException $e) {
+                    $this->logger->debug($e->getMessage(), ['exception' => $e]);
                     usleep($this->small_timeout);
                     continue;
                 }
