@@ -77,7 +77,7 @@
                     // define(["dep1", "dep2"], function (dep_1, dep_2) {})
 
                     dependencies = a;
-                    initializer = b;
+                    initializer = typeof b === 'function' ? b : function () { return b; };
                 }
             } else {
                 // define("foo", ["dep1", "dep2"], function (dep_1, dep_2) {})

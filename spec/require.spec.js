@@ -62,6 +62,14 @@ describe("Require.js module register method test", function () {
         expect(lib.require('foo')).toEqual('FOO');
     });
 
+    it("with AMD define object", function() {
+        lib.register("foo-static", function (define, require, module, exports) {
+            define([], {foo: 1});
+        });
+
+        expect(lib.require('foo-static')).toEqual({foo: 1});
+    });
+
     it("with AMD define and reserved requirements", function() {
         lib.register("amd_define/foo", function (define, require, module, exports) {
             define([], function () {
