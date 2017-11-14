@@ -11,6 +11,12 @@ process.umask(0o000);
 var numberOfRequestsHandled = 0,
     unixServer;
 
+// SIGHUP ("signal hang up") is a signal sent to a process when its controlling
+// terminal is closed.
+// We ignore this signal, so we can continue running as a background process
+process.on('SIGHUP', function () {
+});
+
 unixServer = net.createServer(function (client) {
 
     var chunkProcessor = new ChunkProcessor();
