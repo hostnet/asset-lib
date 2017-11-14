@@ -158,7 +158,7 @@ class UnixSocketRunner implements RunnerInterface
 
         $node_js = $this->config->getNodeJsExecutable();
         $cmd     = sprintf(
-            'nohup %s %s %s < /dev/null > %s 2>&1 &',
+            '%s %s %s < /dev/null > %s 2>&1 &',
             escapeshellarg($node_js->getBinary()),
             escapeshellarg(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])),
             escapeshellarg($this->socket_location),
