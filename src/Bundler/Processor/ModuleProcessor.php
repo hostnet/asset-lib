@@ -26,9 +26,11 @@ final class ModuleProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $js  = "register('" . $item->module_name . "', function (define, require, module, exports) {\n";
-        $js .= $item->getContent();
-        $js .= "\n});\n";
+        $js = "register("
+            . json_encode($item->module_name, JSON_UNESCAPED_SLASHES)
+            . ", function (define, require, module, exports) {\n"
+            . $item->getContent()
+            . "\n});\n";
 
         $item->transition(ContentState::READY, $js);
     }
