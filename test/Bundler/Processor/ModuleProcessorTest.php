@@ -47,12 +47,16 @@ class ModuleProcessorTest extends TestCase
 
     public function testTranspile()
     {
-        $item = new ContentItem(new File(basename(__FILE__)), 'foobar.js', new StringReader('console.log("foobar");'));
+        $item = new ContentItem(
+            new File(basename(__FILE__)),
+            'bar/a"/\'/foobar.js',
+            new StringReader('console.log("foobar");')
+        );
 
         $this->module_processor->transpile(__DIR__, $item);
 
         self::assertStringEqualsFile(__DIR__ . '/expected.module.js', $item->getContent());
-        self::assertSame('foobar.js', $item->module_name);
+        self::assertSame('bar/a"/\'/foobar.js', $item->module_name);
         self::assertSame(ContentState::READY, $item->getState()->current());
     }
 }
