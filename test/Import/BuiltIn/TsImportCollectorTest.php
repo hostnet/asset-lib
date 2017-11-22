@@ -33,7 +33,7 @@ class TsImportCollectorTest extends TestCase
 
         $this->ts_import_collector = new TsImportCollector(
             new JsImportCollector(new FileResolver($config->reveal(), ['.ts', '.js', '.json', '.node'])),
-            new FileResolver($config->reveal(), ['.ts', '.d.ts', '.js', '.json', '.node'])
+            new FileResolver($config->reveal(), ['.ts', '.js', '.json', '.node'])
         );
     }
 

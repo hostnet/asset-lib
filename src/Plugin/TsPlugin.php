@@ -24,7 +24,7 @@ final class TsPlugin implements PluginInterface
             new JsImportCollector(
                 new FileResolver($plugin_api->getConfig(), ['.ts', '.js', '.json', '.node'])
             ),
-            new FileResolver($plugin_api->getConfig(), ['.ts', '.d.ts', '.js', '.json', '.node'])
+            new FileResolver($plugin_api->getConfig(), ['.ts', '.js', '.json', '.node'])
         );
         if ($plugin_api->getConfig()->isDev()) {
             $ts_collector = new CachedImportCollector($ts_collector, $plugin_api->getCache());
