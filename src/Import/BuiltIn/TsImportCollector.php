@@ -47,15 +47,7 @@ final class TsImportCollector implements ImportCollectorInterface
             $path = $matches[2][$i];
 
             try {
-                $import    = $this->nodejs_resolver->asRequire($path, $file);
-                $base_name = basename($import->getImportedFile()->path);
-
-                $ext = substr($base_name, strpos($base_name, '.'));
-
-                if ($ext === '.d.ts') {
-                    continue;
-                }
-
+                $import = $this->nodejs_resolver->asRequire($path, $file);
                 $imports->addImport($import);
             } catch (\RuntimeException $e) {
                 continue;
