@@ -34,11 +34,7 @@ final class TsContentProcessor implements ContentProcessorInterface
 
     public function transpile(string $cwd, ContentItem $item): void
     {
-        $module_name = $item->module_name;
-
-        if (false !== ($i = strrpos($module_name, '.'))) {
-            $module_name = substr($module_name, 0, $i);
-        }
+        $module_name = preg_replace('/\.ts$/i', '', $item->module_name);
 
         $item->transition(
             ContentState::PROCESSED,
