@@ -53,16 +53,27 @@ class TsContentProcessorTest extends TestCase
         self::assertSame(ContentState::PROCESSED, $state->current());
     }
 
-    public function testTranspile()
+    /**
+     * @dataProvider transpileProvider
+     */
+    public function testTranspile(string $original_name, string $expected_name)
     {
-        $item = new ContentItem(new File(basename(__FILE__)), 'foobar.ts', new FileReader(__DIR__));
+        $item = new ContentItem(new File(basename(__FILE__)), $original_name, new FileReader(__DIR__));
 
         $this->ts_runner->execute(RunnerType::TYPE_SCRIPT, $item)->willReturn('ts code');
 
         $this->ts_content_processor->transpile(__DIR__, $item);
 
         self::assertContains('ts code', $item->getContent());
-        self::assertSame('foobar', $item->module_name);
+        self::assertSame($expected_name, $item->module_name);
         self::assertSame(ContentState::PROCESSED, $item->getState()->current());
+    }
+
+    public function transpileProvider()
+    {
+        return [
+            ['foobar.ts', 'foobar'],
+            ['ks-swiper.module', 'ks-swiper.module']
+        ];
     }
 }
