@@ -11,8 +11,6 @@ use Hostnet\Component\Resolver\Bundler\Runner\Exception\SocketException;
 use Hostnet\Component\Resolver\Bundler\Runner\Exception\TimeoutException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 /**
  * This runs JavaScript commands using a unix socket.

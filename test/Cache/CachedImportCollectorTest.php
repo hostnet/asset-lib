@@ -9,7 +9,6 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
 
 /**
  * @covers \Hostnet\Component\Resolver\Cache\CachedImportCollector

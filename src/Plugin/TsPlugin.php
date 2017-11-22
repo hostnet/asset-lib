@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Processor\TsContentProcessor;
-use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\TsImportCollector;

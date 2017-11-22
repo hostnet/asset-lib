@@ -7,7 +7,6 @@ namespace Hostnet\Component\Resolver\Import;
 
 use Hostnet\Component\Resolver\File;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 
 /**
  * @covers \Hostnet\Component\Resolver\Import\ImportFinder
