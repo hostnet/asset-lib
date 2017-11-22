@@ -5,7 +5,11 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
+use Hostnet\Component\Resolver\Bundler\ContentItem;
+use Hostnet\Component\Resolver\Bundler\ContentState;
+use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
 use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
+use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;
@@ -70,12 +74,36 @@ class ContentPipelineTest extends TestCase
 
         $input_file->addChild($d1 = new Dependency(new File('foo.foo'), true));
         $input_file->addChild($d2 = new Dependency(new Module('fixtures/foo/bar.foo', 'fixtures/foo/bar.foo')));
+        $input_file->addChild($d3 = new Dependency(
+            new Module('node_modules/fixtures/foo/abc.def', 'node_modules/fixtures/foo/abc.def')
+        ));
+
+        $def_processor = new class implements ContentProcessorInterface
+        {
+            public function supports(ContentState $state): bool
+            {
+                return $state->extension() == 'def';
+            }
+
+            public function peek(string $cwd, ContentState $state): void
+            {
+                $state->transition(ContentState::READY);
+            }
+
+            public function transpile(string $cwd, ContentItem $item): void
+            {
+                if ($item->module_name == 'node_modules/fixtures/foo/abc.def') {
+                    $item->transition(ContentState::READY);
+                }
+            }
+        };
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
+        $this->content_pipeline->addProcessor($def_processor);
 
         self::assertEquals(
-            "foobar\nfoobar\n",
-            $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
+            "foobar\nfoobar\nbla\n",
+            $this->content_pipeline->push([$input_file, $d1, $d2, $d3], $reader, $target_file)
         );
     }
 
