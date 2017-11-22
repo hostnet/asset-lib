@@ -5,8 +5,6 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Import;
 
-use Hostnet\Component\Resolver\File;
-
 /**
  * Implementation of this interface allow for finding of imports.
  */

@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\FileSystem;
 
 use Hostnet\Component\Resolver\File;
-use Hostnet\Component\Resolver\FileSystem\FileReader;
 use PHPUnit\Framework\TestCase;
 
 /**

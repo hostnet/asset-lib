@@ -9,7 +9,6 @@ use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
 use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
-use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\FileReader;

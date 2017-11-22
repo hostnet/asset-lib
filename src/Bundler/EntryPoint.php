@@ -7,7 +7,6 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
-use Hostnet\Component\Resolver\Import\RootFile;
 
 /**
  * Entry points are the starting files for your application. This can be main
