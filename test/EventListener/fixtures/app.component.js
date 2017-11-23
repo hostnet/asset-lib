@@ -14,7 +14,7 @@ var AppComponent = /** @class */ (function () {
     AppComponent = __decorate([
         core_1.Component({
             selector: 'app-root',
-            templateUrl: './app.component.html',
+            templateUrl: 'app.component.html',
             styleUrls: ['./app.component.less']
         })
     ], AppComponent);
