@@ -33,24 +33,16 @@ final class AngularImportCollector implements ImportCollectorInterface
 
         if (preg_match_all('/templateUrl\s*:(\s*[\'"`](.*?)[\'"`]\s*)/m', $content, $matches) > 0) {
             foreach ($matches[2] as $match) {
-                $file_path = $match;
-
-                if ($file_path[0] === '.') {
-                    $file_path = $file->dir . substr($file_path, 1);
-                }
+                $file_path = File::clean($file->dir . '/' . $match);
 
                 $imports->addImport(new Import($file_path, new File($file_path), true));
             }
         }
-        if (preg_match_all('/styleUrls *:(\s*\[[^\]]*?\])/', $content, $matches) > 0) {
+        if (preg_match_all('/styleUrls\s*:(\s*\[[^\]]*?\])/', $content, $matches) > 0) {
             foreach ($matches[1] as $match) {
                 if (preg_match_all('/([\'`"])((?:[^\\\\]\\\\\1|.)*?)\1/', $match, $inner_matches) > 0) {
                     foreach ($inner_matches[2] as $inner_match) {
-                        $file_path = $inner_match;
-
-                        if ($file_path[0] === '.') {
-                            $file_path = $file->dir . substr($file_path, 1);
-                        }
+                        $file_path = File::clean($file->dir . '/' . $inner_match);
 
                         $imports->addImport(new Import($file_path, new File($file_path), true));
                     }

@@ -55,7 +55,7 @@ final class AngularHtmlListener
             },
             $content
         );
-        $content = preg_replace_callback('/styleUrls *:(\s*\[[^\]]*?\])/', function ($match) use ($file, $reader) {
+        $content = preg_replace_callback('/styleUrls\s*:(\s*\[[^\]]*?\])/', function ($match) use ($file, $reader) {
             $urls = [];
 
             if (preg_match_all('/([\'`"])((?:[^\\\\]\\\\\1|.)*?)\1/', $match[1], $inner_matches) > 0) {
@@ -79,16 +79,11 @@ final class AngularHtmlListener
      */
     private function getCompiledAssetFor(string $linked_file, File $owning_file, ReaderInterface $reader): string
     {
-        $file_path = $linked_file;
-
-        if ($file_path[0] === '.' && $owning_file->dir !== '.' && !empty($owning_file->dir)) {
-            $file_path = $owning_file->dir . '/' . $file_path;
-        }
+        $file_path = $owning_file->dir . '/' . $linked_file;
 
         $target_file = new File(File::clean($file_path));
         $pipeline    = $this->plugin_api->getPipeline();
         $asset       = new Asset($this->plugin_api->getFinder()->all($target_file), $pipeline->peek($target_file));
-
         return $pipeline->push(
             $asset->getFiles(),
             $reader
