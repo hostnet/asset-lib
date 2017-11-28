@@ -10,7 +10,7 @@ use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\TranspileException;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 /**
  * Executes the given javascript file with node.
@@ -45,13 +45,13 @@ class SingleProcessRunner implements RunnerInterface
 
         $file    = File::makeAbsolutePath($this->files[$type], __DIR__ . DIRECTORY_SEPARATOR . 'js');
         $node_js = $this->config->getNodeJsExecutable();
-        $process = ProcessBuilder::create()
-            ->add($node_js->getBinary())
-            ->add($file)
-            ->add(File::makeAbsolutePath($item->file->path, $this->config->getProjectRoot()))
-            ->setInput($item->getContent())
-            ->setEnv('NODE_PATH', $node_js->getNodeModulesLocation())
-            ->getProcess();
+        $cmd     = sprintf(
+            "%s %s %s",
+            $node_js->getBinary(),
+            $file,
+            File::makeAbsolutePath($item->file->path, $this->config->getProjectRoot())
+        );
+        $process = new Process($cmd, null, ['NODE_PATH' => $node_js->getNodeModulesLocation()], $item->getContent());
 
         $process->run();
 
