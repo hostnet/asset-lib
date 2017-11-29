@@ -13,9 +13,11 @@ var numberOfRequestsHandled = 0,
 
 // SIGHUP ("signal hang up") is a signal sent to a process when its controlling
 // terminal is closed.
-// We ignore this signal, so we can continue running as a background process
-process.on('SIGHUP', function () {
-});
+// We ignore this signal on macs, so we can continue running as a background process
+if (require('os').platform() === 'darwin') {
+    process.on('SIGHUP', function () {
+    });
+}
 
 unixServer = net.createServer(function (client) {
 
