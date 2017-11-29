@@ -40,7 +40,6 @@ final class TsImportCollector implements ImportCollectorInterface
     {
         $content = file_get_contents(File::makeAbsolutePath($file->path, $cwd));
         $n       = preg_match_all('/import([^;\'"]*from)?\s+["\'](.*?)["\'];/', $content, $matches);
-
         $this->js_import_collector->collect($cwd, $file, $imports);
 
         for ($i = 0; $i < $n; $i++) {

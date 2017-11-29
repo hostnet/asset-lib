@@ -6,4 +6,7 @@ require('module_package_dir');
 require('./relative');
 require('../relative');
 
+/**
+ * require('../commented-require');
+ */
 // HENK

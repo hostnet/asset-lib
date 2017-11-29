@@ -37,6 +37,10 @@ final class JsImportCollector implements ImportCollectorInterface
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         $content = file_get_contents(File::makeAbsolutePath($file->path, $cwd));
+        // remove contents if applicable so we do not find require statements inside commented code.
+        // that way the only accidental require statements we find are the one we find in if statements
+        // or between try { .. } catch.
+        $content = preg_replace('#\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+\\/#', '', $content) ? : $content;
         $n       = preg_match_all('/(.?)require\(([\']([^\']+)[\']|["]([^"]+)["])\)/', $content, $matches);
 
         for ($i = 0; $i < $n; $i++) {

@@ -29,7 +29,7 @@ final class Cache implements FileCacheInterface
      */
     public static function createFileCacheKey(File $file): string
     {
-        return substr(md5($file->path), 0, 5) . '_' . str_replace('/', '.', $file->path);
+        return substr(md5(str_replace('\\', '/', $file->path)), 0, 5) . '_' . str_replace('/', '.', $file->path);
     }
 
     /**

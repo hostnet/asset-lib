@@ -59,4 +59,15 @@ class ModuleProcessorTest extends TestCase
         self::assertSame('bar/a"/\'/foobar.js', $item->module_name);
         self::assertSame(ContentState::READY, $item->getState()->current());
     }
+
+    public function testTranspileNoXSS()
+    {
+        $item = new ContentItem(new File(basename(__FILE__)), 'foobar""js', new StringReader('console.log("foobar");'));
+
+        $this->module_processor->transpile(__DIR__, $item);
+
+        self::assertStringEqualsFile(__DIR__ . '/expected.module2.js', $item->getContent());
+        self::assertSame('foobar""js', $item->module_name);
+        self::assertSame(ContentState::READY, $item->getState()->current());
+    }
 }
