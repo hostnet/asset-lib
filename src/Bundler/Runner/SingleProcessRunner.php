@@ -52,6 +52,7 @@ class SingleProcessRunner implements RunnerInterface
             File::makeAbsolutePath($item->file->path, $this->config->getProjectRoot())
         );
         $process = new Process($cmd, null, ['NODE_PATH' => $node_js->getNodeModulesLocation()], $item->getContent());
+        $process->inheritEnvironmentVariables();
 
         $process->run();
 
