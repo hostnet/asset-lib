@@ -36,7 +36,7 @@ final class Packer
         $writer   = new FileWriter($config->getProjectRoot());
         $pipeline = new ContentPipeline($dispatcher, $logger, $config, $writer);
 
-        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache, $runner);
+        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
         $bundler = new PipelineBundler(

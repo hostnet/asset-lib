@@ -9,6 +9,8 @@ use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
+use Hostnet\Component\Resolver\Event\BundleEvent;
+use Hostnet\Component\Resolver\Event\BundleEvents;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
@@ -18,6 +20,7 @@ use Hostnet\Component\Resolver\Import\RootFile;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Log\NullLogger;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @covers \Hostnet\Component\Resolver\Bundler\PipelineBundler
@@ -52,8 +55,12 @@ class PipelineBundlerTest extends TestCase
 
     public function testExecute()
     {
-        $reader = $this->prophesize(ReaderInterface::class);
-        $writer = $this->prophesize(WriterInterface::class);
+        $reader           = $this->prophesize(ReaderInterface::class);
+        $writer           = $this->prophesize(WriterInterface::class);
+        $event_dispatcher = $this->prophesize(EventDispatcherInterface::class);
+
+        $event_dispatcher->dispatch(BundleEvents::PRE_BUNDLE, new BundleEvent())->shouldBeCalled();
+        $event_dispatcher->dispatch(BundleEvents::POST_BUNDLE, new BundleEvent())->shouldBeCalled();
 
         $this->config->getOutputFolder()->willReturn('dev1');
         $this->config->getSourceRoot()->willReturn('');
@@ -62,6 +69,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn(['bar.js']);
+        $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $entry_point1 = new RootFile(new File('foo.js'));
         $entry_point2 = new RootFile(new File('bar.js'));
@@ -124,8 +132,12 @@ class PipelineBundlerTest extends TestCase
 
     public function testExecuteNotChanged()
     {
-        $reader = $this->prophesize(ReaderInterface::class);
-        $writer = $this->prophesize(WriterInterface::class);
+        $reader           = $this->prophesize(ReaderInterface::class);
+        $writer           = $this->prophesize(WriterInterface::class);
+        $event_dispatcher = $this->prophesize(EventDispatcherInterface::class);
+
+        $event_dispatcher->dispatch(BundleEvents::PRE_BUNDLE, new BundleEvent())->shouldBeCalled();
+        $event_dispatcher->dispatch(BundleEvents::POST_BUNDLE, new BundleEvent())->shouldBeCalled();
 
         $this->config->getOutputFolder()->willReturn('dev2');
         $this->config->getSourceRoot()->willReturn('');
@@ -134,6 +146,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foobar.js']);
         $this->config->getAssetFiles()->willReturn([]);
+        $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $entry_point1 = new RootFile(new File('foobar.js'));
 

@@ -103,6 +103,13 @@ interface ConfigInterface
     public function getEventDispatcher(): EventDispatcherInterface;
 
     /**
+     * Return the type of unix socket.
+     *
+     * @return string
+     */
+    public function getSocketType(): string;
+
+    /**
      * Which runner should we use for the transitions?
      *
      * @return RunnerInterface

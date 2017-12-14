@@ -33,7 +33,39 @@ class SimpleConfigTest extends TestCase
             'phpunit',
             'src',
             'var',
+            UnixSocketType::ALWAYS,
+            $plugins,
+            $nodejs
+        );
+
+        self::assertEquals(true, $config->isDev());
+        self::assertEquals(__DIR__, $config->getProjectRoot());
+        self::assertEquals(['phpunit'], $config->getIncludePaths());
+        self::assertEquals(['foo'], $config->getEntryPoints());
+        self::assertEquals(['bar'], $config->getAssetFiles());
+        self::assertEquals('web' . DIRECTORY_SEPARATOR . 'phpunit', $config->getOutputFolder());
+        self::assertEquals('phpunit', $config->getOutputFolder(false));
+        self::assertEquals('src', $config->getSourceRoot());
+        self::assertEquals('var', $config->getCacheDir());
+        self::assertInstanceOf(UnixSocketRunner::class, $config->getRunner());
+        self::assertSame($plugins, $config->getPlugins());
+        self::assertSame($nodejs, $config->getNodeJsExecutable());
+        self::assertInstanceOf(NullLogger::class, $config->getLogger());
+        self::assertInstanceOf(EventDispatcherInterface::class, $config->getEventDispatcher());
+
+        $plugins = [$this->prophesize(PluginInterface::class)->reveal()];
+        $nodejs  = new Executable('a', 'b');
+        $config  = new SimpleConfig(
             true,
+            __DIR__,
+            ['phpunit'],
+            ['foo'],
+            ['bar'],
+            'web',
+            'phpunit',
+            'src',
+            'var',
+            UnixSocketType::PRE_PROCESS,
             $plugins,
             $nodejs
         );
@@ -65,7 +97,7 @@ class SimpleConfigTest extends TestCase
             'phpunit',
             'src',
             'var',
-            false,
+            UnixSocketType::DISABLED,
             $plugins,
             $nodejs,
             $dispatcher,

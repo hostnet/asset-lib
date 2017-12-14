@@ -22,7 +22,6 @@ class PluginApi
     private $finder;
     private $config;
     private $cache;
-    private $runner;
 
     public function __construct(
         MutableContentPipelineInterface $pipeline,
@@ -73,9 +72,6 @@ class PluginApi
 
     public function getRunner(): RunnerInterface
     {
-        if (! $this->runner) {
-            $this->runner = $this->config->getRunner();
-        }
-        return $this->runner;
+        return $this->config->getRunner();
     }
 }

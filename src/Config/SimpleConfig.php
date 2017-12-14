@@ -31,6 +31,7 @@ final class SimpleConfig implements ConfigInterface
     private $node_js_executable;
     private $logger;
     private $event_dispatcher;
+    private $runner;
 
     public function __construct(
         bool $is_dev,
@@ -42,7 +43,7 @@ final class SimpleConfig implements ConfigInterface
         string $output_folder,
         string $source_root,
         string $cache_dir,
-        bool $enable_unix_socket,
+        string $enable_unix_socket,
         array $plugins,
         Executable $node_js_executable,
         EventDispatcherInterface $event_dispatcher = null,
@@ -168,10 +169,22 @@ final class SimpleConfig implements ConfigInterface
     /**
      * {@inheritdoc}
      */
+    public function getSocketType(): string
+    {
+        return $this->enable_unix_socket;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRunner(): RunnerInterface
     {
-        return $this->enable_unix_socket
-            ? new UnixSocketRunner($this, new UnixSocketFactory($this->logger))
-            : new SingleProcessRunner($this);
+        if (null === $this->runner) {
+            $this->runner = $this->enable_unix_socket !== UnixSocketType::DISABLED
+                ? new UnixSocketRunner($this, new UnixSocketFactory($this->logger))
+                : new SingleProcessRunner($this);
+        }
+
+        return $this->runner;
     }
 }

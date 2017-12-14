@@ -11,6 +11,8 @@ use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
+use Hostnet\Component\Resolver\Event\BundleEvent;
+use Hostnet\Component\Resolver\Event\BundleEvents;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
@@ -47,54 +49,73 @@ class PipelineBundler
      */
     public function execute(ReaderInterface $reader, WriterInterface $writer): void
     {
-        $output_folder = $this->config->getOutputFolder();
-        $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
+        $this->config->getEventDispatcher()->dispatch(BundleEvents::PRE_BUNDLE, new BundleEvent());
 
-        // put the require.js in the web folder
-        $require_file        = new File(File::clean(__DIR__ . '/../Resources/require.js'));
-        $output_require_file = new File($output_folder . '/require.js');
+        try {
+            $output_folder = $this->config->getOutputFolder();
+            $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
-        if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
-            $this->logger->debug('Writing require.js file to {name}', ['name' => $output_require_file->path]);
+            // put the require.js in the web folder
+            $require_file        = new File(File::clean(__DIR__ . '/../Resources/require.js'));
+            $output_require_file = new File($output_folder . '/require.js');
 
-            // Create an item for the file to write to disk.
-            $item = new ContentItem(
-                $require_file,
-                $output_require_file->getName(),
-                new StringReader($reader->read($require_file))
-            );
+            if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
+                $this->logger->debug('Writing require.js file to {name}', ['name' => $output_require_file->path]);
 
-            $writer->write($output_require_file, $this->runner->execute(RunnerType::UGLIFY, $item));
-        }
+                // Create an item for the file to write to disk.
+                $item = new ContentItem(
+                    $require_file,
+                    $output_require_file->getName(),
+                    new StringReader($reader->read($require_file))
+                );
 
-        // Entry points
-        foreach ($this->config->getEntryPoints() as $file_name) {
-            $file        = new File($source_dir . $file_name);
-            $entry_point = new EntryPoint($this->finder->all($file));
+                $writer->write($output_require_file, $this->runner->execute(RunnerType::UGLIFY, $item));
+            }
 
-            $this->logger->debug('Checking entry-point bundle file {name}', ['name' => $entry_point->getFile()->path]);
+            // Entry points
+            foreach ($this->config->getEntryPoints() as $file_name) {
+                $file        = new File($source_dir . $file_name);
+                $entry_point = new EntryPoint($this->finder->all($file));
 
-            // bundle
-            $this->write(
-                $entry_point->getBundleFiles(),
-                $entry_point->getBundleFile($output_folder),
-                $reader,
-                $writer
-            );
+                $this->logger->debug('Checking entry-point bundle file {name}', ['name' => $entry_point->getFile()->path]);
 
-            $this->logger->debug('Checking entry-point vendor file {name}', ['name' => $entry_point->getFile()->path]);
+                // bundle
+                $this->write(
+                    $entry_point->getBundleFiles(),
+                    $entry_point->getBundleFile($output_folder),
+                    $reader,
+                    $writer
+                );
 
-            // vendor
-            $this->write(
-                $entry_point->getVendorFiles(),
-                $entry_point->getVendorFile($output_folder),
-                $reader,
-                $writer
-            );
+                $this->logger->debug('Checking entry-point vendor file {name}', ['name' => $entry_point->getFile()->path]);
 
-            // assets
-            foreach ($entry_point->getAssetFiles() as $file) {
-                // peek for the extension... since we do not know it.
+                // vendor
+                $this->write(
+                    $entry_point->getVendorFiles(),
+                    $entry_point->getVendorFile($output_folder),
+                    $reader,
+                    $writer
+                );
+
+                // assets
+                foreach ($entry_point->getAssetFiles() as $file) {
+                    // peek for the extension... since we do not know it.
+                    $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
+
+                    $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
+
+                    $this->write(
+                        $asset->getFiles(),
+                        $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
+                        $reader,
+                        $writer
+                    );
+                }
+            }
+
+            // Assets
+            foreach ($this->config->getAssetFiles() as $file_name) {
+                $file  = new File($source_dir . $file_name);
                 $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
 
                 $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
@@ -106,21 +127,8 @@ class PipelineBundler
                     $writer
                 );
             }
-        }
-
-        // Assets
-        foreach ($this->config->getAssetFiles() as $file_name) {
-            $file  = new File($source_dir . $file_name);
-            $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
-
-            $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
-
-            $this->write(
-                $asset->getFiles(),
-                $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
-                $reader,
-                $writer
-            );
+        } finally {
+            $this->config->getEventDispatcher()->dispatch(BundleEvents::POST_BUNDLE, new BundleEvent());
         }
     }
 
