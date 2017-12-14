@@ -82,5 +82,3 @@ process.on('exit', function () {
     _close();
 });
 unixServer.listen(process.argv[2]);
-
-console.log(process.pid);
