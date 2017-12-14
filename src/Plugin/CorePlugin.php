@@ -11,6 +11,9 @@ use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\JsonProcessor;
 use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
+use Hostnet\Component\Resolver\Config\UnixSocketType;
+use Hostnet\Component\Resolver\Event\BundleEvents;
+use Hostnet\Component\Resolver\EventListener\EnsureRunnerClosedListener;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 
@@ -44,5 +47,12 @@ final class CorePlugin implements PluginInterface
 
         $plugin_api->addProcessor(new IdentityProcessor('css'));
         $plugin_api->addProcessor(new IdentityProcessor('html'));
+
+        if ($config->getSocketType() === UnixSocketType::PRE_PROCESS) {
+            $ensure_closed_listener = new EnsureRunnerClosedListener($plugin_api->getRunner());
+
+            $dispatcher = $plugin_api->getConfig()->getEventDispatcher();
+            $dispatcher->addListener(BundleEvents::POST_BUNDLE, [$ensure_closed_listener, 'onPostBundle']);
+        }
     }
 }

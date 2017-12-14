@@ -33,6 +33,7 @@ class UnixSocketRunner implements RunnerInterface
     private $logger;
     private $start_timeout;
     private $small_timeout;
+    private $process_id;
 
     public function __construct(
         ConfigInterface $config,
@@ -94,6 +95,18 @@ class UnixSocketRunner implements RunnerInterface
         return $response;
     }
 
+    /**
+     * Force the shutdown of the socket. This will kill the process.
+     */
+    public function shutdown(): void
+    {
+        if (!empty($this->process_id)) {
+            $pid = (int) $this->process_id;
+
+            `kill $pid`;
+        }
+    }
+
     private function sendMessage(UnixSocket $socket, string $type, string $file_name, string $msg): string
     {
         /*
@@ -149,21 +162,36 @@ class UnixSocketRunner implements RunnerInterface
 
     private function startBuildProcess()
     {
+        $this->process_id = null;
+
         $this->logger->debug('[UnixSocketRunner] Starting build process');
         if (!is_dir($this->config->getCacheDir())) {
             mkdir($this->config->getCacheDir(), 0777, true);
         }
 
         $node_js = $this->config->getNodeJsExecutable();
-        $nohup   = stristr(php_uname('s'), 'darwin') === false ? 'nohup' : '';
         $cmd     = sprintf(
-            '%s %s %s %s < /dev/null > %s 2>&1 &',
-            $nohup,
+            '%s %s %s %s < /dev/null > %s 2>&1 & echo $!',
+            '',
             escapeshellarg($node_js->getBinary()),
             escapeshellarg(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])),
             escapeshellarg($this->socket_location),
             escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
-        `$cmd`;
+        $pid   = trim(`$cmd`);
+        $start = microtime(true);
+
+        do {
+            $this->process_id = trim(`ps --ppid=$pid --format=pid --no-headers` ? : '');
+
+            if (!empty($this->process_id)) {
+                break;
+            }
+            usleep($this->small_timeout);
+        } while (microtime(true) - $start <= 30);
+
+        if (empty($this->process_id)) {
+            throw new \RuntimeException('Could not start build process');
+        }
     }
 }
