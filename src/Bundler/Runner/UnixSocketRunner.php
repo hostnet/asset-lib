@@ -178,20 +178,30 @@ class UnixSocketRunner implements RunnerInterface
             escapeshellarg($this->socket_location),
             escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
-        $pid   = trim(`$cmd`);
+        $pid = trim(`$cmd`);
+
+        $this->process_id = $this->getChildProcessId((int) $pid);
+    }
+
+    private function getChildProcessId(int $ppid): int
+    {
         $start = microtime(true);
 
         do {
-            $this->process_id = trim(`ps --ppid=$pid --format=pid --no-headers` ? : '');
+            $processes = trim(`ps -e -opid,ppid` ? : '');
 
-            if (!empty($this->process_id)) {
+            if (1 === preg_match('/^\s*([0-9]+)\s+' . $ppid . '$/m', $processes, $matches)) {
+                $child_pid = (int) $matches[1];
                 break;
             }
+
             usleep($this->small_timeout);
         } while (microtime(true) - $start <= 30);
 
-        if (empty($this->process_id)) {
+        if (empty($child_pid)) {
             throw new \RuntimeException('Could not start build process');
         }
+
+        return $child_pid;
     }
 }
