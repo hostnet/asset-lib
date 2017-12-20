@@ -82,3 +82,15 @@ process.on('exit', function () {
     _close();
 });
 unixServer.listen(process.argv[2]);
+
+// Make sure the socket still exists... else kill the server.
+var _checkIfSocketStillExists = function () {
+    if (!fs.existsSync(process.argv[2])) {
+        _close();
+
+        return;
+    }
+    setTimeout(_checkIfSocketStillExists, 500);
+};
+
+_checkIfSocketStillExists();
