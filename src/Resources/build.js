@@ -1,6 +1,7 @@
 "use strict";
 
 var net = require("net");
+var fs = require("fs");
 var ChunkProcessor = require("./chunk-processor");
 var replySender = require("./reply-sender");
 var processor = require('./processor');
@@ -82,3 +83,15 @@ process.on('exit', function () {
     _close();
 });
 unixServer.listen(process.argv[2]);
+
+var timeout;
+
+// Make sure the socket still exists... else kill the server.
+var _checkIfSocketStillExists = function () {
+    if (!fs.existsSync(process.argv[2])) {
+        _close();
+        clearInterval(timeout);
+    }
+};
+
+timeout = setInterval(_checkIfSocketStillExists, 500);
