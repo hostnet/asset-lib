@@ -166,9 +166,10 @@ class UnixSocketRunner implements RunnerInterface
         }
 
         $node_js = $this->config->getNodeJsExecutable();
+        $nohup   = stristr(php_uname('s'), 'darwin') === false ? 'nohup' : '';
         $cmd     = sprintf(
             '%s %s %s %s < /dev/null > %s 2>&1 &',
-            '',
+            $nohup,
             escapeshellarg($node_js->getBinary()),
             escapeshellarg(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])),
             escapeshellarg($this->socket_location),
