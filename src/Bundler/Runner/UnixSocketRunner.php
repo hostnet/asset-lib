@@ -33,7 +33,6 @@ class UnixSocketRunner implements RunnerInterface
     private $logger;
     private $start_timeout;
     private $small_timeout;
-    private $process_id;
 
     public function __construct(
         ConfigInterface $config,
@@ -96,14 +95,13 @@ class UnixSocketRunner implements RunnerInterface
     }
 
     /**
-     * Force the shutdown of the socket. This will kill the process.
+     * Shutdown the server by just removing the socket file. This should kill
+     * all processes listening on the socket.
      */
     public function shutdown(): void
     {
-        if (!empty($this->process_id)) {
-            $pid = (int) $this->process_id;
-
-            `kill $pid`;
+        if (file_exists($this->socket_location)) {
+            unlink($this->socket_location);
         }
     }
 
@@ -162,8 +160,6 @@ class UnixSocketRunner implements RunnerInterface
 
     private function startBuildProcess()
     {
-        $this->process_id = null;
-
         $this->logger->debug('[UnixSocketRunner] Starting build process');
         if (!is_dir($this->config->getCacheDir())) {
             mkdir($this->config->getCacheDir(), 0777, true);
@@ -171,37 +167,13 @@ class UnixSocketRunner implements RunnerInterface
 
         $node_js = $this->config->getNodeJsExecutable();
         $cmd     = sprintf(
-            '%s %s %s %s < /dev/null > %s 2>&1 & echo $!',
+            '%s %s %s %s < /dev/null > %s 2>&1 &',
             '',
             escapeshellarg($node_js->getBinary()),
             escapeshellarg(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'Resources', 'build.js'])),
             escapeshellarg($this->socket_location),
             escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
-        $pid = trim(`$cmd`);
-
-        $this->process_id = $this->getChildProcessId((int) $pid);
-    }
-
-    private function getChildProcessId(int $ppid): int
-    {
-        $start = microtime(true);
-
-        do {
-            $processes = trim(`ps -e -opid,ppid` ? : '');
-
-            if (1 === preg_match('/^\s*([0-9]+)\s+' . $ppid . '$/m', $processes, $matches)) {
-                $child_pid = (int) $matches[1];
-                break;
-            }
-
-            usleep($this->small_timeout);
-        } while (microtime(true) - $start <= 30);
-
-        if (empty($child_pid)) {
-            throw new \RuntimeException('Could not start build process');
-        }
-
-        return $child_pid;
+        `$cmd`;
     }
 }
