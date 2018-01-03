@@ -6,7 +6,10 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\FileSystem;
 
+use Hostnet\Component\Resolver\Event\FileEvent;
+use Hostnet\Component\Resolver\Event\FileEvents;
 use Hostnet\Component\Resolver\File;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Implementation of the WriterInterface which writes it to disk.
@@ -14,10 +17,12 @@ use Hostnet\Component\Resolver\File;
 final class FileWriter implements WriterInterface
 {
     private $cwd;
+    private $dispatcher;
 
-    public function __construct(string $cwd)
+    public function __construct(string $cwd, EventDispatcherInterface $dispatcher)
     {
-        $this->cwd = $cwd;
+        $this->cwd        = $cwd;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -28,10 +33,15 @@ final class FileWriter implements WriterInterface
     {
         $path = File::makeAbsolutePath($file->path, $this->cwd);
 
+        $event = new FileEvent($file, $content);
+        $this->dispatcher->dispatch(FileEvents::PRE_WRITE, $event);
+
         if (!file_exists(dirname($path))) {
             mkdir(dirname($path), 0777, true);
         }
 
-        file_put_contents($path, $content);
+        file_put_contents($path, $event->getContent());
+
+        $this->dispatcher->dispatch(FileEvents::POST_WRITE, $event);
     }
 }
