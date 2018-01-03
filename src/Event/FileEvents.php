@@ -18,7 +18,7 @@ final class FileEvents
      *
      * @var string
      */
-    public const PRE_WRITE = 'bundler.pre_bundle';
+    public const PRE_WRITE = 'file.pre_bundle';
 
     /**
      * Event triggered just after a file is written to disk.
@@ -27,5 +27,5 @@ final class FileEvents
      *
      * @var string
      */
-    public const POST_WRITE = 'bundler.pre_bundle';
+    public const POST_WRITE = 'file.pre_bundle';
 }
