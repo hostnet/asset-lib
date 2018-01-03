@@ -16,13 +16,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 final class FileWriter implements WriterInterface
 {
-    private $cwd;
     private $dispatcher;
+    private $cwd;
 
-    public function __construct(string $cwd, EventDispatcherInterface $dispatcher)
+    public function __construct(EventDispatcherInterface $dispatcher, string $cwd)
     {
-        $this->cwd        = $cwd;
         $this->dispatcher = $dispatcher;
+        $this->cwd        = $cwd;
     }
 
     /**

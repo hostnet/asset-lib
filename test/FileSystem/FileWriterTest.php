@@ -27,7 +27,7 @@ class FileWriterTest extends TestCase
         $dispatcher->dispatch(FileEvents::PRE_WRITE, Argument::type(FileEvent::class))->shouldBeCalled();
         $dispatcher->dispatch(FileEvents::POST_WRITE, Argument::type(FileEvent::class))->shouldBeCalled();
 
-        $writer = new FileWriter(__DIR__, $dispatcher->reveal());
+        $writer = new FileWriter($dispatcher->reveal(), __DIR__);
         $writer->write(new File('output/foobar.txt'), 'foobar');
 
         self::assertSame('foobar', file_get_contents(__DIR__ . '/output/foobar.txt'));
@@ -43,7 +43,7 @@ class FileWriterTest extends TestCase
             $e->setContent('barbaz');
         });
 
-        $writer = new FileWriter(__DIR__, $dispatcher);
+        $writer = new FileWriter($dispatcher, __DIR__);
         $writer->write(new File('output/foobar.txt'), 'foobar');
 
         self::assertSame('barbaz', file_get_contents(__DIR__ . '/output/foobar.txt'));
