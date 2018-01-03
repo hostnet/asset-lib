@@ -9,6 +9,7 @@ use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Event\AssetEvents;
+use Hostnet\Component\Resolver\Event\FileEvents;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +36,8 @@ class MinifyPluginTest extends TestCase
 
         $minify_plugin = new MinifyPlugin();
         $minify_plugin->activate($plugin_api);
-        self::assertCount(2, $event_dispatcher->getListeners(AssetEvents::READY));
+
+        self::assertCount(1, $event_dispatcher->getListeners(AssetEvents::READY));
+        self::assertCount(1, $event_dispatcher->getListeners(FileEvents::PRE_WRITE));
     }
 }

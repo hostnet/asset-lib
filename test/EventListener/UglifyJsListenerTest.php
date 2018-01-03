@@ -10,6 +10,7 @@ use Hostnet\Component\Resolver\Bundler\ContentState;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
 use Hostnet\Component\Resolver\Event\AssetEvent;
+use Hostnet\Component\Resolver\Event\FileEvent;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
 use PHPUnit\Framework\TestCase;
@@ -35,25 +36,26 @@ class UglifyJsListenerTest extends TestCase
 
     public function testOnPreWrite()
     {
-        $item = new ContentItem(new File('foobar.js'), 'foobar.js', new StringReader(''));
-        $item->transition(ContentState::PROCESSED, 'foobar');
+        $file  = new File('foobar.js');
+        $item  = new ContentItem($file, 'foobar.js', new StringReader('foobar'));
+        $event = new FileEvent($file, 'foobar');
 
         $this->runner->execute(RunnerType::UGLIFY, $item)->willReturn('uglify.js');
 
-        $this->uglify_js_listener->onPreWrite(new AssetEvent($item));
+        $this->uglify_js_listener->onPreWrite($event);
 
-        self::assertSame(ContentState::PROCESSED, $item->getState()->current());
-        self::assertContains('uglify.js', $item->getContent());
+        self::assertContains('uglify.js', $event->getContent());
     }
 
     public function testOnPreWriteNotJs()
     {
-        $item = new ContentItem(new File('foobar.css'), 'foobar.css', new StringReader(''));
-        $item->transition(ContentState::PROCESSED, 'foobar');
+        $file  = new File('foobar.css');
+        $event = new FileEvent($file, 'foobar');
 
-        $this->uglify_js_listener->onPreWrite(new AssetEvent($item));
+        $this->runner->execute()->shouldNotBeCalled();
 
-        self::assertSame(ContentState::PROCESSED, $item->getState()->current());
-        self::assertContains('foobar', $item->getContent());
+        $this->uglify_js_listener->onPreWrite($event);
+
+        self::assertContains('foobar', $event->getContent());
     }
 }

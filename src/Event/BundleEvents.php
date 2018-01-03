@@ -27,5 +27,5 @@ final class BundleEvents
      *
      * @var string
      */
-    public const POST_BUNDLE = 'bundler.pre_bundle';
+    public const POST_BUNDLE = 'bundler.post_bundle';
 }

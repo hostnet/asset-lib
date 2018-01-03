@@ -18,7 +18,7 @@ class EnsureRunnerClosedListenerTest extends TestCase
 {
     public function testOnPostBundle()
     {
-        $runner = $this->prophesize(UnixSocketRunner::class);
+        $runner                        = $this->prophesize(UnixSocketRunner::class);
         $ensure_runner_closed_listener = new EnsureRunnerClosedListener($runner->reveal());
 
         $runner->shutdown()->shouldBeCalled();

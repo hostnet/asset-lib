@@ -5,9 +5,11 @@
 declare(strict_types=1);
 namespace Hostnet\Component\Resolver\EventListener;
 
+use Hostnet\Component\Resolver\Bundler\ContentItem;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerType;
-use Hostnet\Component\Resolver\Event\AssetEvent;
+use Hostnet\Component\Resolver\Event\FileEvent;
+use Hostnet\Component\Resolver\FileSystem\StringReader;
 
 /**
  * The UglifyJS listener will push all JS content through the UglifyJs
@@ -25,18 +27,20 @@ class UglifyJsListener
     }
 
     /**
-     * @param AssetEvent $event
+     * @param FileEvent $event
      */
-    public function onPreWrite(AssetEvent $event): void
+    public function onPreWrite(FileEvent $event): void
     {
-        $item = $event->getItem();
+        $file = $event->getFile();
 
         // Check if we need to apply the listener.
-        if ($item->getState()->extension() !== 'js') {
+        if ($file->extension !== 'js') {
             return;
         }
 
-        // Keep the current state, but update the content.
-        $item->transition($item->getState()->current(), $this->runner->execute(RunnerType::UGLIFY, $item));
+        // Create an item for the file.
+        $item = new ContentItem($file, $file->getName(), new StringReader($event->getContent()));
+
+        $event->setContent($this->runner->execute(RunnerType::UGLIFY, $item));
     }
 }

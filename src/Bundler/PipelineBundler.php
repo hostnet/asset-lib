@@ -77,7 +77,10 @@ class PipelineBundler
                 $file        = new File($source_dir . $file_name);
                 $entry_point = new EntryPoint($this->finder->all($file));
 
-                $this->logger->debug('Checking entry-point bundle file {name}', ['name' => $entry_point->getFile()->path]);
+                $this->logger->debug(
+                    'Checking entry-point bundle file {name}',
+                    ['name' => $entry_point->getFile()->path]
+                );
 
                 // bundle
                 $this->write(
@@ -87,7 +90,10 @@ class PipelineBundler
                     $writer
                 );
 
-                $this->logger->debug('Checking entry-point vendor file {name}', ['name' => $entry_point->getFile()->path]);
+                $this->logger->debug(
+                    'Checking entry-point vendor file {name}',
+                    ['name' => $entry_point->getFile()->path]
+                );
 
                 // vendor
                 $this->write(
