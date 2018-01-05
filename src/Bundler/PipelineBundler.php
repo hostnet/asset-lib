@@ -240,12 +240,13 @@ class PipelineBundler
             return $node->getFile()->path;
         }, array_merge(...array_map(function (string $file) {
             $root     = $this->finder->all(new File($file));
-            $children = [];
-            (new TreeWalker(function (DependencyNodeInterface $dependency) use (&$children) {
-                $children[] = $dependency;
+            $all = [$root];
+
+            (new TreeWalker(function (DependencyNodeInterface $dependency) use (&$all) {
+                $all[] = $dependency;
             }))->walk($root);
 
-            return array_merge([$root], $children);
+            return $all;
         }, $files)));
     }
 }
