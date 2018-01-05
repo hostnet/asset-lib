@@ -69,6 +69,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn(['bar.js']);
+        $this->config->getExcludeImports()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $entry_point1 = new RootFile(new File('foo.js'));
@@ -146,6 +147,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foobar.js']);
         $this->config->getAssetFiles()->willReturn([]);
+        $this->config->getExcludeImports()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $entry_point1 = new RootFile(new File('foobar.js'));
@@ -172,6 +174,68 @@ class PipelineBundlerTest extends TestCase
         $writer->write(Argument::that(function (File $file) {
             return $file->path === 'dev2/require.js';
         }), 'uglified foobar')->shouldBeCalled();
+
+        $this->pipeline_bundler->execute($reader->reveal(), $writer->reveal());
+    }
+
+    public function testExecuteWithExcludes()
+    {
+        $reader           = $this->prophesize(ReaderInterface::class);
+        $writer           = $this->prophesize(WriterInterface::class);
+        $event_dispatcher = $this->prophesize(EventDispatcherInterface::class);
+
+        $event_dispatcher->dispatch(BundleEvents::PRE_BUNDLE, new BundleEvent())->shouldBeCalled();
+        $event_dispatcher->dispatch(BundleEvents::POST_BUNDLE, new BundleEvent())->shouldBeCalled();
+
+        $this->config->getOutputFolder()->willReturn('dev1');
+        $this->config->getSourceRoot()->willReturn('');
+        $this->config->isDev()->willReturn(true);
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/dev1-cache');
+        $this->config->getProjectRoot()->willReturn(__DIR__);
+        $this->config->getEntryPoints()->willReturn(['foo.js']);
+        $this->config->getAssetFiles()->willReturn([]);
+        $this->config->getExcludeImports()->willReturn(['bar.js']);
+        $this->config->getEventDispatcher()->willReturn($event_dispatcher);
+
+        $bar          = new RootFile(new File('bar.js'));
+        $baz          = new RootFile(new File('baz.js'));
+        $entry_point1 = new RootFile(new File('foo.js'));
+        $entry_point1->addChild($bar);
+
+        $bar->addChild($baz);
+
+        $this->finder->all(Argument::that(function (File $file) {
+            return $file->path === 'foo.js';
+        }))->willReturn($entry_point1);
+
+        $this->finder->all(Argument::that(function (File $file) {
+            return $file->path === 'bar.js';
+        }))->willReturn($bar);
+
+        $this->pipeline
+            ->push([$entry_point1], $reader->reveal(), new File('dev1/foo.bundle.js'))
+            ->willReturn('foo.js bundle');
+        $this->pipeline
+            ->push([], $reader->reveal(), new File('dev1/foo.vendor.js'))
+            ->willReturn('foo.js vendor');
+
+        $this->runner->execute(RunnerType::UGLIFY, Argument::that(function (ContentItem $item) {
+            return false !== strpos($item->file->path, '/src/Resources/require.js');
+        }))->willReturn('foobar uglified');
+
+        $reader->read(Argument::that(function (File $file) {
+            return false !== strpos($file->path, '/src/Resources/require.js');
+        }))->willReturn('foobar');
+
+        $writer->write(Argument::that(function (File $file) {
+            return $file->path === 'dev1/require.js';
+        }), 'foobar uglified')->shouldBeCalled();
+        $writer->write(Argument::that(function (File $file) {
+            return $file->path === 'dev1/foo.bundle.js';
+        }), 'foo.js bundle')->shouldBeCalled();
+        $writer->write(Argument::that(function (File $file) {
+            return $file->path === 'dev1/foo.vendor.js';
+        }), 'foo.js vendor')->shouldBeCalled();
 
         $this->pipeline_bundler->execute($reader->reveal(), $writer->reveal());
     }
