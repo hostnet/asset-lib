@@ -22,6 +22,7 @@ final class SimpleConfig implements ConfigInterface
     private $include_paths;
     private $entry_points;
     private $asset_files;
+    private $excluded_files;
     private $web_root;
     private $output_folder;
     private $source_root;
@@ -39,6 +40,7 @@ final class SimpleConfig implements ConfigInterface
         array $include_paths,
         array $entry_points,
         array $asset_files,
+        array $excluded_files,
         string $web_root,
         string $output_folder,
         string $source_root,
@@ -49,16 +51,17 @@ final class SimpleConfig implements ConfigInterface
         EventDispatcherInterface $event_dispatcher = null,
         LoggerInterface $logger = null
     ) {
-        $this->is_dev        = $is_dev;
-        $this->project_root  = $project_root;
-        $this->include_paths = $include_paths;
-        $this->entry_points  = $entry_points;
-        $this->asset_files   = $asset_files;
-        $this->web_root      = $web_root;
-        $this->output_folder = $output_folder;
-        $this->source_root   = $source_root;
-        $this->cache_dir     = $cache_dir;
-        $this->plugins       = $plugins;
+        $this->is_dev         = $is_dev;
+        $this->project_root   = $project_root;
+        $this->include_paths  = $include_paths;
+        $this->entry_points   = $entry_points;
+        $this->asset_files    = $asset_files;
+        $this->excluded_files = $excluded_files;
+        $this->web_root       = $web_root;
+        $this->output_folder  = $output_folder;
+        $this->source_root    = $source_root;
+        $this->cache_dir      = $cache_dir;
+        $this->plugins        = $plugins;
 
         $this->enable_unix_socket = $enable_unix_socket;
         $this->node_js_executable = $node_js_executable;
@@ -104,6 +107,14 @@ final class SimpleConfig implements ConfigInterface
     public function getAssetFiles(): array
     {
         return $this->asset_files;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExcludedFiles(): array
+    {
+        return $this->excluded_files;
     }
 
     /**

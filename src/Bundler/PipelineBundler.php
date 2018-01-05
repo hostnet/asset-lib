@@ -72,6 +72,8 @@ class PipelineBundler
                 $writer->write($output_require_file, $this->runner->execute(RunnerType::UGLIFY, $item));
             }
 
+            $excludes = $this->getAllExcludedFiles($this->config->getExcludedFiles());
+
             // Entry points
             foreach ($this->config->getEntryPoints() as $file_name) {
                 $file        = new File($source_dir . $file_name);
@@ -84,7 +86,12 @@ class PipelineBundler
 
                 // bundle
                 $this->write(
-                    $entry_point->getBundleFiles(),
+                    array_filter(
+                        $entry_point->getBundleFiles(),
+                        function (DependencyNodeInterface $node) use ($excludes) {
+                            return !in_array($node->getFile()->path, $excludes);
+                        }
+                    ),
                     $entry_point->getBundleFile($output_folder),
                     $reader,
                     $writer
@@ -97,7 +104,12 @@ class PipelineBundler
 
                 // vendor
                 $this->write(
-                    $entry_point->getVendorFiles(),
+                    array_filter(
+                        $entry_point->getVendorFiles(),
+                        function (DependencyNodeInterface $node) use ($excludes) {
+                            return !in_array($node->getFile()->path, $excludes);
+                        }
+                    ),
                     $entry_point->getVendorFile($output_folder),
                     $reader,
                     $writer
@@ -111,7 +123,9 @@ class PipelineBundler
                     $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
                     $this->write(
-                        $asset->getFiles(),
+                        array_filter($asset->getFiles(), function (DependencyNodeInterface $node) use ($excludes) {
+                            return !in_array($node->getFile()->path, $excludes);
+                        }),
                         $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
                         $reader,
                         $writer
@@ -206,5 +220,31 @@ class PipelineBundler
         }
 
         return false;
+    }
+
+    /**
+     * Build a full dependency tree and flatten it for all excludes, this will
+     * exclude all underlying files too.
+     *
+     * @param string[] $files
+     * @return string[]
+     */
+    private function getAllExcludedFiles(array $files): array
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        // Build the dependency tree, this way we can exclude everything depended on it.
+        return array_merge(...array_map(function (string $file) {
+            $root = $this->finder->all(new File($file));
+            $all  = [$root->getFile()->path];
+
+            (new TreeWalker(function (DependencyNodeInterface $dependency) use (&$all) {
+                $all[] = $dependency->getFile()->path;
+            }))->walk($root);
+
+            return $all;
+        }, $files));
     }
 }
