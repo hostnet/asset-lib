@@ -69,7 +69,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn(['bar.js']);
-        $this->config->getExcludedImports()->willReturn([]);
+        $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $entry_point1 = new RootFile(new File('foo.js'));
@@ -147,7 +147,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foobar.js']);
         $this->config->getAssetFiles()->willReturn([]);
-        $this->config->getExcludedImports()->willReturn([]);
+        $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $entry_point1 = new RootFile(new File('foobar.js'));
@@ -194,7 +194,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn([]);
-        $this->config->getExcludedImports()->willReturn(['bar.js']);
+        $this->config->getExcludedFiles()->willReturn(['bar.js']);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
 
         $bar          = new RootFile(new File('bar.js'));

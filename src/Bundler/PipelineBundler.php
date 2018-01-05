@@ -72,7 +72,7 @@ class PipelineBundler
                 $writer->write($output_require_file, $this->runner->execute(RunnerType::UGLIFY, $item));
             }
 
-            $excludes = $this->getAllExcludedFiles($this->config->getExcludedImports());
+            $excludes = $this->getAllExcludedFiles($this->config->getExcludedFiles());
 
             // Entry points
             foreach ($this->config->getEntryPoints() as $file_name) {

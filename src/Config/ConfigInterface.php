@@ -57,7 +57,7 @@ interface ConfigInterface
      *
      * @return string[]
      */
-    public function getExcludedImports(): array;
+    public function getExcludedFiles(): array;
 
     /**
      * Returns a list of plugins.

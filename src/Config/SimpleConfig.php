@@ -112,7 +112,7 @@ final class SimpleConfig implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function getExcludedImports(): array
+    public function getExcludedFiles(): array
     {
         return $this->excluded_files;
     }
