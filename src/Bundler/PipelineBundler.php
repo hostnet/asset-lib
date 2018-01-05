@@ -236,17 +236,15 @@ class PipelineBundler
         }
 
         // Build the dependency tree, this way we can exclude everything depended on it.
-        return array_map(function (DependencyNodeInterface $node) {
-            return $node->getFile()->path;
-        }, array_merge(...array_map(function (string $file) {
+        return array_merge(...array_map(function (string $file) {
             $root = $this->finder->all(new File($file));
-            $all  = [$root];
+            $all  = [$root->getFile()->path];
 
             (new TreeWalker(function (DependencyNodeInterface $dependency) use (&$all) {
-                $all[] = $dependency;
+                $all[] = $dependency->getFile()->path;
             }))->walk($root);
 
             return $all;
-        }, $files)));
+        }, $files));
     }
 }
