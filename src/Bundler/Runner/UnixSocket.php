@@ -33,17 +33,17 @@ class UnixSocket
     public function connect(string $address): void
     {
         if (!@socket_connect($this->socket, $address)) {
-            throw new SocketException('[UnixSocket] Connecting exception ' . $this->getSocketError());
+            throw new SocketException('    + [UnixSocket] Connecting exception ' . $this->getSocketError());
         }
     }
 
     public function send(string $to_send, int $bytes): void
     {
-        $this->logger->debug('[UnixSocket] Sending ' . $bytes);
+        $this->logger->debug('    + [UnixSocket] Sending ' . $bytes);
         if (!@socket_send($this->socket, $to_send, $bytes, 0)) {
-            throw new SocketException('[UnixSocket] Sending exception ' . $this->getSocketError());
+            throw new SocketException('   + [UnixSocket] Sending exception ' . $this->getSocketError());
         }
-        $this->logger->debug('[UnixSocket] Sending done');
+        $this->logger->debug('    + [UnixSocket] Sending done');
     }
 
     public function receive(int $bytes): string
@@ -56,16 +56,16 @@ class UnixSocket
         $length = 0;
 
         while ($bytes > $length) {
-            $this->logger->debug('[UnixSocket] Reading ' . ($bytes - $length) . ' bytes');
+            $this->logger->debug('    + [UnixSocket] Reading ' . ($bytes - $length) . ' bytes');
             $res = @socket_read($this->socket, $bytes - $length);
             if ($res === false) {
-                throw new SocketException('[UnixSocket] Reading exception ' . $this->getSocketError());
+                throw new SocketException('   + [UnixSocket] Reading exception ' . $this->getSocketError());
             }
             $length += strlen($res);
             $buffer .= $res;
         }
 
-        $this->logger->debug('[UnixSocket] Reading done');
+        $this->logger->debug('    + [UnixSocket] Reading done');
 
         return $buffer;
     }

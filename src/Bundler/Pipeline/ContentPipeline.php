@@ -81,7 +81,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
     public function push(array $dependencies, ReaderInterface $file_reader, File $target_file = null): string
     {
         $name = $target_file ? $target_file->path : '';
-        $this->logger->debug(' * Compiling target {name}', ['name' => $name]);
+        $this->logger->info(' * Compiling target {name}', ['name' => $name]);
 
         $buffer = '';
 
@@ -121,7 +121,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
                 $item = new ContentItem($file, $module_name, $file_reader);
                 $item->transition(ContentState::READY, $content, $extension);
 
-                $this->logger->debug('   - Emiting cached file for {name}', ['name' => $item->file->path]);
+                $this->logger->info('   - Emiting cached file for {name}', ['name' => $item->file->path]);
             } else {
                 $item = new ContentItem($file, $module_name, $file_reader);
                 // Transition the item until it is in a ready state.
@@ -137,7 +137,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
                     );
                 }
 
-                $this->logger->debug('   - Emiting compile file for {name}', ['name' => $item->file->path]);
+                $this->logger->info('   - Emiting compile file for {name}', ['name' => $item->file->path]);
             }
 
             // Write

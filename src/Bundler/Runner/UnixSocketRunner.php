@@ -50,7 +50,7 @@ class UnixSocketRunner implements RunnerInterface
 
     public function execute(string $type, ContentItem $item): string
     {
-        $this->logger->debug('[UnixSocketRunner] Executing '.$type.' for ' . $item->file->path);
+        $this->logger->debug('    + [UnixSocketRunner] Executing '.$type.' for ' . $item->file->path);
         $file_name = File::makeAbsolutePath($item->file->path, $this->config->getProjectRoot());
         $start     = microtime(true);
         $response  = '';
@@ -160,7 +160,7 @@ class UnixSocketRunner implements RunnerInterface
 
     private function startBuildProcess()
     {
-        $this->logger->debug('[UnixSocketRunner] Starting build process');
+        $this->logger->debug('    + [UnixSocketRunner] Starting build process');
         if (!is_dir($this->config->getCacheDir())) {
             mkdir($this->config->getCacheDir(), 0777, true);
         }

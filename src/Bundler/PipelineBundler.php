@@ -60,7 +60,7 @@ class PipelineBundler
             $output_require_file = new File($output_folder . '/require.js');
 
             if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
-                $this->logger->debug('Writing require.js file to {name}', ['name' => $output_require_file->path]);
+                $this->logger->info('Writing require.js file to {name}', ['name' => $output_require_file->path]);
 
                 // Create an item for the file to write to disk.
                 $item = new ContentItem(
@@ -79,7 +79,7 @@ class PipelineBundler
                 $file        = new File($source_dir . $file_name);
                 $entry_point = new EntryPoint($this->finder->all($file));
 
-                $this->logger->debug(
+                $this->logger->info(
                     'Checking entry-point bundle file {name}',
                     ['name' => $entry_point->getFile()->path]
                 );
@@ -97,7 +97,7 @@ class PipelineBundler
                     $writer
                 );
 
-                $this->logger->debug(
+                $this->logger->info(
                     'Checking entry-point vendor file {name}',
                     ['name' => $entry_point->getFile()->path]
                 );
@@ -120,7 +120,7 @@ class PipelineBundler
                     // peek for the extension... since we do not know it.
                     $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
 
-                    $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
+                    $this->logger->info('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
                     $this->write(
                         array_filter($asset->getFiles(), function (DependencyNodeInterface $node) use ($excludes) {
@@ -138,7 +138,7 @@ class PipelineBundler
                 $file  = new File($source_dir . $file_name);
                 $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
 
-                $this->logger->debug('Checking asset {name}', ['name' => $asset->getFile()->path]);
+                $this->logger->info('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
                 $this->write(
                     $asset->getFiles(),
@@ -161,7 +161,7 @@ class PipelineBundler
     private function write(array $dependencies, File $target, ReaderInterface $reader, WriterInterface $writer): void
     {
         if ($this->config->isDev() && !$this->checkIfAnyChanged($target, $dependencies)) {
-            $this->logger->debug(' * Target already up to date');
+            $this->logger->info(' * Target already up to date');
             return;
         }
 
