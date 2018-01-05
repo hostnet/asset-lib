@@ -53,11 +53,11 @@ interface ConfigInterface
     public function getAssetFiles(): array;
 
     /**
-     * Return a list of files to exclude when bundeling. These are the files defined under 'excludes'.
+     * Return a list of files to exclude when bundling. These are the files defined under 'excludes'.
      *
      * @return string[]
      */
-    public function getExcludeImports(): array;
+    public function getExcludedImports(): array;
 
     /**
      * Returns a list of plugins.
