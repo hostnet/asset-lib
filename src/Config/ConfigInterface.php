@@ -9,6 +9,7 @@ namespace Hostnet\Component\Resolver\Config;
 use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -122,4 +123,18 @@ interface ConfigInterface
      * @return RunnerInterface
      */
     public function getRunner(): RunnerInterface;
+
+    /**
+     * Set the reporter to use. This will override the current one.
+     *
+     * @param ReporterInterface $reporter
+     */
+    public function setReporter(ReporterInterface $reporter): void;
+
+    /**
+     * Return the reporter.
+     *
+     * @return ReporterInterface
+     */
+    public function getReporter(): ReporterInterface;
 }

@@ -10,6 +10,8 @@ use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
 use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketFactory;
 use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
+use Hostnet\Component\Resolver\Report\NullReporter;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -33,6 +35,7 @@ final class SimpleConfig implements ConfigInterface
     private $logger;
     private $event_dispatcher;
     private $runner;
+    private $reporter;
 
     public function __construct(
         bool $is_dev,
@@ -49,7 +52,8 @@ final class SimpleConfig implements ConfigInterface
         array $plugins,
         Executable $node_js_executable,
         EventDispatcherInterface $event_dispatcher = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        ReporterInterface $reporter = null
     ) {
         $this->is_dev         = $is_dev;
         $this->project_root   = $project_root;
@@ -67,6 +71,7 @@ final class SimpleConfig implements ConfigInterface
         $this->node_js_executable = $node_js_executable;
         $this->event_dispatcher   = $event_dispatcher ?? new EventDispatcher();
         $this->logger             = $logger ?? new NullLogger();
+        $this->reporter           = $reporter ?? new NullReporter();
     }
 
     /**
@@ -197,5 +202,21 @@ final class SimpleConfig implements ConfigInterface
         }
 
         return $this->runner;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setReporter(ReporterInterface $reporter): void
+    {
+        $this->reporter = $reporter;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReporter(): ReporterInterface
+    {
+        return $this->reporter;
     }
 }

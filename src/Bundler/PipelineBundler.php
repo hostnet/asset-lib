@@ -20,26 +20,24 @@ use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Psr\Log\LoggerInterface;
 
 class PipelineBundler
 {
     private $finder;
     private $pipeline;
-    private $logger;
     private $config;
     private $runner;
 
     public function __construct(
         ImportFinderInterface $finder,
         ContentPipelineInterface $pipeline,
-        LoggerInterface $logger,
         ConfigInterface $config,
         RunnerInterface $runner
     ) {
         $this->finder   = $finder;
         $this->pipeline = $pipeline;
-        $this->logger   = $logger;
         $this->config   = $config;
         $this->runner   = $runner;
     }
@@ -49,6 +47,8 @@ class PipelineBundler
      */
     public function execute(ReaderInterface $reader, WriterInterface $writer): void
     {
+        $reporter = $this->config->getReporter();
+
         $this->config->getEventDispatcher()->dispatch(BundleEvents::PRE_BUNDLE, new BundleEvent());
 
         try {
@@ -60,8 +60,6 @@ class PipelineBundler
             $output_require_file = new File($output_folder . '/require.js');
 
             if ($this->checkIfAnyChanged($output_require_file, [new Dependency($require_file)])) {
-                $this->logger->info('Writing require.js file to {name}', ['name' => $output_require_file->path]);
-
                 // Create an item for the file to write to disk.
                 $item = new ContentItem(
                     $require_file,
@@ -69,7 +67,18 @@ class PipelineBundler
                     new StringReader($reader->read($require_file))
                 );
 
-                $writer->write($output_require_file, $this->runner->execute(RunnerType::UGLIFY, $item));
+                $content = $this->runner->execute(RunnerType::UGLIFY, $item);
+
+                $reporter->reportFileDependencies($output_require_file, []);
+
+                $reporter->reportFileState($output_require_file, ReporterInterface::STATE_BUILD);
+                $reporter->reportFileSize($output_require_file, \strlen($content));
+
+                $writer->write($output_require_file, $content);
+
+                $reporter->reportOutputFile($output_require_file);
+            } else {
+                $reporter->reportFileState($output_require_file, ReporterInterface::STATE_UP_TO_DATE);
             }
 
             $excludes = $this->getAllExcludedFiles($this->config->getExcludedFiles());
@@ -78,11 +87,6 @@ class PipelineBundler
             foreach ($this->config->getEntryPoints() as $file_name) {
                 $file        = new File($source_dir . $file_name);
                 $entry_point = new EntryPoint($this->finder->all($file));
-
-                $this->logger->info(
-                    'Checking entry-point bundle file {name}',
-                    ['name' => $entry_point->getFile()->path]
-                );
 
                 // bundle
                 $this->write(
@@ -95,11 +99,6 @@ class PipelineBundler
                     $entry_point->getBundleFile($output_folder),
                     $reader,
                     $writer
-                );
-
-                $this->logger->info(
-                    'Checking entry-point vendor file {name}',
-                    ['name' => $entry_point->getFile()->path]
                 );
 
                 // vendor
@@ -120,8 +119,6 @@ class PipelineBundler
                     // peek for the extension... since we do not know it.
                     $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
 
-                    $this->logger->info('Checking asset {name}', ['name' => $asset->getFile()->path]);
-
                     $this->write(
                         array_filter($asset->getFiles(), function (DependencyNodeInterface $node) use ($excludes) {
                             return !in_array($node->getFile()->path, $excludes);
@@ -137,8 +134,6 @@ class PipelineBundler
             foreach ($this->config->getAssetFiles() as $file_name) {
                 $file  = new File($source_dir . $file_name);
                 $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
-
-                $this->logger->info('Checking asset {name}', ['name' => $asset->getFile()->path]);
 
                 $this->write(
                     $asset->getFiles(),
@@ -160,12 +155,24 @@ class PipelineBundler
      */
     private function write(array $dependencies, File $target, ReaderInterface $reader, WriterInterface $writer): void
     {
+        $reporter = $this->config->getReporter();
+
+        $reporter->reportFileDependencies($target, $dependencies);
+
         if ($this->config->isDev() && !$this->checkIfAnyChanged($target, $dependencies)) {
-            $this->logger->info(' * Target already up to date');
+            $reporter->reportFileState($target, ReporterInterface::STATE_UP_TO_DATE);
+            $reporter->reportOutputFile($target);
             return;
         }
 
-        $writer->write($target, $this->pipeline->push($dependencies, $reader, $target));
+        $content = $this->pipeline->push($dependencies, $reader, $target);
+
+        $reporter->reportFileState($target, ReporterInterface::STATE_BUILD);
+        $reporter->reportFileSize($target, \strlen($content));
+
+        $writer->write($target, $content);
+
+        $reporter->reportOutputFile($target);
     }
 
     /**

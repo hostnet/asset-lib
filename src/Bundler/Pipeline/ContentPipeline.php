@@ -19,6 +19,7 @@ use Hostnet\Component\Resolver\FileSystem\ReaderInterface;
 use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -30,7 +31,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 final class ContentPipeline implements MutableContentPipelineInterface
 {
     private $dispatcher;
-    private $logger;
     private $config;
     private $writer;
 
@@ -41,12 +41,10 @@ final class ContentPipeline implements MutableContentPipelineInterface
 
     public function __construct(
         EventDispatcherInterface $dispatcher,
-        LoggerInterface $logger,
         ConfigInterface $config,
         WriterInterface $writer
     ) {
         $this->dispatcher = $dispatcher;
-        $this->logger     = $logger;
         $this->config     = $config;
         $this->writer     = $writer;
         $this->processors = [];
@@ -80,14 +78,14 @@ final class ContentPipeline implements MutableContentPipelineInterface
      */
     public function push(array $dependencies, ReaderInterface $file_reader, File $target_file = null): string
     {
-        $name = $target_file ? $target_file->path : '';
-        $this->logger->info(' * Compiling target {name}', ['name' => $name]);
-
-        $buffer = '';
+        $reporter = $this->config->getReporter();
+        $buffer   = '';
 
         /* @var $dependency DependencyNodeInterface */
         foreach ($dependencies as $dependency) {
             if ($dependency->isInlineDependency()) {
+                $reporter->reportFileState($dependency->getFile(), ReporterInterface::STATE_INLINE);
+
                 continue;
             }
             $file        = $dependency->getFile();
@@ -121,7 +119,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
                 $item = new ContentItem($file, $module_name, $file_reader);
                 $item->transition(ContentState::READY, $content, $extension);
 
-                $this->logger->info('   - Emiting cached file for {name}', ['name' => $item->file->path]);
+                $reporter->reportFileState($item->file, ReporterInterface::STATE_FROM_CACHE);
             } else {
                 $item = new ContentItem($file, $module_name, $file_reader);
                 // Transition the item until it is in a ready state.
@@ -137,8 +135,10 @@ final class ContentPipeline implements MutableContentPipelineInterface
                     );
                 }
 
-                $this->logger->info('   - Emiting compile file for {name}', ['name' => $item->file->path]);
+                $reporter->reportFileState($item->file, ReporterInterface::STATE_BUILD);
             }
+
+            $reporter->reportFileSize($item->file, \strlen($item->getContent()));
 
             // Write
             $buffer .= $item->getContent();
