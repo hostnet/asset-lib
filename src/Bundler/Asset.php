@@ -29,7 +29,7 @@ final class Asset
     public function __construct(DependencyNodeInterface $file, string $extension)
     {
         $this->file      = $file->getFile();
-        $this->files     = [$file];
+        $this->files     = [];
         $this->extension = $extension;
 
         $walker = new TreeWalker(function (DependencyNodeInterface $dependency) {

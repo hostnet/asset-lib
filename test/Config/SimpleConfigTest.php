@@ -11,6 +11,7 @@ use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
 use Hostnet\Component\Resolver\Report\ConsoleLoggingReporter;
 use Hostnet\Component\Resolver\Report\NullReporter;
+use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
@@ -98,10 +99,12 @@ class SimpleConfigTest extends TestCase
         self::assertSame($nodejs, $config->getNodeJsExecutable());
         self::assertInstanceOf(NullLogger::class, $config->getLogger());
         self::assertInstanceOf(EventDispatcherInterface::class, $config->getEventDispatcher());
+        self::assertInstanceOf(OneOnOneSplittingStrategy::class, $config->getSplitStrategy());
 
-        $dispatcher = new EventDispatcher();
-        $logger     = new NullLogger();
-        $config     = new SimpleConfig(
+        $dispatcher     = new EventDispatcher();
+        $logger         = new NullLogger();
+        $split_strategy = new OneOnOneSplittingStrategy();
+        $config         = new SimpleConfig(
             true,
             __DIR__,
             ['phpunit'],
@@ -116,11 +119,14 @@ class SimpleConfigTest extends TestCase
             $plugins,
             $nodejs,
             $dispatcher,
-            $logger
+            $logger,
+            null,
+            $split_strategy
         );
 
         self::assertInstanceOf(SingleProcessRunner::class, $config->getRunner());
         self::assertSame($logger, $config->getLogger());
         self::assertSame($dispatcher, $config->getEventDispatcher());
+        self::assertSame($split_strategy, $config->getSplitStrategy());
     }
 }

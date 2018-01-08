@@ -18,9 +18,9 @@ use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Hostnet\Component\Resolver\Import\RootFile;
 use Hostnet\Component\Resolver\Report\NullReporter;
+use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -72,12 +72,12 @@ class PipelineBundlerTest extends TestCase
         $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
+        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
 
         $entry_point1 = new RootFile(new File('foo.js'));
         $entry_point2 = new RootFile(new File('bar.js'));
         $entry_point3 = new RootFile(new File('asset.js'));
 
-        $entry_point1->addChild(new Dependency(new File('asset.js'), false, true));
         $entry_point1->addChild(new Dependency(new File('asset.js'), false, true));
 
         $this->finder->all(Argument::that(function (File $file) {
@@ -91,16 +91,13 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($entry_point3);
 
         $this->pipeline
-            ->push([$entry_point1], $reader->reveal(), new File('dev1/foo.bundle.js'))
-            ->willReturn('foo.js bundle');
-        $this->pipeline
-            ->push([], $reader->reveal(), new File('dev1/foo.vendor.js'))
-            ->willReturn('foo.js vendor');
+            ->push([$entry_point1], $reader->reveal(), new File('dev1/foo.js'))
+            ->willReturn('foo.js content');
         $this->pipeline
             ->push([$entry_point2], $reader->reveal(), new File('dev1/bar.js'))
             ->willReturn('bar.js content');
         $this->pipeline
-            ->push([$entry_point3], $reader->reveal(), new File('dev1/asset.js'))
+            ->push([new Dependency(new File('asset.js'), false, true)], $reader->reveal(), new File('dev1/asset.js'))
             ->willReturn('asset.js content');
         $this->pipeline->peek(new File('bar.js'))->willReturn('js');
         $this->pipeline->peek(new File('asset.js'))->willReturn('js');
@@ -117,11 +114,8 @@ class PipelineBundlerTest extends TestCase
             return $file->path === 'dev1/require.js';
         }), 'foobar uglified')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev1/foo.bundle.js';
-        }), 'foo.js bundle')->shouldBeCalled();
-        $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev1/foo.vendor.js';
-        }), 'foo.js vendor')->shouldBeCalled();
+            return $file->path === 'dev1/foo.js';
+        }), 'foo.js content')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
             return $file->path === 'dev1/bar.js';
         }), 'bar.js content')->shouldBeCalled();
@@ -151,6 +145,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
+        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
 
         $entry_point1 = new RootFile(new File('foobar.js'));
 
@@ -159,11 +154,8 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($entry_point1);
 
         $this->pipeline
-            ->push([$entry_point1], $reader->reveal(), new File('dev2/foobar.bundle.js'))
+            ->push([$entry_point1], $reader->reveal(), new File('dev2/foobar.js'))
             ->willReturn('foobar.js bundle');
-        $this->pipeline
-            ->push([], $reader->reveal(), new File('dev2/foobar.vendor.js'))
-            ->willReturn('foobar.js vendor');
 
         $this->runner->execute(RunnerType::UGLIFY, Argument::that(function (ContentItem $item) {
             return false !== strpos($item->file->path, '/src/Resources/require.js');
@@ -199,6 +191,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getExcludedFiles()->willReturn(['bar.js']);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
+        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
 
         $bar          = new RootFile(new File('bar.js'));
         $baz          = new RootFile(new File('baz.js'));
@@ -216,11 +209,8 @@ class PipelineBundlerTest extends TestCase
         }))->willReturn($bar);
 
         $this->pipeline
-            ->push([$entry_point1], $reader->reveal(), new File('dev1/foo.bundle.js'))
+            ->push([$entry_point1], $reader->reveal(), new File('dev1/foo.js'))
             ->willReturn('foo.js bundle');
-        $this->pipeline
-            ->push([], $reader->reveal(), new File('dev1/foo.vendor.js'))
-            ->willReturn('foo.js vendor');
 
         $this->runner->execute(RunnerType::UGLIFY, Argument::that(function (ContentItem $item) {
             return false !== strpos($item->file->path, '/src/Resources/require.js');
@@ -234,11 +224,8 @@ class PipelineBundlerTest extends TestCase
             return $file->path === 'dev1/require.js';
         }), 'foobar uglified')->shouldBeCalled();
         $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev1/foo.bundle.js';
+            return $file->path === 'dev1/foo.js';
         }), 'foo.js bundle')->shouldBeCalled();
-        $writer->write(Argument::that(function (File $file) {
-            return $file->path === 'dev1/foo.vendor.js';
-        }), 'foo.js vendor')->shouldBeCalled();
 
         $this->pipeline_bundler->execute($reader->reveal(), $writer->reveal());
     }

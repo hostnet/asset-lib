@@ -12,6 +12,8 @@ use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Report\NullReporter;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
+use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
+use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -36,6 +38,7 @@ final class SimpleConfig implements ConfigInterface
     private $event_dispatcher;
     private $runner;
     private $reporter;
+    private $split_strategy;
 
     public function __construct(
         bool $is_dev,
@@ -53,7 +56,8 @@ final class SimpleConfig implements ConfigInterface
         Executable $node_js_executable,
         EventDispatcherInterface $event_dispatcher = null,
         LoggerInterface $logger = null,
-        ReporterInterface $reporter = null
+        ReporterInterface $reporter = null,
+        EntryPointSplittingStrategyInterface $split_strategy = null
     ) {
         $this->is_dev         = $is_dev;
         $this->project_root   = $project_root;
@@ -66,12 +70,18 @@ final class SimpleConfig implements ConfigInterface
         $this->source_root    = $source_root;
         $this->cache_dir      = $cache_dir;
         $this->plugins        = $plugins;
+        $this->split_strategy = $split_strategy ? : new OneOnOneSplittingStrategy();
 
         $this->enable_unix_socket = $enable_unix_socket;
         $this->node_js_executable = $node_js_executable;
         $this->event_dispatcher   = $event_dispatcher ?? new EventDispatcher();
         $this->logger             = $logger ?? new NullLogger();
         $this->reporter           = $reporter ?? new NullReporter();
+    }
+
+    public function getSplitStrategy(): EntryPointSplittingStrategyInterface
+    {
+        return $this->split_strategy;
     }
 
     /**

@@ -32,7 +32,7 @@ class TreeWalkerTest extends TestCase
 
         $walker->walk($root);
 
-        self::assertSame([$child, $grand_child], $seen);
+        self::assertSame([$root, $child, $grand_child], $seen);
     }
 
     public function testWalkEarlyStop()
@@ -54,6 +54,6 @@ class TreeWalkerTest extends TestCase
 
         $walker->walk($root);
 
-        self::assertSame([$child], $seen);
+        self::assertSame([$root], $seen);
     }
 }

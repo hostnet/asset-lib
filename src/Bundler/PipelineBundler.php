@@ -21,7 +21,6 @@ use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
-use Psr\Log\LoggerInterface;
 
 class PipelineBundler
 {
@@ -84,45 +83,25 @@ class PipelineBundler
 
             // Entry points
             foreach ($this->config->getEntryPoints() as $file_name) {
-                $file        = new File($source_dir . $file_name);
-                $entry_point = new EntryPoint($this->finder->all($file));
+                $file           = new File($source_dir . $file_name);
+                $entry_point    = new EntryPoint($this->finder->all($file), $this->config->getSplitStrategy());
+                $files_to_build = $entry_point->getFilesToBuild($output_folder);
+                if (empty($files_to_build)) {
+                    throw new \RuntimeException(
+                        sprintf('%s did not resolve in any output file', $file_name)
+                    );
+                }
 
-                // bundle
-                $this->write(
-                    array_filter(
-                        $entry_point->getBundleFiles(),
-                        function (DependencyNodeInterface $node) use ($excludes) {
-                            return !in_array($node->getFile()->path, $excludes);
-                        }
-                    ),
-                    $entry_point->getBundleFile($output_folder),
-                    $reader,
-                    $writer
-                );
-
-                // vendor
-                $this->write(
-                    array_filter(
-                        $entry_point->getVendorFiles(),
-                        function (DependencyNodeInterface $node) use ($excludes) {
-                            return !in_array($node->getFile()->path, $excludes);
-                        }
-                    ),
-                    $entry_point->getVendorFile($output_folder),
-                    $reader,
-                    $writer
-                );
-
-                // assets
-                foreach ($entry_point->getAssetFiles() as $file) {
-                    // peek for the extension... since we do not know it.
-                    $asset = new Asset($this->finder->all($file), $this->pipeline->peek($file));
-
+                foreach ($files_to_build as $input => $dependencies) {
+                    // bundle
                     $this->write(
-                        array_filter($asset->getFiles(), function (DependencyNodeInterface $node) use ($excludes) {
-                            return !in_array($node->getFile()->path, $excludes);
-                        }),
-                        $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
+                        array_filter(
+                            $dependencies,
+                            function (DependencyNodeInterface $node) use ($excludes) {
+                                return !in_array($node->getFile()->path, $excludes);
+                            }
+                        ),
+                        new File($input),
                         $reader,
                         $writer
                     );
@@ -157,7 +136,6 @@ class PipelineBundler
         $reporter = $this->config->getReporter();
 
         $reporter->reportFileDependencies($target, $dependencies);
-
         if ($this->config->isDev() && !$this->checkIfAnyChanged($target, $dependencies)) {
             $reporter->reportFileState($target, ReporterInterface::STATE_UP_TO_DATE);
             $reporter->reportOutputFile($target);
@@ -202,7 +180,6 @@ class PipelineBundler
         }
 
         $sources = unserialize(file_get_contents($sources_file), []);
-
         if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
             file_put_contents($sources_file, serialize($input_sources));
 
@@ -244,7 +221,7 @@ class PipelineBundler
         // Build the dependency tree, this way we can exclude everything depended on it.
         return array_merge(...array_map(function (string $file) {
             $root = $this->finder->all(new File($file));
-            $all  = [$root->getFile()->path];
+            $all  = [];
 
             (new TreeWalker(function (DependencyNodeInterface $dependency) use (&$all) {
                 $all[] = $dependency->getFile()->path;

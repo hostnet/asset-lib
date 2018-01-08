@@ -10,6 +10,7 @@ use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
+use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -24,6 +25,13 @@ interface ConfigInterface
      * @return bool
      */
     public function isDev(): bool;
+
+    /**
+     * Returns a class that resolves chunk points into which output file it should be sent to.
+     *
+     * @return EntryPointSplittingStrategyInterface
+     */
+    public function getSplitStrategy(): EntryPointSplittingStrategyInterface;
 
     /**
      * Return the current working directory.

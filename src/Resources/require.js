@@ -133,7 +133,10 @@
 
     window.register = function (name, initializer) {
         if (_modules[name]) {
-            throw new ModuleRedeclareError(name);
+            if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+                console.warn(new ModuleRedeclareError(name));
+            }
+            return;
         }
 
         _modules[name] = {
