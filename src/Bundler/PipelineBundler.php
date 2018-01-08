@@ -69,7 +69,6 @@ class PipelineBundler
 
                 $content = $this->runner->execute(RunnerType::UGLIFY, $item);
 
-                $reporter->reportFileDependencies($output_require_file, []);
                 $reporter->reportFileState($output_require_file, ReporterInterface::STATE_BUILD);
                 $reporter->reportFileSize($output_require_file, \strlen($content));
 
@@ -78,6 +77,7 @@ class PipelineBundler
                 $reporter->reportOutputFile($output_require_file);
             } else {
                 $reporter->reportFileState($output_require_file, ReporterInterface::STATE_UP_TO_DATE);
+                $reporter->reportOutputFile($output_require_file);
             }
 
             $excludes = $this->getAllExcludedFiles($this->config->getExcludedFiles());
