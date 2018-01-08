@@ -47,6 +47,6 @@ class ConsoleLoggingReporterTest extends TestCase
         $console_logging_reporter->reportFileSize($file1, 1337);
         $console_logging_reporter->reportFileDependencies($file1, [$root, $dep1, $dep2]);
 
-        self::assertStringEqualsFile(__DIR__ . '/log.txt', $console_output->fetch());
+        self::assertStringEqualsFile(__DIR__ . '/log.txt', str_replace("\r\n", "\n", $console_output->fetch()));
     }
 }

@@ -36,7 +36,7 @@ class ConsoleReporterTest extends TestCase
         $output = new BufferedOutput();
         $this->console_reporter->printReport($output);
 
-        self::assertStringEqualsFile(__DIR__ . '/report.empty.txt', $output->fetch());
+        self::assertStringEqualsFile(__DIR__ . '/report.empty.txt', str_replace("\r\n", "\n", $output->fetch()));
     }
 
     public function testPrintReport()
@@ -65,6 +65,6 @@ class ConsoleReporterTest extends TestCase
         $this->console_reporter->reportFileDependencies($file1, [$root, $dep1, $dep2]);
         $this->console_reporter->printReport($output);
 
-        self::assertStringEqualsFile(__DIR__ . '/report.txt', $output->fetch());
+        self::assertStringEqualsFile(__DIR__ . '/report.txt', str_replace("\r\n", "\n", $output->fetch()));
     }
 }
