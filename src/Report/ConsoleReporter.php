@@ -12,7 +12,11 @@ use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ConsoleReporter implements ReporterInterface
+/**
+ * Report which is able to aggregate all reported data in a human readable
+ * format and print it the the console output.
+ */
+final class ConsoleReporter implements ReporterInterface
 {
     private $config;
     private $with_reasons;
@@ -109,13 +113,15 @@ class ConsoleReporter implements ReporterInterface
         }, $files)));
         $reasons = array_combine($names, array_fill(0, count($names), []));
 
-        foreach ($this->dependencies as $input_file => $dependencies) {
+        foreach ($this->dependencies as $dependencies) {
             foreach ($dependencies as $dependency) {
                 foreach ($dependency->getChildren() as $child) {
+                    $file = $dependency->getFile()->path;
+
                     $reasons[$child->getFile()->path][] = sprintf(
                         'Included by [%d] <fg=cyan>%s</>',
-                        array_search($dependency->getFile()->path, $names, true),
-                        $dependency->getFile()->path
+                        array_search($file, $names, true),
+                        $file
                     );
                 }
             }

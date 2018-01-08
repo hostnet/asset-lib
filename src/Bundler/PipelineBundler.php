@@ -69,7 +69,7 @@ class PipelineBundler
 
                 $content = $this->runner->execute(RunnerType::UGLIFY, $item);
 
-                $reporter->reportFileState($output_require_file, ReporterInterface::STATE_BUILD);
+                $reporter->reportFileState($output_require_file, ReporterInterface::STATE_BUILT);
                 $reporter->reportFileSize($output_require_file, \strlen($content));
 
                 $writer->write($output_require_file, $content);
@@ -166,7 +166,7 @@ class PipelineBundler
 
         $content = $this->pipeline->push($dependencies, $reader, $target);
 
-        $reporter->reportFileState($target, ReporterInterface::STATE_BUILD);
+        $reporter->reportFileState($target, ReporterInterface::STATE_BUILT);
         $reporter->reportFileSize($target, \strlen($content));
 
         $writer->write($target, $content);

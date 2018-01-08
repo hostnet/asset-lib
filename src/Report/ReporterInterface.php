@@ -11,7 +11,7 @@ interface ReporterInterface
 {
     public const STATE_UP_TO_DATE = 'up-to-date';
     public const STATE_FROM_CACHE = 'from-cache';
-    public const STATE_BUILD      = 'build';
+    public const STATE_BUILT      = 'built';
     public const STATE_INLINE     = 'inline';
 
     /**

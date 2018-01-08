@@ -1,9 +1,9 @@
          Asset     Size     Status       
- fixtures/a.js 1 kb -> 3 kb [build]      
+ fixtures/a.js 1 kb -> 3 kb [built]      
  fixtures/b.js     0 b      [up-to-date] 
 
- [0]  fixtures/a.js 3 kb [build]        
- [1]  fixtures/c.js 2 kb [build]        
+ [0]  fixtures/a.js 3 kb [built]        
+ [1]  fixtures/c.js 2 kb [built]        
        -> Included by [0] fixtures/a.js 
- [2]  fixtures/d.js 990 b [build]       
+ [2]  fixtures/d.js 990 b [built]       
        -> Included by [1] fixtures/c.js 

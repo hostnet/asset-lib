@@ -135,7 +135,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
                     );
                 }
 
-                $reporter->reportFileState($item->file, ReporterInterface::STATE_BUILD);
+                $reporter->reportFileState($item->file, ReporterInterface::STATE_BUILT);
             }
 
             $reporter->reportFileSize($item->file, \strlen($item->getContent()));

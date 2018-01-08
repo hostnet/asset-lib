@@ -125,11 +125,13 @@ interface ConfigInterface
     public function getRunner(): RunnerInterface;
 
     /**
-     * Set the reporter to use. This will override the current one.
+     * Set the reporter to use. This will override the current one and return
+     * the previous once.
      *
      * @param ReporterInterface $reporter
+     * @return ReporterInterface
      */
-    public function setReporter(ReporterInterface $reporter): void;
+    public function replaceReporter(ReporterInterface $reporter): ReporterInterface;
 
     /**
      * Return the reporter.

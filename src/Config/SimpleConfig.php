@@ -207,9 +207,13 @@ final class SimpleConfig implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function setReporter(ReporterInterface $reporter): void
+    public function replaceReporter(ReporterInterface $reporter): ReporterInterface
     {
+        $previous = $this->reporter;
+
         $this->reporter = $reporter;
+
+        return $previous;
     }
 
     /**

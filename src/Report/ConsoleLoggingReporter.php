@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * This will mimic a logger and can be used for deployment output.
  */
-class ConsoleLoggingReporter implements ReporterInterface
+final class ConsoleLoggingReporter implements ReporterInterface
 {
     private $config;
     private $console_output;

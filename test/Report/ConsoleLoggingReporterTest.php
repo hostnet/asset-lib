@@ -40,10 +40,10 @@ class ConsoleLoggingReporterTest extends TestCase
 
         $console_logging_reporter->reportOutputFile($file1);
         $console_logging_reporter->reportOutputFile($file2);
-        $console_logging_reporter->reportFileState($file1, ReporterInterface::STATE_BUILD);
+        $console_logging_reporter->reportFileState($file1, ReporterInterface::STATE_BUILT);
         $console_logging_reporter->reportFileState($file2, ReporterInterface::STATE_UP_TO_DATE);
-        $console_logging_reporter->reportFileState($file3, ReporterInterface::STATE_BUILD);
-        $console_logging_reporter->reportFileState($file4, ReporterInterface::STATE_BUILD);
+        $console_logging_reporter->reportFileState($file3, ReporterInterface::STATE_BUILT);
+        $console_logging_reporter->reportFileState($file4, ReporterInterface::STATE_BUILT);
         $console_logging_reporter->reportFileSize($file1, 1337);
         $console_logging_reporter->reportFileDependencies($file1, [$root, $dep1, $dep2]);
 

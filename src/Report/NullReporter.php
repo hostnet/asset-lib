@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\File;
 /**
  * Reporter does nothing.
  */
-class NullReporter implements ReporterInterface
+final class NullReporter implements ReporterInterface
 {
     public function reportOutputFile(File $file): void
     {
