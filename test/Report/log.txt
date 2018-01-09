@@ -1,0 +1,2 @@
+Outputting "fixtures/a.js" 3 kb.
+Outputting "fixtures/b.js" 0 b.

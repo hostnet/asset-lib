@@ -28,13 +28,12 @@ final class Packer
         $cache->load();
 
         $dispatcher = $config->getEventDispatcher();
-        $logger     = $config->getLogger();
         $runner     = $config->getRunner();
 
         $finder = new ImportFinder($config->getProjectRoot());
 
         $writer   = new FileWriter($dispatcher, $config->getProjectRoot());
-        $pipeline = new ContentPipeline($dispatcher, $logger, $config, $writer);
+        $pipeline = new ContentPipeline($dispatcher, $config, $writer);
 
         $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
@@ -42,7 +41,6 @@ final class Packer
         $bundler = new PipelineBundler(
             $finder,
             $pipeline,
-            $logger,
             $config,
             $runner
         );

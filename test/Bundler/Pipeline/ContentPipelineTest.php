@@ -17,6 +17,7 @@ use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
 use Hostnet\Component\Resolver\Module;
+use Hostnet\Component\Resolver\Report\NullReporter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Log\NullLogger;
@@ -46,7 +47,6 @@ class ContentPipelineTest extends TestCase
 
         $this->content_pipeline = new ContentPipeline(
             $this->dispatcher->reveal(),
-            new NullLogger(),
             $this->config->reveal(),
             $this->writer->reveal()
         );
@@ -66,6 +66,7 @@ class ContentPipelineTest extends TestCase
         $this->config->isDev()->willReturn(false);
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo'));
         $target_file = new File('output.foo');
@@ -114,6 +115,7 @@ class ContentPipelineTest extends TestCase
         $this->config->isDev()->willReturn(true);
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo'));
         $target_file = new File('output.foo');
@@ -137,6 +139,7 @@ class ContentPipelineTest extends TestCase
         $this->config->isDev()->willReturn(true);
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo'));
         $target_file = new File('fixtures/output.foo');
@@ -162,6 +165,7 @@ class ContentPipelineTest extends TestCase
         $this->config->isDev()->willReturn(false);
         $this->config->getSourceRoot()->willReturn('fixtures');
         $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $input_file  = new RootFile(new Module('fixtures/input.js', 'fixtures/input.js'));
         $target_file = new File('output.foo');
@@ -177,6 +181,7 @@ class ContentPipelineTest extends TestCase
         $this->config->isDev()->willReturn(true);
         $this->config->getSourceRoot()->willReturn('fixtures/'); // Note this trailing slash
         $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $file       = new File('fixtures/bla.foo');
         $dependency = new Dependency($file);

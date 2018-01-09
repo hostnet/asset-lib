@@ -17,6 +17,7 @@ use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Hostnet\Component\Resolver\Import\RootFile;
+use Hostnet\Component\Resolver\Report\NullReporter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Log\NullLogger;
@@ -47,7 +48,6 @@ class PipelineBundlerTest extends TestCase
         $this->pipeline_bundler = new PipelineBundler(
             $this->finder->reveal(),
             $this->pipeline->reveal(),
-            new NullLogger(),
             $this->config->reveal(),
             $this->runner->reveal()
         );
@@ -71,6 +71,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getAssetFiles()->willReturn(['bar.js']);
         $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $entry_point1 = new RootFile(new File('foo.js'));
         $entry_point2 = new RootFile(new File('bar.js'));
@@ -149,6 +150,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getAssetFiles()->willReturn([]);
         $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $entry_point1 = new RootFile(new File('foobar.js'));
 
@@ -196,6 +198,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getAssetFiles()->willReturn([]);
         $this->config->getExcludedFiles()->willReturn(['bar.js']);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
+        $this->config->getReporter()->willReturn(new NullReporter());
 
         $bar          = new RootFile(new File('bar.js'));
         $baz          = new RootFile(new File('baz.js'));
