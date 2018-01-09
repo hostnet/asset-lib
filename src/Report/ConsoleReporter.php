@@ -21,9 +21,9 @@ final class ConsoleReporter implements ReporterInterface
     private $config;
     private $with_reasons;
 
-    private $file_sizes = [];
-    private $file_states = [];
-    private $output_file = [];
+    private $file_sizes   = [];
+    private $file_states  = [];
+    private $output_file  = [];
     private $dependencies = [];
 
     public function __construct(ConfigInterface $config, bool $with_reasons = false)
@@ -47,9 +47,9 @@ final class ConsoleReporter implements ReporterInterface
         $this->file_states[$file->path] = $state;
     }
 
-    public function reportFileSize(File $file, int $size): void
+    public function reportFileContent(File $file, string $content): void
     {
-        $this->file_sizes[$file->path] = $size;
+        $this->file_sizes[$file->path] = \strlen($content);
     }
 
     public function printReport(OutputInterface $output): void
@@ -63,8 +63,10 @@ final class ConsoleReporter implements ReporterInterface
         $table->setColumnWidth(1, 5);
 
         foreach ($this->output_file as $file) {
-            $file_size = filesize(File::isAbsolutePath($file) ? $file : $this->config->getProjectRoot() . '/' . $file);
-            $input_size = isset($this->file_sizes[$file]) ? FileSizeHelper::size($this->file_sizes[$file]) : '';
+            $file_size   = filesize(File::isAbsolutePath($file)
+                ? $file
+                : $this->config->getProjectRoot() . '/' . $file);
+            $input_size  = isset($this->file_sizes[$file]) ? FileSizeHelper::size($this->file_sizes[$file]) : '';
             $output_size = FileSizeHelper::size($file_size);
 
             $table->addRow([

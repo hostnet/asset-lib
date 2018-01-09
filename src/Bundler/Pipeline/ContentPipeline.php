@@ -20,7 +20,6 @@ use Hostnet\Component\Resolver\FileSystem\StringReader;
 use Hostnet\Component\Resolver\FileSystem\WriterInterface;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -138,7 +137,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
                 $reporter->reportFileState($item->file, ReporterInterface::STATE_BUILT);
             }
 
-            $reporter->reportFileSize($item->file, \strlen($item->getContent()));
+            $reporter->reportFileContent($item->file, $item->getContent());
 
             // Write
             $buffer .= $item->getContent();

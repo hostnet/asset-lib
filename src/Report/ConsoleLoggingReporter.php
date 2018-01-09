@@ -23,7 +23,7 @@ final class ConsoleLoggingReporter implements ReporterInterface
 
     public function __construct(ConfigInterface $config, OutputInterface $console_output)
     {
-        $this->config = $config;
+        $this->config         = $config;
         $this->console_output = $console_output;
     }
 
@@ -48,7 +48,7 @@ final class ConsoleLoggingReporter implements ReporterInterface
     {
     }
 
-    public function reportFileSize(File $file, int $size): void
+    public function reportFileContent(File $file, string $content): void
     {
     }
 }

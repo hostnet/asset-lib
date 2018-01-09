@@ -61,7 +61,7 @@ class ConsoleReporterTest extends TestCase
         $this->console_reporter->reportFileState($file2, ReporterInterface::STATE_UP_TO_DATE);
         $this->console_reporter->reportFileState($file3, ReporterInterface::STATE_BUILT);
         $this->console_reporter->reportFileState($file4, ReporterInterface::STATE_BUILT);
-        $this->console_reporter->reportFileSize($file1, 1337);
+        $this->console_reporter->reportFileContent($file1, str_repeat('a', 1337));
         $this->console_reporter->reportFileDependencies($file1, [$root, $dep1, $dep2]);
         $this->console_reporter->printReport($output);
 

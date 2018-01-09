@@ -40,8 +40,8 @@ interface ReporterInterface
     /**
      * Report the outputted file size
      *
-     * @param File $file
-     * @param int  $size
+     * @param File   $file
+     * @param string $content
      */
-    public function reportFileSize(File $file, int $size): void;
+    public function reportFileContent(File $file, string $content): void;
 }

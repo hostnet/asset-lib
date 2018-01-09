@@ -25,7 +25,7 @@ final class NullReporter implements ReporterInterface
     {
     }
 
-    public function reportFileSize(File $file, int $size): void
+    public function reportFileContent(File $file, string $content): void
     {
     }
 }

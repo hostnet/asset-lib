@@ -27,10 +27,10 @@ class ConsoleLoggingReporterTest extends TestCase
 
         $console_logging_reporter = new ConsoleLoggingReporter($config->reveal(), $console_output);
 
-        $file1  = new File('fixtures/a.js');
-        $file2  = new File('fixtures/b.js');
-        $file3  = new File('fixtures/c.js');
-        $file4  = new File('fixtures/d.js');
+        $file1 = new File('fixtures/a.js');
+        $file2 = new File('fixtures/b.js');
+        $file3 = new File('fixtures/c.js');
+        $file4 = new File('fixtures/d.js');
 
         $dep1 = new Dependency($file3);
         $dep2 = new Dependency($file4);
@@ -44,7 +44,7 @@ class ConsoleLoggingReporterTest extends TestCase
         $console_logging_reporter->reportFileState($file2, ReporterInterface::STATE_UP_TO_DATE);
         $console_logging_reporter->reportFileState($file3, ReporterInterface::STATE_BUILT);
         $console_logging_reporter->reportFileState($file4, ReporterInterface::STATE_BUILT);
-        $console_logging_reporter->reportFileSize($file1, 1337);
+        $console_logging_reporter->reportFileContent($file1, str_repeat('a', 1337));
         $console_logging_reporter->reportFileDependencies($file1, [$root, $dep1, $dep2]);
 
         self::assertStringEqualsFile(__DIR__ . '/log.txt', str_replace("\r\n", "\n", $console_output->fetch()));
