@@ -38,7 +38,7 @@ interface ReporterInterface
     public function reportFileState(File $file, string $state): void;
 
     /**
-     * Report the outputted file size
+     * Report the outputted file content.
      *
      * @param File   $file
      * @param string $content
