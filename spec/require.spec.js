@@ -3,6 +3,7 @@ describe("Require.js module register method test", function () {
 
     beforeEach(function () {
         lib = require('../src/Resources/require');
+        spyOn(console, 'warn');
     });
 
     it("with jquery and a plugin", function () {
@@ -154,6 +155,17 @@ describe("Require.js module register method test", function () {
         });
 
         expect(lib.require('this/is/spartha')).toEqual('HENK');
+    });
+
+    it('register same module twice throws console message if console is available', function () {
+        lib.register('a', function () {
+            return {1: 'test'};
+        });
+        lib.register('a', function () {
+            return {1: 'test2'};
+        });
+        expect(lib.require('a')).toEqual({1: 'test'});
+        expect(console.warn).toHaveBeenCalled();
     });
 
     it("with relative require path dependencies", function() {

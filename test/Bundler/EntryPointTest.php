@@ -7,6 +7,8 @@ namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
+use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
+use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,8 +19,8 @@ class EntryPointTest extends TestCase
     public function testGeneric()
     {
         $file = new File(__FILE__);
-        $dep1 = new Dependency(new File(__DIR__ . '/some.file'));
-        $dep2 = new Dependency(new File(__DIR__ . '/other.file'), false, true);
+        $dep1 = new Dependency(new File('some.file'));
+        $dep2 = new Dependency(new File('other.file'), false, true);
         $dep3 = new Dependency(new File('node_modules/foo'));
 
         $dep = new Dependency($file);
@@ -26,13 +28,37 @@ class EntryPointTest extends TestCase
         $dep->addChild($dep2);
         $dep->addChild($dep3);
 
-        $entry_point = new EntryPoint($dep);
+        $resolve_strategy = new class implements EntryPointSplittingStrategyInterface {
+            public function resolveChunk(string $entry_point, DependencyNodeInterface $dependency): ?string
+            {
+                return false === strpos($dependency->getFile()->path, 'node_modules')
+                    ? 'file1.js'
+                    : 'file2.js';
+            }
+        };
 
-        self::assertSame($file, $entry_point->getFile());
-        self::assertSame([$dep, $dep1], $entry_point->getBundleFiles());
-        self::assertSame([$dep3], $entry_point->getVendorFiles());
-        self::assertSame([$dep2->getFile()], $entry_point->getAssetFiles());
-        self::assertSame('foo/bar/EntryPointTest.bundle.js', $entry_point->getBundleFile('foo/bar')->path);
-        self::assertSame('foo/bar/EntryPointTest.vendor.js', $entry_point->getVendorFile('foo/bar')->path);
+        $entry_point = new EntryPoint($dep, $resolve_strategy);
+
+        self::assertEquals($file, $entry_point->getFile());
+        $expected = [
+            'output/file1.js' => [__FILE__, 'some.file'],
+            'output/file2.js' => ['node_modules/foo'],
+            'output/other.file' => ['other.file']
+        ];
+
+        self::assertSame(
+            $expected,
+            array_map(
+                function (array $dependencies) {
+                    return array_map(
+                        function (DependencyNodeInterface $dep) {
+                            return $dep->getFile()->getName();
+                        },
+                        $dependencies
+                    );
+                },
+                $entry_point->getFilesToBuild('output')
+            )
+        );
     }
 }
