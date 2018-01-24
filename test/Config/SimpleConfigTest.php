@@ -33,7 +33,6 @@ class SimpleConfigTest extends TestCase
             ['phpunit'],
             ['foo'],
             ['bar'],
-            ['baz'],
             'web',
             'phpunit',
             'src',
@@ -48,7 +47,6 @@ class SimpleConfigTest extends TestCase
         self::assertEquals(['phpunit'], $config->getIncludePaths());
         self::assertEquals(['foo'], $config->getEntryPoints());
         self::assertEquals(['bar'], $config->getAssetFiles());
-        self::assertEquals(['baz'], $config->getExcludedFiles());
         self::assertEquals('web' . DIRECTORY_SEPARATOR . 'phpunit', $config->getOutputFolder());
         self::assertEquals('phpunit', $config->getOutputFolder(false));
         self::assertEquals('src', $config->getSourceRoot());
@@ -74,7 +72,6 @@ class SimpleConfigTest extends TestCase
             ['phpunit'],
             ['foo'],
             ['bar'],
-            ['baz'],
             'web',
             'phpunit',
             'src',
@@ -89,7 +86,6 @@ class SimpleConfigTest extends TestCase
         self::assertEquals(['phpunit'], $config->getIncludePaths());
         self::assertEquals(['foo'], $config->getEntryPoints());
         self::assertEquals(['bar'], $config->getAssetFiles());
-        self::assertEquals(['baz'], $config->getExcludedFiles());
         self::assertEquals('web' . DIRECTORY_SEPARATOR . 'phpunit', $config->getOutputFolder());
         self::assertEquals('phpunit', $config->getOutputFolder(false));
         self::assertEquals('src', $config->getSourceRoot());
@@ -110,7 +106,6 @@ class SimpleConfigTest extends TestCase
             ['phpunit'],
             ['foo'],
             ['bar'],
-            ['baz'],
             'web',
             'phpunit',
             'src',
