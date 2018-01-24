@@ -69,7 +69,6 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn(['bar.js']);
-        $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
         $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
@@ -142,7 +141,6 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foobar.js']);
         $this->config->getAssetFiles()->willReturn([]);
-        $this->config->getExcludedFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
         $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
@@ -188,10 +186,9 @@ class PipelineBundlerTest extends TestCase
         $this->config->getProjectRoot()->willReturn(__DIR__);
         $this->config->getEntryPoints()->willReturn(['foo.js']);
         $this->config->getAssetFiles()->willReturn([]);
-        $this->config->getExcludedFiles()->willReturn(['bar.js']);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
-        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
+        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy(['bar.js']));
 
         $bar          = new RootFile(new File('bar.js'));
         $baz          = new RootFile(new File('baz.js'));

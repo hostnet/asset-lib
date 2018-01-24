@@ -79,8 +79,6 @@ class PipelineBundler
                 $reporter->reportOutputFile($output_require_file);
             }
 
-            $excludes = $this->getAllExcludedFiles($this->config->getExcludedFiles());
-
             // Entry points
             foreach ($this->config->getEntryPoints() as $file_name) {
                 $file           = new File($source_dir . $file_name);
@@ -95,12 +93,7 @@ class PipelineBundler
                 foreach ($files_to_build as $input => $dependencies) {
                     // bundle
                     $this->write(
-                        array_filter(
-                            $dependencies,
-                            function (DependencyNodeInterface $node) use ($excludes) {
-                                return !in_array($node->getFile()->path, $excludes);
-                            }
-                        ),
+                        $dependencies,
                         new File($input),
                         $reader,
                         $writer
@@ -203,31 +196,5 @@ class PipelineBundler
         }
 
         return false;
-    }
-
-    /**
-     * Build a full dependency tree and flatten it for all excludes, this will
-     * exclude all underlying files too.
-     *
-     * @param string[] $files
-     * @return string[]
-     */
-    private function getAllExcludedFiles(array $files): array
-    {
-        if (empty($files)) {
-            return [];
-        }
-
-        // Build the dependency tree, this way we can exclude everything depended on it.
-        return array_merge(...array_map(function (string $file) {
-            $root = $this->finder->all(new File($file));
-            $all  = [];
-
-            (new TreeWalker(function (DependencyNodeInterface $dependency) use (&$all) {
-                $all[] = $dependency->getFile()->path;
-            }))->walk($root);
-
-            return $all;
-        }, $files));
     }
 }

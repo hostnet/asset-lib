@@ -8,12 +8,20 @@ namespace Hostnet\Component\Resolver\Split;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 
 /**
- * Resolves chunks to always be added.
+ * Resolves chunks to always be added, unless on the exclusion list.
  */
-class OneOnOneSplittingStrategy implements EntryPointSplittingStrategyInterface
+final class OneOnOneSplittingStrategy implements EntryPointSplittingStrategyInterface
 {
+    private $exclude_list;
+
+    public function __construct(array $exclude_list = [])
+    {
+        $this->exclude_list = array_combine($exclude_list, $exclude_list);
+    }
+
     public function resolveChunk(string $entry_point, DependencyNodeInterface $dependency): ?string
     {
-        return $entry_point;
+        $dep = $dependency->getFile()->path;
+        return isset($this->exclude_list[$dep]) ? null : $entry_point;
     }
 }

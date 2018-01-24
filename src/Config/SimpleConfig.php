@@ -26,7 +26,6 @@ final class SimpleConfig implements ConfigInterface
     private $include_paths;
     private $entry_points;
     private $asset_files;
-    private $excluded_files;
     private $web_root;
     private $output_folder;
     private $source_root;
@@ -46,7 +45,6 @@ final class SimpleConfig implements ConfigInterface
         array $include_paths,
         array $entry_points,
         array $asset_files,
-        array $excluded_files,
         string $web_root,
         string $output_folder,
         string $source_root,
@@ -64,7 +62,6 @@ final class SimpleConfig implements ConfigInterface
         $this->include_paths  = $include_paths;
         $this->entry_points   = $entry_points;
         $this->asset_files    = $asset_files;
-        $this->excluded_files = $excluded_files;
         $this->web_root       = $web_root;
         $this->output_folder  = $output_folder;
         $this->source_root    = $source_root;
@@ -122,14 +119,6 @@ final class SimpleConfig implements ConfigInterface
     public function getAssetFiles(): array
     {
         return $this->asset_files;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getExcludedFiles(): array
-    {
-        return $this->excluded_files;
     }
 
     /**
