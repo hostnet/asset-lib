@@ -47,6 +47,7 @@ final class CorePlugin implements PluginInterface
 
         $plugin_api->addProcessor(new IdentityProcessor('css'));
         $plugin_api->addProcessor(new IdentityProcessor('html'));
+        $plugin_api->addProcessor(new IdentityProcessor(''));
 
         if ($config->getSocketType() === UnixSocketType::PRE_PROCESS) {
             $ensure_closed_listener = new EnsureRunnerClosedListener($plugin_api->getRunner());

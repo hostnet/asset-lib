@@ -50,4 +50,16 @@ class AssetTest extends TestCase
 
         self::assertSame('foo/bar/file.css', $asset->getAssetFile('foo/bar', '')->path);
     }
+
+    public function testWithoutExtension()
+    {
+        self::assertSame(
+            'foo/bar/.test',
+            (new Asset(new Dependency(new File('.test')), ''))->getAssetFile('foo/bar', '')->path
+        );
+        self::assertSame(
+            'foo/bar/.foo.bar',
+            (new Asset(new Dependency(new File('.foo.bar')), 'bar'))->getAssetFile('foo/bar', '')->path
+        );
+    }
 }

@@ -19,7 +19,9 @@ class File
     {
         $this->path      = $path;
         $this->dir       = dirname($path);
-        $this->extension = pathinfo($path, PATHINFO_EXTENSION);
+        $this->extension = basename($path)[0] === '.' && false === strpos($path, '.', 1)
+            ? ''
+            : pathinfo($path, PATHINFO_EXTENSION);
     }
 
     /**

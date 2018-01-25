@@ -78,6 +78,8 @@ final class Asset
             $base_dir .= '/';
         }
 
-        return new File($output_folder . '/' . $base_dir . $this->file->getBaseName() . '.' . $this->extension);
+        $ext = empty($this->extension) ? '' : ('.' . $this->extension);
+
+        return new File($output_folder . '/' . $base_dir . $this->file->getBaseName() . $ext);
     }
 }

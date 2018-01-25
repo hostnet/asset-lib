@@ -39,5 +39,17 @@ class FileTest extends TestCase
             File::clean(__DIR__ . '/../some/other/path'),
             File::makeAbsolutePath('../some/other/path', __DIR__)
         );
+
+        $file2 = new File('.htaccess');
+        self::assertEquals('.', $file2->dir);
+        self::assertEquals('', $file2->extension);
+        self::assertEquals('.htaccess', $file2->getName());
+        self::assertEquals('.htaccess', $file2->getBaseName());
+
+        $file3 = new File('.foo.bar');
+        self::assertEquals('.', $file3->dir);
+        self::assertEquals('bar', $file3->extension);
+        self::assertEquals('.foo.bar', $file3->getName());
+        self::assertEquals('.foo', $file3->getBaseName());
     }
 }
