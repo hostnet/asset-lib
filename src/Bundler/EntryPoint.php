@@ -35,7 +35,12 @@ final class EntryPoint
                 $this->asset_files[] = $dependency;
                 return true;
             }
-            $result = $split_strategy->resolveChunk($file->getFile()->path, $dependency);
+
+            // Make sure to have a .js extension.
+            $file_obj    = $file->getFile();
+            $output_file = File::clean($file_obj->dir . '/' . $file_obj->getBaseName() . '.js');
+
+            $result = $split_strategy->resolveChunk($output_file, $dependency);
             if (!$result) {
                 return false;
             }
