@@ -53,11 +53,13 @@ class AssetTest extends TestCase
 
     public function testWithoutExtension()
     {
-        $file = new File('.test');
-        $dep  = new Dependency($file);
-
-        $asset = new Asset($dep, '');
-
-        self::assertSame('foo/bar/.test', $asset->getAssetFile('foo/bar', '')->path);
+        self::assertSame(
+            'foo/bar/.test',
+            (new Asset(new Dependency(new File('.test')), ''))->getAssetFile('foo/bar', '')->path
+        );
+        self::assertSame(
+            'foo/bar/.foo.bar',
+            (new Asset(new Dependency(new File('.foo.bar')), 'bar'))->getAssetFile('foo/bar', '')->path
+        );
     }
 }

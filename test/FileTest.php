@@ -48,8 +48,8 @@ class FileTest extends TestCase
 
         $file3 = new File('.foo.bar');
         self::assertEquals('.', $file3->dir);
-        self::assertEquals('', $file3->extension);
+        self::assertEquals('bar', $file3->extension);
         self::assertEquals('.foo.bar', $file3->getName());
-        self::assertEquals('.foo.bar', $file3->getBaseName());
+        self::assertEquals('.foo', $file3->getBaseName());
     }
 }
