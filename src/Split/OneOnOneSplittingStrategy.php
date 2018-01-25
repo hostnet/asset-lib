@@ -12,16 +12,21 @@ use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
  */
 final class OneOnOneSplittingStrategy implements EntryPointSplittingStrategyInterface
 {
+    private $source_root;
+
     private $exclude_list;
 
-    public function __construct(array $exclude_list = [])
+    public function __construct(string $source_root = '', array $exclude_list = [])
     {
+        $this->source_root  = '#^' . preg_quote($source_root, '#') . '#';
         $this->exclude_list = array_combine($exclude_list, $exclude_list);
     }
 
     public function resolveChunk(string $entry_point, DependencyNodeInterface $dependency): ?string
     {
-        $dep = $dependency->getFile()->path;
-        return isset($this->exclude_list[$dep]) ? null : $entry_point;
+        $dep = preg_replace($this->source_root, '', $dependency->getFile()->path);
+        return isset($this->exclude_list[$dep])
+            ? null
+            : ltrim(preg_replace($this->source_root, '', $entry_point), '/\\\\');
     }
 }

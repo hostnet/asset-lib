@@ -17,16 +17,19 @@ class OneOnOneSplittingStrategyTest extends TestCase
     public function testResolveChunk()
     {
         $one_on_one_splitting_strategy                = new OneOnOneSplittingStrategy();
-        $one_on_one_splitting_strategy_with_exclusion = new OneOnOneSplittingStrategy(['/dev/hda1']);
+        $one_on_one_splitting_strategy_with_exclusion = new OneOnOneSplittingStrategy('', ['/dev/hda1']);
+        $one_on_one_splitting_strategy_with_source    = new OneOnOneSplittingStrategy('/dev/', ['hda1']);
 
         $dep1 = new Dependency(new File('/dev/hda1'));
         $dep2 = new Dependency(new File('/home/user/.bashrc'));
-        self::assertEquals('/dev/null', $one_on_one_splitting_strategy->resolveChunk('/dev/null', $dep1));
-        self::assertEquals('/dev/null', $one_on_one_splitting_strategy->resolveChunk('/dev/null', $dep2));
+        self::assertEquals('dev/null', $one_on_one_splitting_strategy->resolveChunk('/dev/null', $dep1));
+        self::assertEquals('dev/null', $one_on_one_splitting_strategy->resolveChunk('/dev/null', $dep2));
         self::assertEquals(null, $one_on_one_splitting_strategy_with_exclusion->resolveChunk('/dev/null', $dep1));
         self::assertEquals(
-            '/dev/null',
+            'dev/null',
             $one_on_one_splitting_strategy_with_exclusion->resolveChunk('/dev/null', $dep2)
         );
+        self::assertEquals(null, $one_on_one_splitting_strategy_with_source->resolveChunk('/dev/null', $dep1));
+        self::assertEquals('null', $one_on_one_splitting_strategy_with_source->resolveChunk('/dev/null', $dep2));
     }
 }
