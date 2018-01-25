@@ -188,7 +188,7 @@ class PipelineBundlerTest extends TestCase
         $this->config->getAssetFiles()->willReturn([]);
         $this->config->getEventDispatcher()->willReturn($event_dispatcher);
         $this->config->getReporter()->willReturn(new NullReporter());
-        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy(['bar.js']));
+        $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy('', ['bar.js']));
 
         $bar          = new RootFile(new File('bar.js'));
         $baz          = new RootFile(new File('baz.js'));
