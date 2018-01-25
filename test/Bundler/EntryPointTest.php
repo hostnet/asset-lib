@@ -61,4 +61,25 @@ class EntryPointTest extends TestCase
             )
         );
     }
+
+    public function testWithDifferentExtension()
+    {
+        $file = new File('app.ts');
+        $dep  = new Dependency($file);
+
+        $resolve_strategy = new class implements EntryPointSplittingStrategyInterface {
+            public function resolveChunk(string $entry_point, DependencyNodeInterface $dependency): ?string
+            {
+                return $entry_point;
+            }
+        };
+
+        $entry_point = new EntryPoint($dep, $resolve_strategy);
+
+        self::assertEquals($file, $entry_point->getFile());
+        self::assertSame(
+            ['output/app.js' => [$dep]],
+            $entry_point->getFilesToBuild('output')
+        );
+    }
 }
