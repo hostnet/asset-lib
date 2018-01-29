@@ -28,7 +28,8 @@ class SingleProcessRunner implements RunnerInterface
         RunnerType::CLEAN_CSS => 'cleancss.js',
         RunnerType::LESS => 'lessc.js',
         RunnerType::TYPE_SCRIPT => 'tsc.js',
-        RunnerType::UGLIFY => 'uglify.js'
+        RunnerType::UGLIFY => 'uglify.js',
+        RunnerType::BROTLI => 'brotli.js'
     ];
 
     public function __construct(ConfigInterface $config, array $files = [])
