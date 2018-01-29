@@ -22,7 +22,13 @@ class GzipPlugin implements PluginInterface
         $config     = $plugin_api->getConfig();
         $dispatcher = $config->getEventDispatcher();
         $dispatcher->addListener(FileEvents::POST_WRITE, function (FileEvent $ev) use ($config, $dispatcher) {
-            $content      = $ev->getContent();
+            $file    = $ev->getFile();
+            $content = $ev->getContent();
+            // if the file is already compressed with brotli/gzip, do not compress it again as we do not serve files
+            // like .br.gz.br
+            if (preg_match('/\.(gz|br)$/', $file->path)) {
+                return;
+            }
             $gzip_content = gzencode($content, 9);
             if (strlen($gzip_content) < strlen($content)) {
                 $writer = new FileWriter($dispatcher, $config->getProjectRoot());

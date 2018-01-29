@@ -6,6 +6,7 @@ describe("processor", function () {
         expect(processor.LES).toEqual("LES");
         expect(processor.UGL).toEqual("UGL");
         expect(processor.CLE).toEqual("CLE");
+        expect(processor.BRO).toEqual("BRO");
     });
 
     it("process unknown", function () {
@@ -19,6 +20,11 @@ describe("processor", function () {
     it("process less", function () {
         var expected = ".bla {\n  color: red;\n}\n";
         expect(processor.process(processor.LES, 'a.css', ".bla { color: red; }")).toEqual(expected);
+    });
+
+    it("process brotli", function () {
+        var expected = ".bla {\n  color: red;\n}\n";
+        expect(processor.process(processor.BRO, __filename, '')).toEqual(jasmine.any(String));
     });
 
     it("process less error", function () {
