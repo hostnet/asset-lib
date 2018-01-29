@@ -34,6 +34,11 @@ final class RunnerType
     public const CLEAN_CSS = 'CLE';
 
     /**
+     * @see https://github.com/devongovett/brotli.js
+     */
+    public const BROTLI = 'BRO';
+
+    /**
      * @codeCoverageIgnore private by design because this is an ENUM class
      */
     private function __construct()
