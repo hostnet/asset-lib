@@ -209,8 +209,8 @@ final class ContentPipeline implements MutableContentPipelineInterface
         $files = [];
 
         // Collect all inline dependencies, since if any of those changed we need to recompile.
-        $walker = new TreeWalker(function (DependencyNodeInterface $d) use (&$files) {
-            if (!$d->isInlineDependency()) {
+        $walker = new TreeWalker(function (DependencyNodeInterface $d) use ($dependency, &$files) {
+            if ($d !== $dependency && !$d->isInlineDependency()) {
                 return false;
             }
 
