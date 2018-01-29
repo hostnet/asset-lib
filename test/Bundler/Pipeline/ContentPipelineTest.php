@@ -18,6 +18,7 @@ use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
 use Hostnet\Component\Resolver\Module;
 use Hostnet\Component\Resolver\Report\NullReporter;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Log\NullLogger;
@@ -154,6 +155,54 @@ class ContentPipelineTest extends TestCase
             "foobar\nfoobar\n",
             $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
         );
+    }
+
+    public function testPushDevInlineChanged()
+    {
+        $reporter = new class implements ReporterInterface
+        {
+            public $files;
+
+            public function reportOutputFile(File $file): void
+            {
+            }
+            public function reportFileDependencies(File $file, array $dependencies): void
+            {
+            }
+            public function reportFileState(File $file, string $state): void
+            {
+                $this->files[$file->path] = $state;
+            }
+            public function reportFileContent(File $file, string $content): void
+            {
+            }
+        };
+
+        $this->config->isDev()->willReturn(true);
+        $this->config->getSourceRoot()->willReturn('fixtures');
+        $this->config->getCacheDir()->willReturn(__DIR__ . '/cache/new');
+        $this->config->getReporter()->willReturn($reporter);
+
+        $input_file  = new RootFile(new Module('fixtures/bar.foo', 'fixtures/bar.foo'));
+        $target_file = new File('fixtures/output.foo');
+        $reader      = new FileReader(__DIR__);
+
+        $file = tempnam(__DIR__, 'asset');
+
+        try {
+            $input_file->addChild($dep = new Dependency(new File($file), true));
+
+            $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
+            $output = $this->content_pipeline->push([$input_file, $dep], $reader, $target_file);
+
+            self::assertEquals("foobar\n", $output);
+            self::assertEquals([
+                'fixtures/bar.foo' => ReporterInterface::STATE_BUILT,
+                $file              => ReporterInterface::STATE_INLINE,
+            ], $reporter->files);
+        } finally {
+            unlink($file);
+        }
     }
 
     /**
