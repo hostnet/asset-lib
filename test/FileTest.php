@@ -51,5 +51,11 @@ class FileTest extends TestCase
         self::assertEquals('bar', $file3->extension);
         self::assertEquals('.foo.bar', $file3->getName());
         self::assertEquals('.foo', $file3->getBaseName());
+
+        $file4 = new File('app/Resources/assets/.htaccess');
+        self::assertEquals('app/Resources/assets', $file4->dir);
+        self::assertEquals('', $file4->extension);
+        self::assertEquals('app/Resources/assets/.htaccess', $file4->getName());
+        self::assertEquals('.htaccess', $file4->getBaseName());
     }
 }
