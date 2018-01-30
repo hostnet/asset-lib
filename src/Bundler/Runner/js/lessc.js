@@ -6,11 +6,4 @@ function compile(source) {
     process.stdout.write(processor.process(processor.LES, fileName, source));
 }
 
-var content = '';
-
-process.stdin.resume();
-process.stdin.on('data', function(buf) { content += buf.toString(); });
-process.stdin.on('end', function() {
-    // your code here
-    compile(content);
-});
+require('./stream-stdin')(compile);
