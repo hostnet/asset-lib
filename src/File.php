@@ -17,9 +17,11 @@ class File
 
     public function __construct(string $path)
     {
+        $file_name = basename($path);
+
         $this->path      = $path;
         $this->dir       = dirname($path);
-        $this->extension = basename($path)[0] === '.' && false === strpos($path, '.', 1)
+        $this->extension = $file_name[0] === '.' && false === strpos($file_name, '.', 1)
             ? ''
             : pathinfo($path, PATHINFO_EXTENSION);
     }
