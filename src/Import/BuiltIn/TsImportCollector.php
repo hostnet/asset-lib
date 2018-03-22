@@ -18,11 +18,16 @@ final class TsImportCollector implements ImportCollectorInterface
 {
     private $js_import_collector;
     private $nodejs_resolver;
+    private $extensions;
 
-    public function __construct(JsImportCollector $js_import_collector, FileResolverInterface $nodejs_resolver)
-    {
+    public function __construct(
+        JsImportCollector $js_import_collector,
+        FileResolverInterface $nodejs_resolver,
+        array $extensions = ['ts']
+    ) {
         $this->js_import_collector = $js_import_collector;
         $this->nodejs_resolver     = $nodejs_resolver;
+        $this->extensions          = $extensions;
     }
 
     /**
@@ -30,7 +35,7 @@ final class TsImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->extension === 'ts';
+        return in_array($file->extension, $this->extensions, true);
     }
 
     /**

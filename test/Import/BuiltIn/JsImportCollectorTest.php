@@ -32,7 +32,8 @@ class JsImportCollectorTest extends TestCase
         $config->getIncludePaths()->willReturn([]);
 
         $this->js_import_collector = new JsImportCollector(
-            new FileResolver($config->reveal(), ['.js', '.json', '.node'])
+            new FileResolver($config->reveal(), ['.js', '.json', '.node']),
+            ['js', 'jsx']
         );
     }
 
@@ -50,7 +51,7 @@ class JsImportCollectorTest extends TestCase
             [false, new File('foo')],
             [false, new File('foo.ts')],
             [false, new File('foo.less')],
-            [false, new File('foo.jsx')],
+            [true, new File('foo.jsx')],
             [true, new File('foo.js')],
         ];
     }

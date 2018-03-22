@@ -33,7 +33,8 @@ class TsImportCollectorTest extends TestCase
 
         $this->ts_import_collector = new TsImportCollector(
             new JsImportCollector(new FileResolver($config->reveal(), ['.ts', '.js', '.json', '.node'])),
-            new FileResolver($config->reveal(), ['.ts', '.js', '.json', '.node'])
+            new FileResolver($config->reveal(), ['.ts', '.js', '.json', '.node']),
+            ['js', 'ts']
         );
     }
 
@@ -49,7 +50,7 @@ class TsImportCollectorTest extends TestCase
     {
         return [
             [false, new File('foo')],
-            [false, new File('foo.js')],
+            [true, new File('foo.js')],
             [false, new File('foo.less')],
             [false, new File('foo.jsx')],
             [true, new File('foo.ts')],
