@@ -27,7 +27,7 @@ class UnixSocket
     {
         $this->logger = $logger ?? new NullLogger();
         $this->socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
-        socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 30, 'usec' => 0]);
+        socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 60, 'usec' => 0]);
     }
 
     public function connect(string $address): void
