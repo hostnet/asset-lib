@@ -18,9 +18,12 @@ final class JsImportCollector implements ImportCollectorInterface
 {
     private $nodejs_resolver;
 
-    public function __construct(FileResolverInterface $nodejs_resolver)
+    private $extensions;
+
+    public function __construct(FileResolverInterface $nodejs_resolver, array $extensions = ['js'])
     {
         $this->nodejs_resolver = $nodejs_resolver;
+        $this->extensions      = $extensions;
     }
 
     /**
@@ -28,7 +31,7 @@ final class JsImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->extension === 'js';
+        return in_array($file->extension, $this->extensions, true);
     }
 
     /**
