@@ -56,8 +56,8 @@ class UnixSocketRunner implements RunnerInterface
         $response  = '';
 
         while (true) {
-            if (microtime(true) - $start > 30) {
-                throw new TimeoutException('Socket communication', 30);
+            if (microtime(true) - $start > 60) {
+                throw new TimeoutException('Socket communication', 60);
             }
 
             $socket = $this->factory->make();
