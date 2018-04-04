@@ -1,4 +1,8 @@
 (function (window) {
+    if (typeof window.require === 'function') {
+        return;
+    }
+
     var _modules = {};
 
     // Exceptions
