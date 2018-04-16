@@ -63,7 +63,7 @@ final class ImportFinder implements MutableImportFinderInterface
 
             foreach ($imports->getResources() as $import) {
                 if (!isset($seen[$import->path])) {
-                    $queue[] = [$import, $dep[0], false, true];
+                    $queue[]             = [$import, $dep[0], false, true];
                     $seen[$import->path] = true;
                 }
             }

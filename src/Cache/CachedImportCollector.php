@@ -22,8 +22,8 @@ final class CachedImportCollector implements ImportCollectorInterface
 
     public function __construct(ImportCollectorInterface $inner, CacheInterface $cache)
     {
-        $this->inner = $inner;
-        $this->cache = $cache;
+        $this->inner      = $inner;
+        $this->cache      = $cache;
         $this->file_cache = new \SplObjectStorage();
     }
 
