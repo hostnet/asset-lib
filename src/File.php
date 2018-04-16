@@ -66,11 +66,13 @@ class File
      */
     public static function clean(string $path): string
     {
-        if (false === \strpos($path, './') && false === \strpos($path, '.\\')) {
+        $path = str_replace(['\\', '//'], '/', $path);
+
+        if (false === \strpos($path, './')) {
             return $path;
         }
 
-        $parts = explode('/', str_replace(['\\', '//'], '/', $path));
+        $parts = explode('/', $path);
 
         $absolutes = [];
         foreach ($parts as $part) {
