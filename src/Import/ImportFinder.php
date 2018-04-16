@@ -41,26 +41,30 @@ final class ImportFinder implements MutableImportFinderInterface
         $files = [];
         $queue = $this->get($file);
 
-        $seen = array_values(array_map(function (array $d) {
+        $seen = array_combine(array_values(array_map(function (array $d) {
             return $d[0]->path;
-        }, $queue));
+        }, $queue)), array_fill(0, \count($queue), true));
 
-        while (count($queue) > 0) {
+        while (\count($queue) > 0) {
             $dep     = array_shift($queue);
             $files[] = $dep;
 
             $imports = $this->findImports($dep[0]);
 
             foreach ($imports->getImports() as $import) {
-                if (!in_array($import->getImportedFile()->path, $seen, true)) {
-                    $queue[] = [$import->getImportedFile(), $dep[0], $import->isVirtual(), false];
-                    $seen[]  = $import->getImportedFile()->path;
+                $imported_file = $import->import;
+
+                if (!isset($seen[$imported_file->path])) {
+                    $queue[] = [$imported_file, $dep[0], $import->virtual, false];
+
+                    $seen[$imported_file->path] = true;
                 }
             }
+
             foreach ($imports->getResources() as $import) {
-                if (!in_array($import->path, $seen, true)) {
-                    $queue[] = [$import, $dep[0], false, true];
-                    $seen[]  = $import->path;
+                if (!isset($seen[$import->path])) {
+                    $queue[]             = [$import, $dep[0], false, true];
+                    $seen[$import->path] = true;
                 }
             }
         }
@@ -78,7 +82,7 @@ final class ImportFinder implements MutableImportFinderInterface
         $results = [];
 
         foreach ($imports->getImports() as $import) {
-            $results[$import->getAs()] = [$import->getImportedFile(), $file, $import->isVirtual(), false];
+            $results[$import->as] = [$import->import, $file, $import->virtual, false];
         }
         foreach ($imports->getResources() as $import) {
             $results[$import->path] = [$import, $file, false, true];

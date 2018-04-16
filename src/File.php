@@ -20,7 +20,7 @@ class File
         $file_name = basename($path);
 
         $this->path      = $path;
-        $this->dir       = dirname($path);
+        $this->dir       = \dirname($path);
         $this->extension = $file_name[0] === '.' && false === strpos($file_name, '.', 1)
             ? ''
             : pathinfo($path, PATHINFO_EXTENSION);
@@ -66,7 +66,13 @@ class File
      */
     public static function clean(string $path): string
     {
-        $parts = explode('/', str_replace(['\\', '//'], '/', $path));
+        $path = str_replace(['\\', '//'], '/', $path);
+
+        if (false === \strpos($path, './')) {
+            return $path;
+        }
+
+        $parts = explode('/', $path);
 
         $absolutes = [];
         foreach ($parts as $part) {
