@@ -59,7 +59,11 @@ final class ImportCollection
      */
     public function extends(ImportCollection $imports): void
     {
-        $this->imports   = array_merge($this->imports, $imports->getImports());
-        $this->resources = array_merge($this->resources, $imports->getResources());
+        foreach ($imports->imports as $import) {
+            $this->imports[] = $import;
+        }
+        foreach ($imports->resources as $resource) {
+            $this->resources[] = $resource;
+        }
     }
 }

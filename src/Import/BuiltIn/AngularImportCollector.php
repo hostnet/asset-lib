@@ -21,7 +21,7 @@ final class AngularImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return $file->extension === 'ts' && '.component.ts' === substr($file->path, -13);
+        return $file->extension === 'ts' && \strlen($file->path) - 13 === strrpos($file->path, '.component.ts');
     }
 
     /**

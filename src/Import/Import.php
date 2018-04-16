@@ -12,9 +12,9 @@ use Hostnet\Component\Resolver\File;
  */
 final class Import
 {
-    private $as;
-    private $import;
-    private $virtual;
+    public $as;
+    public $import;
+    public $virtual;
 
     public function __construct(string $as, File $import, bool $virtual = false)
     {

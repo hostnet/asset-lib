@@ -18,11 +18,13 @@ final class CachedImportCollector implements ImportCollectorInterface
 {
     private $inner;
     private $cache;
+    private $file_cache;
 
     public function __construct(ImportCollectorInterface $inner, CacheInterface $cache)
     {
         $this->inner = $inner;
         $this->cache = $cache;
+        $this->file_cache = new \SplObjectStorage();
     }
 
     /**
@@ -38,8 +40,14 @@ final class CachedImportCollector implements ImportCollectorInterface
      */
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
+        if (isset($this->file_cache[$file])) {
+            $imports->extends($this->file_cache[$file]);
+            return;
+        }
+
         $key    = $file->path . get_class($this->inner);
-        $fmtime = filemtime(File::makeAbsolutePath($file->path, $cwd));
+        $path   = File::makeAbsolutePath($file->path, $cwd);
+        $fmtime = filemtime($path);
 
         if ($this->cache->has($key)) {
             $item = $this->cache->get($key);
@@ -48,6 +56,8 @@ final class CachedImportCollector implements ImportCollectorInterface
             if (isset($item['deps']) && $item['info'] === $fmtime) {
                 $imports->extends($item['deps']);
 
+                $this->file_cache[$file] = $item['deps'];
+
                 return;
             }
         }
@@ -55,6 +65,8 @@ final class CachedImportCollector implements ImportCollectorInterface
         $this->inner->collect($cwd, $file, $inner_imports);
 
         $this->cache->set($key, ['info' => $fmtime, 'deps' => $inner_imports]);
+
+        $this->file_cache[$file] = $inner_imports;
 
         $imports->extends($inner_imports);
     }

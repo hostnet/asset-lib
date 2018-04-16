@@ -31,7 +31,12 @@ final class JsImportCollector implements ImportCollectorInterface
      */
     public function supports(File $file): bool
     {
-        return in_array($file->extension, $this->extensions, true);
+        foreach ($this->extensions as $extension) {
+            if ($file->extension === $extension) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
