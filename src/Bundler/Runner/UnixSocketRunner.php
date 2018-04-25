@@ -50,7 +50,7 @@ class UnixSocketRunner implements RunnerInterface
 
     public function execute(string $type, ContentItem $item): string
     {
-        $this->logger->debug('    + [UnixSocketRunner] Executing '.$type.' for ' . $item->file->path);
+        $this->logger->debug('    + [UnixSocketRunner] Executing ' . $type . ' for ' . $item->file->path);
         $file_name = File::makeAbsolutePath($item->file->path, $this->config->getProjectRoot());
         $start     = microtime(true);
         $response  = '';
@@ -100,9 +100,11 @@ class UnixSocketRunner implements RunnerInterface
      */
     public function shutdown(): void
     {
-        if (file_exists($this->socket_location)) {
-            unlink($this->socket_location);
+        if (!file_exists($this->socket_location)) {
+            return;
         }
+
+        unlink($this->socket_location);
     }
 
     private function sendMessage(UnixSocket $socket, string $type, string $file_name, string $msg): string
@@ -175,6 +177,7 @@ class UnixSocketRunner implements RunnerInterface
             escapeshellarg($this->socket_location),
             escapeshellarg($this->config->getCacheDir() . '/asset-lib.log')
         );
-        `$cmd`;
+
+        shell_exec($cmd);
     }
 }

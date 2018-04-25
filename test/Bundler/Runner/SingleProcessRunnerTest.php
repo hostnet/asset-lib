@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Bundler\Runner;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
@@ -65,7 +66,7 @@ class SingleProcessRunnerTest extends TestCase
             [RunnerType::LESS, 'lessc.js'],
             [RunnerType::UGLIFY, 'uglify.js'],
             [RunnerType::CLEAN_CSS, 'cleancss.js'],
-            ['bla', '/blah.js']
+            ['bla', '/blah.js'],
         ];
     }
 

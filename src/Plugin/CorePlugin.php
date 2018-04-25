@@ -49,11 +49,13 @@ final class CorePlugin implements PluginInterface
         $plugin_api->addProcessor(new IdentityProcessor('html'));
         $plugin_api->addProcessor(new IdentityProcessor(''));
 
-        if ($config->getSocketType() === UnixSocketType::PRE_PROCESS) {
-            $ensure_closed_listener = new EnsureRunnerClosedListener($plugin_api->getRunner());
-
-            $dispatcher = $plugin_api->getConfig()->getEventDispatcher();
-            $dispatcher->addListener(BundleEvents::POST_BUNDLE, [$ensure_closed_listener, 'onPostBundle']);
+        if ($config->getSocketType() !== UnixSocketType::PRE_PROCESS) {
+            return;
         }
+
+        $ensure_closed_listener = new EnsureRunnerClosedListener($plugin_api->getRunner());
+
+        $dispatcher = $plugin_api->getConfig()->getEventDispatcher();
+        $dispatcher->addListener(BundleEvents::POST_BUNDLE, [$ensure_closed_listener, 'onPostBundle']);
     }
 }

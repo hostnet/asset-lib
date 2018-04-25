@@ -25,7 +25,7 @@ class FileResolverTest extends TestCase
     protected function setUp()
     {
         $config = $this->prophesize(ConfigInterface::class);
-        $config->getProjectRoot()->willReturn(__DIR__.'/../../fixtures');
+        $config->getProjectRoot()->willReturn(__DIR__ . '/../../fixtures');
         $config->getIncludePaths()->willReturn(['some_other_location']);
 
         $this->file_resolver = new FileResolver($config->reveal(), ['.js', '.json', '.node']);
@@ -54,7 +54,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteFile()
     {
         $parent = new File('node_modules/bar/baz.js');
-        $path   = File::clean(__DIR__.'/../../fixtures/node_modules/bar/foo/hom');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 
@@ -66,7 +66,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteFileFromModule()
     {
         $parent = new Module('bar/baz', 'node_modules/bar/baz.js');
-        $path   = File::clean(__DIR__.'/../../fixtures/node_modules/bar/foo/hom');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/hom');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 
@@ -78,7 +78,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteDir()
     {
         $parent = new File('node_modules/bar/baz.js');
-        $path   = File::clean(__DIR__.'/../../fixtures/node_modules/bar/foo/bar');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/bar');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 
@@ -90,7 +90,7 @@ class FileResolverTest extends TestCase
     public function testAsRequireAbsoluteDirFromModule()
     {
         $parent = new Module('bar/baz', 'node_modules/bar/baz.js');
-        $path   = File::clean(__DIR__.'/../../fixtures/node_modules/bar/foo/bar');
+        $path   = File::clean(__DIR__ . '/../../fixtures/node_modules/bar/foo/bar');
 
         $import = $this->file_resolver->asRequire($path, $parent);
 

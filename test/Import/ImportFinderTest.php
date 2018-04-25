@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Import;
 
 use Hostnet\Component\Resolver\File;
@@ -20,7 +21,6 @@ class ImportFinderTest extends TestCase
 
     protected function setUp()
     {
-
         $this->import_finder = new ImportFinder(__DIR__);
     }
 

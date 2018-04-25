@@ -54,18 +54,22 @@ final class ImportFinder implements MutableImportFinderInterface
             foreach ($imports->getImports() as $import) {
                 $imported_file = $import->import;
 
-                if (!isset($seen[$imported_file->path])) {
-                    $queue[] = [$imported_file, $dep[0], $import->virtual, false];
-
-                    $seen[$imported_file->path] = true;
+                if (isset($seen[$imported_file->path])) {
+                    continue;
                 }
+
+                $queue[] = [$imported_file, $dep[0], $import->virtual, false];
+
+                $seen[$imported_file->path] = true;
             }
 
             foreach ($imports->getResources() as $import) {
-                if (!isset($seen[$import->path])) {
-                    $queue[]             = [$import, $dep[0], false, true];
-                    $seen[$import->path] = true;
+                if (isset($seen[$import->path])) {
+                    continue;
                 }
+
+                $queue[]             = [$import, $dep[0], false, true];
+                $seen[$import->path] = true;
             }
         }
 
@@ -101,9 +105,11 @@ final class ImportFinder implements MutableImportFinderInterface
         $imports = new ImportCollection();
 
         foreach ($this->import_collectors as $collector) {
-            if ($collector->supports($file)) {
-                $collector->collect($this->cwd, $file, $imports);
+            if (!$collector->supports($file)) {
+                continue;
             }
+
+            $collector->collect($this->cwd, $file, $imports);
         }
 
         return $imports;

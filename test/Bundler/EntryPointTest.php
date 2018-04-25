@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Bundler;
 
 use Hostnet\Component\Resolver\File;
@@ -43,7 +44,7 @@ class EntryPointTest extends TestCase
         $expected = [
             'output/file1.js' => [__FILE__, 'some.file'],
             'output/file2.js' => ['node_modules/foo'],
-            'output/other.file' => ['other.file']
+            'output/other.file' => ['other.file'],
         ];
 
         self::assertSame(

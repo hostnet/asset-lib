@@ -3,6 +3,7 @@
  * @copyright 2018 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;

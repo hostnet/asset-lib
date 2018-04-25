@@ -74,8 +74,10 @@ final class ContentItem
             $this->content = $new_content;
         }
 
-        if (null !== $new_module_name) {
-            $this->module_name = $new_module_name;
+        if (null === $new_module_name) {
+            return;
         }
+
+        $this->module_name = $new_module_name;
     }
 }
