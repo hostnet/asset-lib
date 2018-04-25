@@ -75,7 +75,7 @@ final class ConsoleReporter implements ReporterInterface
                     ? ('<fg=yellow>' . $input_size . '</> -> ')
                     : ''
                 ) . '<fg=yellow>' . $output_size . '</>',
-                '<fg=green>[' . $this->file_states[$file] . ']</>'
+                '<fg=green>[' . $this->file_states[$file] . ']</>',
             ]);
         }
         $table->render();
@@ -92,12 +92,14 @@ final class ConsoleReporter implements ReporterInterface
 
             $table->addRow([
                 "[$i] ",
-                $file . ' <fg=yellow>' . $size . '</> <fg=green>[' . ($this->file_states[$file] ?? 'N/A') . ']</>'
+                $file . ' <fg=yellow>' . $size . '</> <fg=green>[' . ($this->file_states[$file] ?? 'N/A') . ']</>',
             ]);
-            if ($this->with_reasons) {
-                foreach ($reasons as $reason) {
-                    $table->addRow(['', ' -> ' . $reason]);
-                }
+            if (!$this->with_reasons) {
+                continue;
+            }
+
+            foreach ($reasons as $reason) {
+                $table->addRow(['', ' -> ' . $reason]);
             }
         }
         $table->render();

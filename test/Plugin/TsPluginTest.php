@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
@@ -51,7 +52,7 @@ class TsPluginTest extends TestCase
     {
         return [
             [TsImportCollector::class, false],
-            [CachedImportCollector::class, true]
+            [CachedImportCollector::class, true],
         ];
     }
 }

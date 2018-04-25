@@ -95,8 +95,10 @@ final class ContentState
 
         $this->state = $state;
 
-        if (null !== $new_extension) {
-            $this->extension = $new_extension;
+        if (null === $new_extension) {
+            return;
         }
+
+        $this->extension = $new_extension;
     }
 }

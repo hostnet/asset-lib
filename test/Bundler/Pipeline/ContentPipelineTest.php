@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Bundler\Pipeline;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
@@ -93,9 +94,11 @@ class ContentPipelineTest extends TestCase
 
             public function transpile(string $cwd, ContentItem $item): void
             {
-                if ($item->module_name == 'node_modules/fixtures/foo/abc.def') {
-                    $item->transition(ContentState::READY);
+                if ($item->module_name != 'node_modules/fixtures/foo/abc.def') {
+                    return;
                 }
+
+                $item->transition(ContentState::READY);
             }
         };
 

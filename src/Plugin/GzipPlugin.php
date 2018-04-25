@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Event\FileEvent;
@@ -30,10 +31,12 @@ class GzipPlugin implements PluginInterface
                 return;
             }
             $gzip_content = gzencode($content, 9);
-            if (strlen($gzip_content) < strlen($content)) {
-                $writer = new FileWriter($dispatcher, $config->getProjectRoot());
-                $writer->write(new File($ev->getFile()->path . '.gz'), $gzip_content);
+            if (strlen($gzip_content) >= strlen($content)) {
+                return;
             }
+
+            $writer = new FileWriter($dispatcher, $config->getProjectRoot());
+            $writer->write(new File($ev->getFile()->path . '.gz'), $gzip_content);
         });
     }
 }

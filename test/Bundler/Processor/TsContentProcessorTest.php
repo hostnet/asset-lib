@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Bundler\Processor;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
@@ -73,7 +74,7 @@ class TsContentProcessorTest extends TestCase
     {
         return [
             ['foobar.ts', 'foobar'],
-            ['ks-swiper.module', 'ks-swiper.module']
+            ['ks-swiper.module', 'ks-swiper.module'],
         ];
     }
 }

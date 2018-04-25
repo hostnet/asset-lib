@@ -35,17 +35,21 @@ final class TreeWalker
      */
     public function walk(DependencyNodeInterface $node): void
     {
-        if (false !== call_user_func($this->user_function, $node)) {
-            $this->walkInternal($node);
+        if (false === call_user_func($this->user_function, $node)) {
+            return;
         }
+
+        $this->walkInternal($node);
     }
 
     private function walkInternal(DependencyNodeInterface $node): void
     {
         foreach ($node->getChildren() as $child) {
-            if (false !== call_user_func($this->user_function, $child)) {
-                $this->walkInternal($child);
+            if (false === call_user_func($this->user_function, $child)) {
+                continue;
             }
+
+            $this->walkInternal($child);
         }
     }
 }

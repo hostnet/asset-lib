@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\Import\BuiltIn;
 
 use Hostnet\Component\Resolver\Config\ConfigInterface;
@@ -28,7 +29,7 @@ class JsImportCollectorTest extends TestCase
     protected function setUp()
     {
         $config = $this->prophesize(ConfigInterface::class);
-        $config->getProjectRoot()->willReturn(__DIR__.'/../../fixtures');
+        $config->getProjectRoot()->willReturn(__DIR__ . '/../../fixtures');
         $config->getIncludePaths()->willReturn([]);
 
         $this->js_import_collector = new JsImportCollector(
@@ -61,7 +62,7 @@ class JsImportCollectorTest extends TestCase
         $imports = new ImportCollection();
         $file    = new File('resolver/js/require-syntax/main.js');
 
-        $this->js_import_collector->collect(__DIR__.'/../../fixtures', $file, $imports);
+        $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
         self::assertEquals([
             new Import('./single_quote', new File('resolver/js/require-syntax/single_quote.js')),
@@ -84,7 +85,7 @@ class JsImportCollectorTest extends TestCase
         $imports = new ImportCollection();
         $file    = new File('resolver/js/require-syntax/red_haring.js');
 
-        $this->js_import_collector->collect(__DIR__.'/../../fixtures', $file, $imports);
+        $this->js_import_collector->collect(__DIR__ . '/../../fixtures', $file, $imports);
 
         self::assertEquals([], $imports->getImports());
         self::assertEquals([], $imports->getResources());
@@ -99,7 +100,7 @@ class JsImportCollectorTest extends TestCase
 
         $js_import_collector = new JsImportCollector($resolver->reveal());
         $js_import_collector->collect(
-            __DIR__.'/../../fixtures',
+            __DIR__ . '/../../fixtures',
             new File('resolver/js/require-syntax/main.js'),
             $imports
         );

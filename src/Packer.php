@@ -47,8 +47,10 @@ final class Packer
 
         $bundler->execute(new FileReader($config->getProjectRoot()), $writer);
 
-        if ($config->isDev()) {
-            $cache->save();
+        if (!$config->isDev()) {
+            return;
         }
+
+        $cache->save();
     }
 }

@@ -3,6 +3,7 @@
  * @copyright 2017 Hostnet B.V.
  */
 declare(strict_types=1);
+
 namespace Hostnet\Component\Resolver\EventListener;
 
 use Hostnet\Component\Resolver\Bundler\ContentItem;
@@ -51,9 +52,11 @@ class BrotliListener
         // the runner returns an empty string if it could not be brotli compressed. This seems to be the
         // case for some of the binary files. Maybe we should blacklist binary files, but in general
         // any file could benefit from brotli compression.
-        if (!empty($brotli_contents) && strlen($brotli_contents) < strlen($content)) {
-            $writer = new FileWriter($this->dispatcher, $this->project_root);
-            $writer->write(new File($file->path . '.br'), $brotli_contents);
+        if (empty($brotli_contents) || strlen($brotli_contents) >= strlen($content)) {
+            return;
         }
+
+        $writer = new FileWriter($this->dispatcher, $this->project_root);
+        $writer->write(new File($file->path . '.br'), $brotli_contents);
     }
 }
