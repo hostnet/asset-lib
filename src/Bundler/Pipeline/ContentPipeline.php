@@ -31,7 +31,6 @@ final class ContentPipeline implements MutableContentPipelineInterface
 {
     private $dispatcher;
     private $config;
-    private $writer;
 
     /**
      * @var ContentProcessorInterface[]
@@ -40,12 +39,10 @@ final class ContentPipeline implements MutableContentPipelineInterface
 
     public function __construct(
         EventDispatcherInterface $dispatcher,
-        ConfigInterface $config,
-        WriterInterface $writer
+        ConfigInterface $config
     ) {
         $this->dispatcher = $dispatcher;
         $this->config     = $config;
-        $this->writer     = $writer;
         $this->processors = [];
     }
 
@@ -128,10 +125,7 @@ final class ContentPipeline implements MutableContentPipelineInterface
 
                 if ($this->config->isDev()) {
                     // cache the contents of the item
-                    $this->writer->write(
-                        new File($cache_file),
-                        serialize([$item->getContent(), $item->getState()->extension()])
-                    );
+                    file_put_contents($cache_file, serialize([$item->getContent(), $item->getState()->extension()]));
                 }
 
                 $reporter->reportFileState($item->file, ReporterInterface::STATE_BUILT);

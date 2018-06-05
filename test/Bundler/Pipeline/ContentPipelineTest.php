@@ -32,7 +32,6 @@ class ContentPipelineTest extends TestCase
 {
     private $dispatcher;
     private $config;
-    private $writer;
 
     /**
      * @var ContentPipelineInterface
@@ -43,14 +42,12 @@ class ContentPipelineTest extends TestCase
     {
         $this->dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $this->config     = $this->prophesize(ConfigInterface::class);
-        $this->writer     = $this->prophesize(WriterInterface::class);
 
         $this->config->getProjectRoot()->willReturn(__DIR__);
 
         $this->content_pipeline = new ContentPipeline(
             $this->dispatcher->reveal(),
-            $this->config->reveal(),
-            $this->writer->reveal()
+            $this->config->reveal()
         );
     }
 
@@ -130,12 +127,14 @@ class ContentPipelineTest extends TestCase
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
 
-        $this->writer->write(Argument::type(File::class), Argument::type('string'))->shouldBeCalled();
-
-        self::assertEquals(
-            "foobar\nfoobar\n",
-            $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
-        );
+        try {
+            self::assertEquals(
+                "foobar\nfoobar\n",
+                $this->content_pipeline->push([$input_file, $d1, $d2], $reader, $target_file)
+            );
+        } finally {
+            @unlink(__DIR__ . '/cache/new/868a2_fixtures.bla.foo');
+        }
     }
 
     public function testPushDevAlreadyUpToDate()
@@ -241,6 +240,11 @@ class ContentPipelineTest extends TestCase
         $reader->read($file)->willReturn('waddup');
 
         $this->content_pipeline->addProcessor(new IdentityProcessor('foo'));
-        self::assertSame('waddup', $this->content_pipeline->push([$dependency], $reader->reveal()));
+
+        try {
+            self::assertSame('waddup', $this->content_pipeline->push([$dependency], $reader->reveal()));
+        } finally {
+            @unlink(__DIR__ . '/cache/new/868a2_fixtures.bla.foo');
+        }
     }
 }
