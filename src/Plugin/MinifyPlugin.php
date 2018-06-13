@@ -6,10 +6,8 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Event\AssetEvents;
-use Hostnet\Component\Resolver\Event\FileEvents;
-use Hostnet\Component\Resolver\EventListener\CleanCssListener;
-use Hostnet\Component\Resolver\EventListener\UglifyJsListener;
+use Hostnet\Component\Resolver\Builder\Step\CleanCssBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\UglifyJsBuildStep;
 
 /**
  * Enables minifying for JavaScript and css.
@@ -27,11 +25,7 @@ final class MinifyPlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
-        $uglify_listener    = new UglifyJsListener($plugin_api->getRunner());
-        $clean_css_listener = new CleanCssListener($plugin_api->getRunner());
-
-        $dispatcher = $plugin_api->getConfig()->getEventDispatcher();
-        $dispatcher->addListener(FileEvents::PRE_WRITE, [$uglify_listener, 'onPreWrite']);
-        $dispatcher->addListener(AssetEvents::READY, [$clean_css_listener, 'onPreWrite']);
+        $plugin_api->addBuildStep(new UglifyJsBuildStep());
+        $plugin_api->addBuildStep(new CleanCssBuildStep());
     }
 }

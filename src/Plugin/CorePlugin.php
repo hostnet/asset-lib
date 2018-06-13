@@ -6,14 +6,12 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Bundler\ContentState;
-use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
-use Hostnet\Component\Resolver\Bundler\Processor\JsonProcessor;
-use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
+use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\LessBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\TypescriptBuildStep;
+use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
-use Hostnet\Component\Resolver\Config\UnixSocketType;
-use Hostnet\Component\Resolver\Event\BundleEvents;
-use Hostnet\Component\Resolver\EventListener\EnsureRunnerClosedListener;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 
@@ -41,21 +39,11 @@ final class CorePlugin implements PluginInterface
 
         $plugin_api->addCollector($js_collector);
 
-        $plugin_api->addProcessor(new IdentityProcessor('js', ContentState::PROCESSED));
-        $plugin_api->addProcessor(new ModuleProcessor());
-        $plugin_api->addProcessor(new JsonProcessor());
+        $plugin_api->addBuildStep(new TypescriptBuildStep());
+        $plugin_api->addBuildStep(new LessBuildStep());
+        $plugin_api->addBuildStep(new ModuleBuildStep());
+        $plugin_api->addBuildStep(new CssBuildStep());
 
-        $plugin_api->addProcessor(new IdentityProcessor('css'));
-        $plugin_api->addProcessor(new IdentityProcessor('html'));
-        $plugin_api->addProcessor(new IdentityProcessor(''));
-
-        if ($config->getSocketType() !== UnixSocketType::PRE_PROCESS) {
-            return;
-        }
-
-        $ensure_closed_listener = new EnsureRunnerClosedListener($plugin_api->getRunner());
-
-        $dispatcher = $plugin_api->getConfig()->getEventDispatcher();
-        $dispatcher->addListener(BundleEvents::POST_BUNDLE, [$ensure_closed_listener, 'onPostBundle']);
+        $plugin_api->addWriter(new GenericFileWriter());
     }
 }

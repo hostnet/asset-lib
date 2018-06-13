@@ -6,13 +6,10 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Config;
 
-use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
-use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Generic config reader. This loads the entry-points.json file.
@@ -103,41 +100,4 @@ interface ConfigInterface
      * @return LoggerInterface
      */
     public function getLogger(): LoggerInterface;
-
-    /**
-     * Returns event dispatcher used for adding listeners to compiling assets.
-     *
-     * @return EventDispatcherInterface
-     */
-    public function getEventDispatcher(): EventDispatcherInterface;
-
-    /**
-     * Return the type of unix socket.
-     *
-     * @return string
-     */
-    public function getSocketType(): string;
-
-    /**
-     * Which runner should we use for the transitions?
-     *
-     * @return RunnerInterface
-     */
-    public function getRunner(): RunnerInterface;
-
-    /**
-     * Set the reporter to use. This will override the current one and return
-     * the previous once.
-     *
-     * @param ReporterInterface $reporter
-     * @return ReporterInterface
-     */
-    public function replaceReporter(ReporterInterface $reporter): ReporterInterface;
-
-    /**
-     * Return the reporter.
-     *
-     * @return ReporterInterface
-     */
-    public function getReporter(): ReporterInterface;
 }

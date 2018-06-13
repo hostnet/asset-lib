@@ -1,20 +1,20 @@
 <?php
 /**
- * @copyright 2017 Hostnet B.V.
+ * @copyright 2017-2018 Hostnet B.V.
  */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
-use Hostnet\Component\Resolver\Bundler\PipelineBundler;
+use Hostnet\Component\Resolver\Builder\BuildFiles;
+use Hostnet\Component\Resolver\Builder\BuildPlan;
+use Hostnet\Component\Resolver\Builder\ExtensionMap;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
-use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\FileSystem\FileWriter;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Plugin\PluginActivator;
 use Hostnet\Component\Resolver\Plugin\PluginApi;
+use Symfony\Component\Process\Process;
 
 /**
  * Simple facade that registered JS, CSS, TS and LESS compilation and runs it
@@ -27,30 +27,60 @@ final class Packer
         $cache = new Cache($config->getCacheDir() . '/dependencies');
         $cache->load();
 
-        $dispatcher = $config->getEventDispatcher();
-        $runner     = $config->getRunner();
-
         $finder = new ImportFinder($config->getProjectRoot());
+        $build_plan = new BuildPlan($config);
 
-        $writer   = new FileWriter($dispatcher, $config->getProjectRoot());
-        $pipeline = new ContentPipeline($dispatcher, $config, $writer);
-
-        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
+        $plugin_api = new PluginApi($finder, $config, $cache, $build_plan);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
-        $bundler = new PipelineBundler(
-            $finder,
-            $pipeline,
-            $config,
-            $runner
-        );
+        $config_file = $config->getCacheDir() . '/build_config.json';
+        $new_build_config = false;
 
-        $bundler->execute(new FileReader($config->getProjectRoot()), $writer);
+        if (!file_exists($config_file) || !$build_plan->isUpToDateWith($json_data = json_decode(file_get_contents($config_file), true))) {
+            echo "Compiling build config.\n";
 
-        if (!$config->isDev()) {
+            $build_plan->compile();
+            file_put_contents($config_file, json_encode($build_plan, JSON_PRETTY_PRINT));
+
+            $new_build_config = true;
+            $extension_map = $build_plan->getExtensionMap();
+        } else {
+            $extension_map = new ExtensionMap($json_data['mapping']);
+
+            echo "Build config already up to date.\n";
+        }
+
+        $build_files = new BuildFiles($finder, $extension_map, $config);
+        $build_files->compile($new_build_config);
+
+        if ($config->isDev()) {
+            $cache->save();
+        }
+
+        file_put_contents($config->getCacheDir() . '/build_files.json', json_encode($build_files, JSON_PRETTY_PRINT));
+        if (!$build_files->hasFiles()) {
+            echo "Already up to date!\n";
             return;
         }
 
-        $cache->save();
+        $cmd = sprintf(
+            "%s %s --debug --stdin %s",
+            escapeshellarg($config->getNodeJsExecutable()->getBinary()),
+            escapeshellarg(__DIR__ . '/Builder/js/build.js'),
+            escapeshellarg($config_file)
+        );
+
+        $process = new Process($cmd, null, ['NODE_PATH' => $config->getNodeJsExecutable()->getNodeModulesLocation()], json_encode($build_files));
+        $process->inheritEnvironmentVariables();
+
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new \RuntimeException(
+                'Cannot compile due to compiler error. Output: ' . $process->getOutput() . $process->getErrorOutput()
+            );
+        }
+
+        echo $process->getOutput(), $process->getErrorOutput();
     }
 }
