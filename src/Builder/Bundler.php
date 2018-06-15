@@ -10,17 +10,8 @@ use Symfony\Component\Process\Process;
 
 class Bundler
 {
-    /**
-     * @var ImportFinderInterface
-     */
     private $finder;
-    /**
-     * @var ConfigInterface
-     */
     private $config;
-    /**
-     * @var Filesystem
-     */
     private $filesystem;
 
     public function __construct(ImportFinderInterface $finder, ConfigInterface $config, Filesystem $filesystem)
