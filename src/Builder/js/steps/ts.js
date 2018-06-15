@@ -1,4 +1,4 @@
-let ts = require("typescript");
+let ts = require("typescript"), path = require('path');
 
 module.exports = function (file) {
     let result = ts.transpileModule(file.content.toString(), {
@@ -14,5 +14,8 @@ module.exports = function (file) {
         }
     });
 
-    return {name: file.name, module: file.module, content: result.outputText};
+    // strip the .ts extension
+    let moduleName = path.basename(file.module, path.extname(file.module));
+
+    return {name: file.name, module: moduleName, content: result.outputText};
 };

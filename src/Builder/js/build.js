@@ -1,7 +1,9 @@
 let path = require('path'), fs = require('fs'), crypto = require('crypto');
 
-function mkdirRecursive(pathToCreate) {
-    pathToCreate
+function mkdirRecursive(rootDir, pathToCreate) {
+    let relativePath = path.relative(rootDir, pathToCreate);
+
+    relativePath
         .split(path.sep)
         .reduce((currentPath, folder) => {
             currentPath += folder + path.sep;
@@ -11,7 +13,7 @@ function mkdirRecursive(pathToCreate) {
                 fs.mkdirSync(currentPath);
             }
             return currentPath;
-        }, '');
+        }, rootDir);
 }
 
 function getCachedFileLocation(cacheDir, rootDir, file) {
@@ -63,7 +65,7 @@ function compile(config, files) {
 
             if (config.paths.cache !== undefined) {
                 cacheFile = getCachedFileLocation(config.paths.cache, config.paths.root, fileInfo[0]);
-                mkdirRecursive(cacheFile.dir);
+                mkdirRecursive(config.paths.root, cacheFile.dir);
 
                 try {
                     fs.accessSync(cacheFile.dir + cacheFile.file, fs.constants.R_OK | fs.constants.W_OK);
@@ -168,7 +170,7 @@ function compile(config, files) {
                 moduleFile = require(steps[j])(moduleFile);
             }
 
-            mkdirRecursive(path.dirname(moduleFile.name));
+            mkdirRecursive(config.paths.root, path.dirname(moduleFile.name));
 
             for (let j = 0; j < writers.length; j++) {
                 if (isVerbose) {

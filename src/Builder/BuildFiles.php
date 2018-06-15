@@ -88,15 +88,30 @@ class BuildFiles implements \JsonSerializable
             $file       = $dep->getFile();
             $path       = File::makeAbsolutePath($file->path, $this->config->getProjectRoot());
             $file_mtime = file_exists($path) ? filemtime($path) : -1;
+            $module_name = $file->getName();
+
+            if (!empty($this->config->getSourceRoot())
+                && 0 === strpos($module_name, $this->config->getSourceRoot())
+            ) {
+                $chopped  = substr($file->dir, strlen($this->config->getSourceRoot()));
+                $base_dir = $chopped ? trim($chopped, '/') : '';
+                if (strlen($base_dir) > 0) {
+                    $base_dir .= '/';
+                }
+
+                $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
+            }
 
             return [
                 $file->path,
                 '.' . $file->extension,
-                $file->dir . '/' . $file->getBaseName(),
+                $module_name,
                 $force || $mtime === -1 || $file_mtime === -1 || $mtime <= $file_mtime,
                 $skip_file_actions
             ];
-        }, $dependencies);
+        }, array_filter($dependencies, function (DependencyNodeInterface $dep) {
+            return !$dep->isInlineDependency();
+        }));
     }
 
     /**
