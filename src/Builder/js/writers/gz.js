@@ -4,10 +4,16 @@ module.exports = function (file) {
     let content = zlib.deflateSync(file.content) || '';
 
     if (content.length > file.content.length) {
-        return;
+        return new Promise(function (resolve, reject) {
+            return resolve();
+        });
     }
 
-    fs.writeFile(file.name + ".gz", content, function (err) {
-        if (err) throw err;
+    return new Promise(function (resolve, reject) {
+        fs.writeFile(file.name + ".gz", content, function (err) {
+            if (err) reject(e);
+
+            resolve();
+        });
     });
 };

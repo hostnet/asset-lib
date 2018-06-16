@@ -7,6 +7,8 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Config;
 
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
+use Hostnet\Component\Resolver\Report\NullReporter;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use Psr\Log\LoggerInterface;
@@ -26,6 +28,7 @@ final class SimpleConfig implements ConfigInterface
     private $plugins;
     private $node_js_executable;
     private $logger;
+    private $reporter;
     private $split_strategy;
 
     public function __construct(
@@ -41,6 +44,7 @@ final class SimpleConfig implements ConfigInterface
         array $plugins,
         Executable $node_js_executable,
         LoggerInterface $logger = null,
+        ReporterInterface $reporter = null,
         EntryPointSplittingStrategyInterface $split_strategy = null
     ) {
         $this->is_dev         = $is_dev;
@@ -57,6 +61,7 @@ final class SimpleConfig implements ConfigInterface
 
         $this->node_js_executable = $node_js_executable;
         $this->logger             = $logger ?? new NullLogger();
+        $this->reporter           = $reporter ?? new NullReporter();
     }
 
     public function getSplitStrategy(): EntryPointSplittingStrategyInterface
@@ -154,5 +159,25 @@ final class SimpleConfig implements ConfigInterface
     public function getLogger(): LoggerInterface
     {
         return $this->logger;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function replaceReporter(ReporterInterface $reporter): ReporterInterface
+    {
+        $previous = $this->reporter;
+
+        $this->reporter = $reporter;
+
+        return $previous;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReporter(): ReporterInterface
+    {
+        return $this->reporter;
     }
 }

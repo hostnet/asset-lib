@@ -12,6 +12,7 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 
 class BuildFiles implements \JsonSerializable
 {
@@ -75,12 +76,20 @@ class BuildFiles implements \JsonSerializable
 
     private function addToFiles(File $base_file, array $dependencies, bool $skip_file_actions, bool $force)
     {
+        $reporter    = $this->config->getReporter();
         $output_file = new File($base_file->dir . '/' . $base_file->getBaseName() . $this->extension_map->getResultingExtension('.' . $base_file->extension));
 
-        $file_path = File::makeAbsolutePath($output_file->path, $this->config->getProjectRoot());
-        $mtime     = file_exists($file_path) ? filemtime($file_path) : -1;
+        $file_path      = File::makeAbsolutePath($output_file->path, $this->config->getProjectRoot());
+        $mtime          = file_exists($file_path) ? filemtime($file_path) : -1;
+        $should_compile = !$this->config->isDev() || $this->checkIfAnyChanged($output_file, $mtime, $dependencies);
 
-        if (!$force && ($this->config->isDev() && !$this->checkIfAnyChanged($output_file, $mtime, $dependencies))) {
+        $this->config->getReporter()->reportFileDependencies($base_file, $dependencies);
+
+        // If it should not be compiled and there was not forced compile, skip file.
+        if (!$should_compile && !$force) {
+            $reporter->reportFileState($output_file, ReporterInterface::STATE_UP_TO_DATE);
+            $reporter->reportOutputFile($output_file);
+
             return;
         }
 

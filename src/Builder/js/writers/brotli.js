@@ -5,10 +5,16 @@ module.exports = function (file) {
     let content = compress(file.content, options) || '';
 
     if (content.length > file.content.length) {
-        return;
+        return new Promise(function (resolve, reject) {
+            return resolve();
+        });
     }
 
-    fs.writeFile(file.name + ".br", content, function (err) {
-        if (err) throw err;
+    return new Promise(function (resolve, reject) {
+        fs.writeFile(file.name + ".br", content, function (err) {
+            if (err) reject(e);
+
+            resolve();
+        });
     });
 };

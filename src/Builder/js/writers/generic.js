@@ -1,7 +1,11 @@
 let fs = require('fs');
 
 module.exports = function (file) {
-    fs.writeFile(file.name, file.content, function (err) {
-        if (err) throw err;
+    return new Promise(function (resolve, reject) {
+        fs.writeFile(file.name, file.content, function (err) {
+            if (err) reject(e);
+
+            resolve();
+        });
     });
 };

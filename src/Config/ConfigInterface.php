@@ -8,6 +8,7 @@ namespace Hostnet\Component\Resolver\Config;
 
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
+use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use Psr\Log\LoggerInterface;
 
@@ -100,4 +101,20 @@ interface ConfigInterface
      * @return LoggerInterface
      */
     public function getLogger(): LoggerInterface;
+
+    /**
+     * Set the reporter to use. This will override the current one and return
+     * the previous once.
+     *
+     * @param ReporterInterface $reporter
+     * @return ReporterInterface
+     */
+    public function replaceReporter(ReporterInterface $reporter): ReporterInterface;
+
+    /**
+     * Return the reporter.
+     *
+     * @return ReporterInterface
+     */
+    public function getReporter(): ReporterInterface;
 }
