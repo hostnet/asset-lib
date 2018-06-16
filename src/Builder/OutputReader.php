@@ -1,8 +1,11 @@
 <?php
+/**
+ * @copyright 2018 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Builder;
-use Hostnet\Component\Resolver\Config\ConfigInterface;
+
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
 
@@ -21,7 +24,6 @@ class OutputReader
 
     public function append(string $content): void
     {
-
         $this->buffer .= $content;
 
         // Now parse it line-by-line

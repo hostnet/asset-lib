@@ -51,9 +51,11 @@ final class ConsoleLoggingReporter implements ReporterInterface
 
     public function reportFileState(File $file, string $state): void
     {
-        if ($state === ReporterInterface::STATE_BUILT) {
-            $this->build_files[] = $file->path;
+        if ($state !== ReporterInterface::STATE_BUILT) {
+            return;
         }
+
+        $this->build_files[] = $file->path;
     }
 
     public function reportFileContent(File $file, string $content): void

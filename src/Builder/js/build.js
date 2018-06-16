@@ -293,7 +293,7 @@ let config = {},
 
 try {
     fs.accessSync(configFile, fs.constants.R_OK | fs.constants.W_OK);
-    config = JSON.parse(fs.readFileSync(configFile), logger);
+    config = JSON.parse(fs.readFileSync(configFile));
 } catch (err) {
     console.error("Cannot read config file.");
     process.exit(1);
@@ -308,7 +308,7 @@ if (filesFile) {
         process.exit(1);
     }
 
-    compile(config, files);
+    compile(config, files, logger);
 } else if(isStdIn) {
     let content = '';
 

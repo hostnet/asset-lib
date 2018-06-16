@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2018 Hostnet B.V.
+ */
+declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Builder;
 
@@ -45,21 +49,25 @@ class Bundler
         }
 
         $cmd = sprintf(
-            "%s %s --debug --log-json --stdin %s",
+            '%s %s --debug --log-json --stdin %s',
             escapeshellarg($this->config->getNodeJsExecutable()->getBinary()),
             escapeshellarg(__DIR__ . '/js/build.js'),
             escapeshellarg($config_file)
         );
 
-        $process = new Process($cmd, null, ['NODE_PATH' => $this->config->getNodeJsExecutable()->getNodeModulesLocation()], json_encode($build_files));
+        $process = new Process($cmd, null, [
+            'NODE_PATH' => $this->config->getNodeJsExecutable()->getNodeModulesLocation(),
+        ], json_encode($build_files));
         $process->inheritEnvironmentVariables();
 
         $reader = new OutputReader($this->config->getReporter());
 
         $process->run(function ($type, $buffer) use ($reader) {
-            if (Process::OUT === $type) {
-                $reader->append($buffer);
+            if (Process::OUT !== $type) {
+                return;
             }
+
+            $reader->append($buffer);
         });
 
         if (!$process->isSuccessful()) {

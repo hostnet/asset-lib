@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright 2018 Hostnet B.V.
+ */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Builder;
@@ -22,12 +25,14 @@ final class BuildPlan implements \JsonSerializable
     {
         $this->paths = [
             'root' => $config->getProjectRoot(),
-            'out' => $config->getOutputFolder(true)
+            'out' => $config->getOutputFolder(true),
         ];
 
-        if ($config->isDev()) {
-            $this->paths['cache'] = $config->getCacheDir();
+        if (!$config->isDev()) {
+            return;
         }
+
+        $this->paths['cache'] = $config->getCacheDir();
     }
 
     /**
@@ -106,9 +111,11 @@ final class BuildPlan implements \JsonSerializable
                 $edges[] = [$i++, $start, $ext, $step->resultingState(), $step->resultingExtension(), $step];
             }
 
-            if (\in_array(AbstractBuildStep::FILE_READ, $step->acceptedStates(), true)) {
-                $supported_extensions[] = $ext;
+            if (!\in_array(AbstractBuildStep::FILE_READ, $step->acceptedStates(), true)) {
+                continue;
             }
+
+            $supported_extensions[] = $ext;
         }
 
         $this->actions = $this->createPlans(
@@ -157,20 +164,24 @@ final class BuildPlan implements \JsonSerializable
                     AbstractBuildStep::MODULES_READY
                 ), 5);
 
-                $write_actions = array_values(array_filter($this->writers, function (AbstractWriter $writer) use ($extension) {
-                    $writer_ext = $writer->acceptedExtension();
-                    return $writer_ext === '*' || $writer_ext === $extension;
-                }));
+                $write_actions = array_values(array_filter(
+                    $this->writers,
+                    function (AbstractWriter $writer) use ($extension) {
+                        $writer_ext = $writer->acceptedExtension();
+                        return $writer_ext === '*' || $writer_ext === $extension;
+                    }
+                ));
             }
 
             $plans[$extension] = [
                 'file_actions' => array_column($file_actions, 5),
                 'module_actions' => $module_actions,
-                'write_actions' => $write_actions
+                'write_actions' => $write_actions,
             ];
 
             if (!empty($module_actions)) {
-                $this->extension_mapping[$extension] = $module_actions[\count($module_actions) - 1]->resultingExtension();
+                $this->extension_mapping[$extension] = $module_actions[\count($module_actions) - 1]
+                    ->resultingExtension();
             } else {
                 $this->extension_mapping[$extension] = $file_actions[\count($file_actions) - 1][4];
             }
@@ -204,11 +215,13 @@ final class BuildPlan implements \JsonSerializable
                 $ext   = $visitable_edges[$i][4];
 
                 foreach ($edges as $edge) {
-                    if ($edge[1] === $state && $edge[2] === $ext && !\in_array($edge[0], $seen, true)) {
-                        $has_changed = true;
-                        $visitable_edges[] = $edge;
-                        $seen[] = $edge[0];
+                    if ($edge[1] !== $state || $edge[2] !== $ext || \in_array($edge[0], $seen, true)) {
+                        continue;
                     }
+
+                    $has_changed = true;
+                    $visitable_edges[] = $edge;
+                    $seen[] = $edge[0];
                 }
             }
 
@@ -231,11 +244,13 @@ final class BuildPlan implements \JsonSerializable
                 $ext   = $visitable_edges_r[$i][2];
 
                 foreach ($edges as $edge) {
-                    if ($edge[3] === $state && $edge[4] === $ext && !\in_array($edge[0], $seen, true)) {
-                        $has_changed = true;
-                        $visitable_edges_r[] = $edge;
-                        $seen[] = $edge[0];
+                    if ($edge[3] !== $state || $edge[4] !== $ext || \in_array($edge[0], $seen, true)) {
+                        continue;
                     }
+
+                    $has_changed = true;
+                    $visitable_edges_r[] = $edge;
+                    $seen[] = $edge[0];
                 }
             }
 
@@ -262,9 +277,11 @@ final class BuildPlan implements \JsonSerializable
         $options = [];
 
         foreach ($edges as $edge) {
-            if ($edge[1] === $starting_state && $edge[2] === $extension) {
-                $options[] = $edge;
+            if ($edge[1] !== $starting_state || $edge[2] !== $extension) {
+                continue;
             }
+
+            $options[] = $edge;
         }
 
         $plan = $this->makeChoices($options, $edges, $ending_state);
@@ -285,21 +302,25 @@ final class BuildPlan implements \JsonSerializable
                 $options = [];
 
                 foreach ($edges as $edge) {
-                    if ($edge[1] === $state
-                        && $edge[2] === $ext
-                        && !\in_array($edge[0], $seen_edges, true)
-                        && !\in_array($edge[5], $seen_actions, true)
+                    if ($edge[1] !== $state
+                        || $edge[2] !== $ext
+                        || \in_array($edge[0], $seen_edges, true)
+                        || \in_array($edge[5], $seen_actions, true)
                     ) {
-                        $options[] = $edge;
+                        continue;
                     }
+
+                    $options[] = $edge;
                 }
 
-                if (\count($options) > 0) {
-                    $has_changed = true;
-                    $plan = array_merge($plan, $this->makeChoices($options, $edges, $ending_state));
-                    $seen_edges = array_merge($seen_edges, array_column($options, 0));
-                    $seen_actions = array_merge($seen_edges, array_column($options, 5));
+                if (\count($options) <= 0) {
+                    continue;
                 }
+
+                $has_changed = true;
+                $plan = array_merge($plan, $this->makeChoices($options, $edges, $ending_state));
+                $seen_edges = array_merge($seen_edges, array_column($options, 0));
+                $seen_actions = array_merge($seen_edges, array_column($options, 5));
             }
 
             if (!$has_changed) {
@@ -333,9 +354,11 @@ final class BuildPlan implements \JsonSerializable
                 continue;
             }
 
-            if ($edge[1] === $start[3] && $edge[2] === $start[4]) {
-                $lengths[] = $this->getMaxLengthToEnd($edge, $edges, $ready_state, $c + 1);
+            if ($edge[1] !== $start[3] || $edge[2] !== $start[4]) {
+                continue;
             }
+
+            $lengths[] = $this->getMaxLengthToEnd($edge, $edges, $ready_state, $c + 1);
         }
 
         return max($lengths);

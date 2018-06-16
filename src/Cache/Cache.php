@@ -38,7 +38,7 @@ final class Cache implements FileCacheInterface
     /**
      * {@inheritdoc}
      */
-    public function has($key)
+    public function has($key): bool
     {
         return isset($this->data[$key]);
     }
@@ -86,7 +86,7 @@ final class Cache implements FileCacheInterface
     /**
      * {@inheritdoc}
      */
-    public function save()
+    public function save(): void
     {
         file_put_contents($this->file, serialize($this->data));
     }
@@ -94,7 +94,7 @@ final class Cache implements FileCacheInterface
     /**
      * {@inheritdoc}
      */
-    public function load()
+    public function load(): void
     {
         if (!file_exists($this->file)) {
             return;

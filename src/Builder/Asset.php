@@ -63,17 +63,18 @@ final class Asset
      * Return the asset file name. This is the target file name.
      *
      * @param string $output_folder
+     * @param string $source_folder
      * @return File
      */
     public function getAssetFile(string $output_folder, string $source_folder): File
     {
-        $base_dir = trim(substr($this->file->dir, strlen($source_folder)), '/');
+        $base_dir = trim(substr($this->file->dir, \strlen($source_folder)), '/');
 
         if ($base_dir === '.') {
             $base_dir = '';
         }
 
-        if (strlen($base_dir) > 0) {
+        if (\strlen($base_dir) > 0) {
             $base_dir .= '/';
         }
 

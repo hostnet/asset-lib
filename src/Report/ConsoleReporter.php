@@ -24,6 +24,9 @@ final class ConsoleReporter implements ReporterInterface
     private $file_sizes   = [];
     private $file_states  = [];
     private $output_file  = [];
+    /**
+     * @var DependencyNodeInterface[][]
+     */
     private $dependencies = [];
 
     public function __construct(ConfigInterface $config, bool $with_reasons = false)

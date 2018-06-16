@@ -68,16 +68,25 @@ class BuildFiles implements \JsonSerializable
             $file  = new File($source_dir . $file_name);
             $asset = new Asset($this->finder->all($file));
 
-            $this->addToFiles($asset->getAssetFile($output_folder, $this->config->getSourceRoot()), $asset->getFiles(), false, $force);
+            $this->addToFiles(
+                $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
+                $asset->getFiles(),
+                false,
+                $force
+            );
         }
 
         $this->compiled = true;
     }
 
-    private function addToFiles(File $base_file, array $dependencies, bool $skip_file_actions, bool $force)
+    private function addToFiles(File $base_file, array $dependencies, bool $skip_file_actions, bool $force): void
     {
         $reporter    = $this->config->getReporter();
-        $output_file = new File($base_file->dir . '/' . $base_file->getBaseName() . $this->extension_map->getResultingExtension('.' . $base_file->extension));
+        $output_file = new File(
+            $base_file->dir . '/' . $base_file->getBaseName() . $this->extension_map->getResultingExtension(
+                '.' . $base_file->extension
+            )
+        );
 
         $file_path      = File::makeAbsolutePath($output_file->path, $this->config->getProjectRoot());
         $mtime          = file_exists($file_path) ? filemtime($file_path) : -1;
@@ -93,34 +102,37 @@ class BuildFiles implements \JsonSerializable
             return;
         }
 
-        $this->files[$output_file->getName()] = array_map(function (DependencyNodeInterface $dep) use ($skip_file_actions, $force, $mtime) {
-            $file       = $dep->getFile();
-            $path       = File::makeAbsolutePath($file->path, $this->config->getProjectRoot());
-            $file_mtime = file_exists($path) ? filemtime($path) : -1;
-            $module_name = $file->getName();
+        $this->files[$output_file->getName()] = array_map(
+            function (DependencyNodeInterface $dep) use ($skip_file_actions, $force, $mtime) {
+                $file       = $dep->getFile();
+                $path       = File::makeAbsolutePath($file->path, $this->config->getProjectRoot());
+                $file_mtime = file_exists($path) ? filemtime($path) : -1;
+                $module_name = $file->getName();
 
-            if (!empty($this->config->getSourceRoot())
-                && 0 === strpos($module_name, $this->config->getSourceRoot())
-            ) {
-                $chopped  = substr($file->dir, strlen($this->config->getSourceRoot()));
-                $base_dir = $chopped ? trim($chopped, '/') : '';
-                if (strlen($base_dir) > 0) {
-                    $base_dir .= '/';
+                if (!empty($this->config->getSourceRoot())
+                    && 0 === strpos($module_name, $this->config->getSourceRoot())
+                ) {
+                    $chopped  = substr($file->dir, \strlen($this->config->getSourceRoot()));
+                    $base_dir = $chopped ? trim($chopped, '/') : '';
+                    if (\strlen($base_dir) > 0) {
+                        $base_dir .= '/';
+                    }
+
+                    $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
                 }
 
-                $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
-            }
-
-            return [
-                $file->path,
-                '.' . $file->extension,
-                $module_name,
-                $force || $mtime === -1 || $file_mtime === -1 || $mtime <= $file_mtime,
-                $skip_file_actions
-            ];
-        }, array_filter($dependencies, function (DependencyNodeInterface $dep) {
-            return !$dep->isInlineDependency();
-        }));
+                return [
+                    $file->path,
+                    '.' . $file->extension,
+                    $module_name,
+                    $force || $mtime === -1 || $file_mtime === -1 || $mtime <= $file_mtime,
+                    $skip_file_actions,
+                ];
+            },
+            array_filter($dependencies, function (DependencyNodeInterface $dep) {
+                return !$dep->isInlineDependency();
+            })
+        );
     }
 
     /**
@@ -143,8 +155,8 @@ class BuildFiles implements \JsonSerializable
 
         if (!file_exists($sources_file)) {
             // make sure the cache dir exists
-            if (!is_dir(dirname($sources_file))) {
-                mkdir(dirname($sources_file), 0777, true);
+            if (!is_dir(\dirname($sources_file))) {
+                mkdir(\dirname($sources_file), 0777, true);
             }
             file_put_contents($sources_file, serialize($input_sources));
 
@@ -180,11 +192,11 @@ class BuildFiles implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'input' => $this->files
+            'input' => $this->files,
         ];
     }
 
-    public function hasFiles()
+    public function hasFiles(): bool
     {
         if (!$this->compiled) {
             throw new \LogicException('Cannot count files if not yet compiled.');

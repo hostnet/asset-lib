@@ -34,6 +34,6 @@ class Module extends File
      */
     public function getParentName(): string
     {
-        return dirname($this->name);
+        return \dirname($this->name);
     }
 }
