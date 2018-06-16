@@ -63,7 +63,7 @@ class CacheTest extends TestCase
 
     public function testCreateFileCacheKey()
     {
-        self::assertSame('c3010_foo.js', Cache::createFileCacheKey(new File('foo.js')));
+        self::assertSame('c3/0102c_foo.js', Cache::createFileCacheKey(new File('foo.js')));
     }
 
     /**

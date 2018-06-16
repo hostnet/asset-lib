@@ -46,7 +46,7 @@ class PluginApi
 
     public function addWriter(AbstractWriter $writer): void
     {
-        $this->build_plan->registerWriters($writer);
+        $this->build_plan->registerWriter($writer);
     }
 
     public function addCollector(ImportCollectorInterface $import_collector): void

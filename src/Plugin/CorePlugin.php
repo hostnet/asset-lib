@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\JsBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\LessBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\TypescriptBuildStep;
@@ -39,9 +40,8 @@ final class CorePlugin implements PluginInterface
 
         $plugin_api->addCollector($js_collector);
 
-        $plugin_api->addBuildStep(new TypescriptBuildStep());
-        $plugin_api->addBuildStep(new LessBuildStep());
         $plugin_api->addBuildStep(new ModuleBuildStep());
+        $plugin_api->addBuildStep(new JsBuildStep());
         $plugin_api->addBuildStep(new CssBuildStep());
 
         $plugin_api->addWriter(new GenericFileWriter());

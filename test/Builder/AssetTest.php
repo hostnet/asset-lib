@@ -4,7 +4,7 @@
  */
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Bundler;
+namespace Hostnet\Component\Resolver\Builder;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
@@ -25,7 +25,7 @@ class AssetTest extends TestCase
         $dep->addChild($dep1);
         $dep->addChild($dep2);
 
-        $asset = new Asset($dep, 'php');
+        $asset = new Asset($dep);
 
         self::assertSame($file, $asset->getFile());
         self::assertSame([$dep, $dep1, $dep2], $asset->getFiles());
@@ -37,7 +37,7 @@ class AssetTest extends TestCase
         $file = new File(__DIR__ . '/some/file.css');
         $dep  = new Dependency($file);
 
-        $asset = new Asset($dep, 'css');
+        $asset = new Asset($dep);
 
         self::assertSame('foo/bar/some/file.css', $asset->getAssetFile('foo/bar', __DIR__)->path);
     }
@@ -47,7 +47,7 @@ class AssetTest extends TestCase
         $file = new File('file.css');
         $dep  = new Dependency($file);
 
-        $asset = new Asset($dep, 'css');
+        $asset = new Asset($dep);
 
         self::assertSame('foo/bar/file.css', $asset->getAssetFile('foo/bar', '')->path);
     }
@@ -56,11 +56,11 @@ class AssetTest extends TestCase
     {
         self::assertSame(
             'foo/bar/.test',
-            (new Asset(new Dependency(new File('.test')), ''))->getAssetFile('foo/bar', '')->path
+            (new Asset(new Dependency(new File('.test'))))->getAssetFile('foo/bar', '')->path
         );
         self::assertSame(
             'foo/bar/.foo.bar',
-            (new Asset(new Dependency(new File('.foo.bar')), 'bar'))->getAssetFile('foo/bar', '')->path
+            (new Asset(new Dependency(new File('.foo.bar'))))->getAssetFile('foo/bar', '')->path
         );
     }
 }

@@ -8,7 +8,12 @@ namespace Hostnet\Component\Resolver\Builder;
 
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 
-final class BuildPlan implements \JsonSerializable
+/**
+ * A build plan contains the configuration of the build processes.
+ *
+ * @internal
+ */
+/* final*/ class BuildPlan implements \JsonSerializable
 {
     /**
      * @var AbstractBuildStep[]
@@ -78,7 +83,7 @@ final class BuildPlan implements \JsonSerializable
      *
      * @param AbstractWriter $writer
      */
-    public function registerWriters(AbstractWriter $writer): void
+    public function registerWriter(AbstractWriter $writer): void
     {
         if ($this->compiled) {
             throw new \LogicException('Buildplan is already compiled and can no longer change.');

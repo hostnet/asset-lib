@@ -6,16 +6,10 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
-use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
-use Hostnet\Component\Resolver\Config\ConfigInterface;
-use Hostnet\Component\Resolver\Event\AssetEvents;
-use Hostnet\Component\Resolver\Event\FileEvents;
-use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
-use Hostnet\Component\Resolver\Import\Nodejs\Executable;
+use Hostnet\Component\Resolver\Builder\Step\CleanCssBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\UglifyJsBuildStep;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Prophecy\Argument;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\MinifyPlugin
@@ -24,21 +18,12 @@ class MinifyPluginTest extends TestCase
 {
     public function testActivate()
     {
-        $event_dispatcher = new EventDispatcher();
-
-        $pipeline = $this->prophesize(MutableContentPipelineInterface::class);
-        $cache    = $this->prophesize(CacheInterface::class);
-        $config   = $this->prophesize(ConfigInterface::class);
-        $config->getNodeJsExecutable()->willReturn(new Executable('a', 'b'));
-        $config->getEventDispatcher()->willReturn($event_dispatcher);
-        $config->getRunner()->willReturn($this->prophesize(RunnerInterface::class));
-        $finder     = $this->prophesize(MutableImportFinderInterface::class);
-        $plugin_api = new PluginApi($pipeline->reveal(), $finder->reveal(), $config->reveal(), $cache->reveal());
-
         $minify_plugin = new MinifyPlugin();
-        $minify_plugin->activate($plugin_api);
 
-        self::assertCount(1, $event_dispatcher->getListeners(AssetEvents::READY));
-        self::assertCount(1, $event_dispatcher->getListeners(FileEvents::PRE_WRITE));
+        $plugin_api = $this->prophesize(PluginApi::class);
+        $plugin_api->addBuildStep(Argument::type(UglifyJsBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(CleanCssBuildStep::class))->shouldBeCalled();
+
+        $minify_plugin->activate($plugin_api->reveal());
     }
 }

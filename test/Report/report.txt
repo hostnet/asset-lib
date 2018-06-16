@@ -5,5 +5,5 @@
  [0]  fixtures/a.js 3 kb [built]        
  [1]  fixtures/c.js 2 kb [built]        
        -> Included by [0] fixtures/a.js 
- [2]  fixtures/d.js 990 b [built]       
+ [2]  fixtures/d.js 995 b [built]       
        -> Included by [1] fixtures/c.js 

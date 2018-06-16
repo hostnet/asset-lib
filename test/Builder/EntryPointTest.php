@@ -4,7 +4,7 @@
  */
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Bundler;
+namespace Hostnet\Component\Resolver\Builder;
 
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
@@ -79,7 +79,7 @@ class EntryPointTest extends TestCase
 
         self::assertEquals($file, $entry_point->getFile());
         self::assertSame(
-            ['output/app.js' => [$dep]],
+            ['output/app.ts' => [$dep]],
             $entry_point->getFilesToBuild('output')
         );
     }
