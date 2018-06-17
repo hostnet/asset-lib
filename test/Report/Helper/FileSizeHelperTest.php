@@ -4,7 +4,7 @@
  */
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Report;
+namespace Hostnet\Component\Resolver\Report\Helper;
 
 use Hostnet\Component\Resolver\Report\Helper\FileSizeHelper;
 use PHPUnit\Framework\TestCase;
@@ -56,5 +56,12 @@ class FileSizeHelperTest extends TestCase
     public function testSizeMax(): void
     {
         $this->file_size_helper->format(1099511627776);
+    }
+
+    public function testFilesize(): void
+    {
+        self::assertSame(0, $this->file_size_helper->filesize(__DIR__ . '/empty.txt'));
+        self::assertSame(50, $this->file_size_helper->filesize(__DIR__ . '/50b.txt'));
+        self::assertSame(-1, $this->file_size_helper->filesize(__DIR__ . '/idonotexists'));
     }
 }

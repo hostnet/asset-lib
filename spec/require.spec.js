@@ -2,7 +2,7 @@ describe("Require.js module register method test", function () {
     var lib;
 
     beforeEach(function () {
-        lib = require('../src/Resources/require');
+        lib = require('../src/Builder/js/require');
         spyOn(console, 'warn');
     });
 

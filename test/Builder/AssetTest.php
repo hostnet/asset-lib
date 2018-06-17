@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AssetTest extends TestCase
 {
-    public function testGeneric()
+    public function testGeneric(): void
     {
         $file = new File(__FILE__);
         $dep1 = new Dependency(new File(__DIR__ . '/some.file'));
@@ -32,7 +32,7 @@ class AssetTest extends TestCase
         self::assertSame('foo/bar/AssetTest.php', $asset->getAssetFile('foo/bar', __DIR__)->path);
     }
 
-    public function testNestedUri()
+    public function testNestedUri(): void
     {
         $file = new File(__DIR__ . '/some/file.css');
         $dep  = new Dependency($file);
@@ -42,7 +42,7 @@ class AssetTest extends TestCase
         self::assertSame('foo/bar/some/file.css', $asset->getAssetFile('foo/bar', __DIR__)->path);
     }
 
-    public function testInRoot()
+    public function testInRoot(): void
     {
         $file = new File('file.css');
         $dep  = new Dependency($file);
@@ -52,7 +52,7 @@ class AssetTest extends TestCase
         self::assertSame('foo/bar/file.css', $asset->getAssetFile('foo/bar', '')->path);
     }
 
-    public function testWithoutExtension()
+    public function testWithoutExtension(): void
     {
         self::assertSame(
             'foo/bar/.test',
