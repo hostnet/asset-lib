@@ -381,6 +381,7 @@ class BuildConfigTest extends TestCase
         $this->expectExceptionMessage('Cannot serialize uncompiled build config.');
         $build_config->jsonSerialize();
     }
+
     public function testGetExtensionMap(): void
     {
         $step1 = $this->makeBuildStep(

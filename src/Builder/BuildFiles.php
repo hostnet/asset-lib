@@ -13,6 +13,7 @@ use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -48,7 +49,10 @@ use Hostnet\Component\Resolver\Report\ReporterInterface;
         $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 
         // put the require.js in the web folder
-        $require_file        = new File(File::clean(__DIR__ . '/js/require.js'));
+        $fs                  = new Filesystem();
+        $require_file        = new File(
+            $fs->makePathRelative(__DIR__ . '/js', $this->config->getProjectRoot()) . 'require.js'
+        );
         $output_require_file = new File($output_folder . '/require.js');
 
         $this->addToFiles($output_require_file, [new Dependency($require_file)], true, $force);
@@ -152,6 +156,11 @@ use Hostnet\Component\Resolver\Report\ReporterInterface;
      */
     private function checkIfAnyChanged(File $output_file, int $mtime, array $input_files): bool
     {
+        // Did the files change?
+        if ($mtime === -1) {
+            return true;
+        }
+
         // did the sources change?
         $sources_file  = $this->config->getCacheDir() . '/' . Cache::createFileCacheKey($output_file) . '.sources';
         $input_sources = array_map(function (DependencyNodeInterface $d) {
@@ -174,11 +183,6 @@ use Hostnet\Component\Resolver\Report\ReporterInterface;
         if (count(array_diff($sources, $input_sources)) > 0 || count(array_diff($input_sources, $sources)) > 0) {
             file_put_contents($sources_file, serialize($input_sources));
 
-            return true;
-        }
-
-        // Did the files change?
-        if ($mtime === -1) {
             return true;
         }
 

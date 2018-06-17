@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Report\Helper;
 
-use Hostnet\Component\Resolver\Report\Helper\FileSizeHelper;
 use PHPUnit\Framework\TestCase;
 
 /**
