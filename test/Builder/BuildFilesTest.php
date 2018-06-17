@@ -58,10 +58,10 @@ class BuildFilesTest extends TestCase
             $this->config->isDev()->willReturn(true);
             $this->config->getReporter()->willReturn(new NullReporter());
             $this->config->getEntryPoints()->willReturn([
-                'foo.js'
+                'foo.js',
             ]);
             $this->config->getAssetFiles()->willReturn([
-                'bar.js'
+                'bar.js',
             ]);
             $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
 
@@ -124,7 +124,7 @@ class BuildFilesTest extends TestCase
             $this->config->isDev()->willReturn(true);
             $this->config->getReporter()->willReturn(new NullReporter());
             $this->config->getEntryPoints()->willReturn([
-                'foo.js'
+                'foo.js',
             ]);
             $this->config->getAssetFiles()->willReturn([]);
             $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
@@ -158,7 +158,7 @@ class BuildFilesTest extends TestCase
             $this->config->isDev()->willReturn(true);
             $this->config->getReporter()->willReturn(new NullReporter());
             $this->config->getEntryPoints()->willReturn([
-                'foo.js'
+                'foo.js',
             ]);
             $this->config->getAssetFiles()->willReturn([]);
             $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
