@@ -10,9 +10,9 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
+use Hostnet\Component\Resolver\Report\Helper\FileSizeHelperInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @covers \Hostnet\Component\Resolver\Report\ConsoleLoggingReporter
@@ -22,11 +22,12 @@ class ConsoleLoggingReporterTest extends TestCase
     public function testGeneric()
     {
         $config         = $this->prophesize(ConfigInterface::class);
+        $helper         = $this->prophesize(FileSizeHelperInterface::class);
         $console_output = new BufferedOutput();
 
         $config->getProjectRoot()->willReturn(__DIR__);
 
-        $console_logging_reporter = new ConsoleLoggingReporter($config->reveal(), $console_output);
+        $console_logging_reporter = new ConsoleLoggingReporter($config->reveal(), $console_output, $helper->reveal());
 
         $file1 = new File('fixtures/a.js');
         $file2 = new File('fixtures/b.js');
@@ -38,6 +39,9 @@ class ConsoleLoggingReporterTest extends TestCase
         $root = new RootFile($file1);
         $root->addChild($dep1);
         $dep1->addChild($dep2);
+
+        $helper->filesize(__DIR__ . '/fixtures/a.js')->willReturn(3);
+        $helper->format(3)->willReturn('3 kb');
 
         $console_logging_reporter->reportFileState($file1, ReporterInterface::STATE_BUILT);
         $console_logging_reporter->reportFileState($file2, ReporterInterface::STATE_UP_TO_DATE);

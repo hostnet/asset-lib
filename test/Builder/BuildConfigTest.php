@@ -36,7 +36,7 @@ class BuildConfigTest extends TestCase
         self::assertSame([
             'root' => __DIR__ . DIRECTORY_SEPARATOR,
             'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
-            'cache' => '/tmp' . DIRECTORY_SEPARATOR,,
+            'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([], $data['mapping']);
         self::assertSame([], $data['build']);
@@ -121,17 +121,17 @@ class BuildConfigTest extends TestCase
         self::assertSame([
             'root' => __DIR__ . DIRECTORY_SEPARATOR,
             'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
-            'cache' => '/tmp' . DIRECTORY_SEPARATOR,,
+            'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
-            '.js' => '.js',,
+            '.js' => '.js',
         ], $data['mapping']);
         self::assertSame([
             '.js' => [
                 ['phpunit1', 'phpunit2', 'phpunit4', 'phpunit3'],
                 ['phpunit5'],
                 ['out1', 'out2'],
-            ],,
+            ],
         ], $data['build']);
     }
 
@@ -173,17 +173,17 @@ class BuildConfigTest extends TestCase
         self::assertSame([
             'root' => __DIR__ . DIRECTORY_SEPARATOR,
             'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
-            'cache' => '/tmp' . DIRECTORY_SEPARATOR,,
+            'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
-            '.js' => '.js',,
+            '.js' => '.js',
         ], $data['mapping']);
         self::assertSame([
             '.js' => [
                 ['long a', 'long b'],
                 [],
                 [],
-            ],,
+            ],
         ], $data['build']);
     }
 
@@ -220,17 +220,17 @@ class BuildConfigTest extends TestCase
         self::assertSame([
             'root' => __DIR__ . DIRECTORY_SEPARATOR,
             'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
-            'cache' => '/tmp' . DIRECTORY_SEPARATOR,,
+            'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
-            '.js' => '.js',,
+            '.js' => '.js',
         ], $data['mapping']);
         self::assertSame([
             '.js' => [
                 ['high'],
                 [],
                 [],
-            ],,
+            ],
         ], $data['build']);
     }
 
@@ -286,17 +286,17 @@ class BuildConfigTest extends TestCase
         self::assertSame([
             'root' => __DIR__ . DIRECTORY_SEPARATOR,
             'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
-            'cache' => '/tmp' . DIRECTORY_SEPARATOR,,
+            'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
-            '.js' => '.js',,
+            '.js' => '.js',
         ], $data['mapping']);
         self::assertSame([
             '.js' => [
                 ['high', 'low', 'last b'],
                 [],
                 [],
-            ],,
+            ],
         ], $data['build']);
     }
 

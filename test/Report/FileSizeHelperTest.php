@@ -6,19 +6,30 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Report;
 
+use Hostnet\Component\Resolver\Report\Helper\FileSizeHelper;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Report\FileSizeHelper
+ * @covers \Hostnet\Component\Resolver\Report\Helper\FileSizeHelper
  */
 class FileSizeHelperTest extends TestCase
 {
+    /**
+     * @var FileSizeHelper
+     */
+    private $file_size_helper;
+
+    protected function setUp()
+    {
+        $this->file_size_helper = new FileSizeHelper();
+    }
+
     /**
      * @dataProvider sizeProvider
      */
     public function testSize(string $expected, int $size): void
     {
-        self::assertSame($expected, FileSizeHelper::size($size));
+        self::assertSame($expected, $this->file_size_helper->format($size));
     }
 
     public function sizeProvider()
@@ -44,6 +55,6 @@ class FileSizeHelperTest extends TestCase
      */
     public function testSizeMax(): void
     {
-        FileSizeHelper::size(1099511627776);
+        $this->file_size_helper->format(1099511627776);
     }
 }

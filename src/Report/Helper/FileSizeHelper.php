@@ -4,18 +4,22 @@
  */
 declare(strict_types=1);
 
-namespace Hostnet\Component\Resolver\Report;
+namespace Hostnet\Component\Resolver\Report\Helper;
 
-final class FileSizeHelper
+final class FileSizeHelper implements FileSizeHelperInterface
 {
     /**
-     * Return a pretty format for file sizes. So for instance 54457 becomes:
-     *
-     * @param int $size
-     * @return string
-     * @throws \LogicException
+     * {@inheritdoc}
      */
-    public static function size(int $size): string
+    public function filesize(string $file): int
+    {
+        return file_exists($file) ? filesize($file) : -1;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function format(int $size): string
     {
         if ($size < 0) {
             return 'N/A';

@@ -9,6 +9,7 @@ namespace Hostnet\Component\Resolver\Report;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
+use Hostnet\Component\Resolver\Report\Helper\FileSizeHelperInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,19 +20,25 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ConsoleReporter implements ReporterInterface
 {
     private $config;
+    private $size_helper;
     private $with_reasons;
 
-    private $file_sizes   = [];
-    private $file_states  = [];
-    private $output_file  = [];
+    private $file_sizes  = [];
+    private $file_states = [];
+    private $output_file = [];
+
     /**
      * @var DependencyNodeInterface[][]
      */
     private $dependencies = [];
 
-    public function __construct(ConfigInterface $config, bool $with_reasons = false)
-    {
+    public function __construct(
+        ConfigInterface $config,
+        FileSizeHelperInterface $size_helper,
+        bool $with_reasons = false
+    ) {
         $this->config       = $config;
+        $this->size_helper  = $size_helper;
         $this->with_reasons = $with_reasons;
     }
 
@@ -66,11 +73,11 @@ final class ConsoleReporter implements ReporterInterface
         $table->setColumnWidth(1, 5);
 
         foreach ($this->output_file as $file) {
-            $file_size   = filesize(File::isAbsolutePath($file)
-                ? $file
-                : $this->config->getProjectRoot() . '/' . $file);
-            $input_size  = isset($this->file_sizes[$file]) ? FileSizeHelper::size($this->file_sizes[$file]) : '';
-            $output_size = FileSizeHelper::size($file_size);
+            $file_size   = $this->size_helper->filesize(
+                File::isAbsolutePath($file) ? $file : $this->config->getProjectRoot() . '/' . $file
+            );
+            $input_size  = isset($this->file_sizes[$file]) ? $this->size_helper->format($this->file_sizes[$file]) : '';
+            $output_size = $this->size_helper->format($file_size);
 
             $table->addRow([
                 $file,
@@ -90,8 +97,10 @@ final class ConsoleReporter implements ReporterInterface
         $table->setColumnStyle(0, (clone $table->getStyle())->setPadType(STR_PAD_LEFT));
 
         foreach ($this->getFullDependencyList() as $i => [$file, $reasons]) {
-            $file_size = filesize(File::isAbsolutePath($file) ? $file : $this->config->getProjectRoot() . '/' . $file);
-            $size      = FileSizeHelper::size($file_size);
+            $file_size = $this->size_helper->filesize(
+                File::isAbsolutePath($file) ? $file : $this->config->getProjectRoot() . '/' . $file
+            );
+            $size      = $this->size_helper->format($file_size);
 
             $table->addRow([
                 "[$i] ",

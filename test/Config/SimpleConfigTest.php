@@ -9,6 +9,7 @@ namespace Hostnet\Component\Resolver\Config;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
 use Hostnet\Component\Resolver\Report\ConsoleLoggingReporter;
+use Hostnet\Component\Resolver\Report\Helper\FileSizeHelper;
 use Hostnet\Component\Resolver\Report\NullReporter;
 use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
@@ -52,7 +53,7 @@ class SimpleConfigTest extends TestCase
         self::assertInstanceOf(NullLogger::class, $config->getLogger());
         self::assertInstanceOf(NullReporter::class, $config->getReporter());
 
-        $reporter = new ConsoleLoggingReporter($config, new NullOutput());
+        $reporter = new ConsoleLoggingReporter($config, new NullOutput(), new FileSizeHelper());
         $old      = $config->replaceReporter($reporter);
 
         self::assertInstanceOf(NullReporter::class, $old);
