@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
-class Bundler
+final class Bundler implements BundlerInterface
 {
     private $finder;
     private $config;
@@ -24,19 +24,19 @@ class Bundler
         $this->filesystem = $filesystem;
     }
 
-    public function bundle(BuildPlan $build_plan): void
+    public function bundle(BuildConfig $build_config): void
     {
         $config_file = $this->config->getCacheDir() . '/build_config.json';
         $new_build_config = false;
 
         if (!file_exists($config_file)
-            || !$build_plan->isUpToDateWith($json_data = json_decode(file_get_contents($config_file), true))
+            || !$build_config->isUpToDateWith($json_data = json_decode(file_get_contents($config_file), true))
         ) {
-            $build_plan->compile();
-            $this->filesystem->dumpFile($config_file, json_encode($build_plan, JSON_PRETTY_PRINT));
+            $build_config->compile();
+            $this->filesystem->dumpFile($config_file, json_encode($build_config, JSON_PRETTY_PRINT));
 
             $new_build_config = true;
-            $extension_map = $build_plan->getExtensionMap();
+            $extension_map = $build_config->getExtensionMap();
         } else {
             $extension_map = new ExtensionMap($json_data['mapping']);
         }

@@ -69,7 +69,7 @@ final class EntryPoint
      * Returns the files to build
      *
      * @param string $output_dir
-     * @return DependencyNodeInterface[]
+     * @return DependencyNodeInterface[][]
      */
     public function getFilesToBuild(string $output_dir): array
     {

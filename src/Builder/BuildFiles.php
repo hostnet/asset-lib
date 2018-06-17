@@ -14,7 +14,10 @@ use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
 
-class BuildFiles implements \JsonSerializable
+/**
+ * @internal
+ */
+/* final */ class BuildFiles implements \JsonSerializable
 {
     private $finder;
     private $extension_map;
@@ -37,6 +40,10 @@ class BuildFiles implements \JsonSerializable
      */
     public function compile(bool $force = false): void
     {
+        if ($this->compiled) {
+            throw new \LogicException('Cannot recompile already compiled build files.');
+        }
+
         $output_folder = $this->config->getOutputFolder();
         $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
 

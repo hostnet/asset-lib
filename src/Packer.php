@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
 
-use Hostnet\Component\Resolver\Builder\BuildPlan;
+use Hostnet\Component\Resolver\Builder\BuildConfig;
 use Hostnet\Component\Resolver\Builder\Bundler;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
@@ -30,12 +30,12 @@ final class Packer
 
         $finder = new ImportFinder($config->getProjectRoot());
 
-        $build_plan = new BuildPlan($config);
-        $plugin_api = new PluginApi($finder, $config, $cache, $build_plan);
+        $build_config = new BuildConfig($config);
+        $plugin_api = new PluginApi($finder, $config, $cache, $build_config);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
         $bundler = new Bundler($finder, $config, $file_system);
-        $bundler->bundle($build_plan);
+        $bundler->bundle($build_config);
 
         if (!$config->isDev()) {
             return;

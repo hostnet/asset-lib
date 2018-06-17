@@ -9,11 +9,11 @@ namespace Hostnet\Component\Resolver\Builder;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 
 /**
- * A build plan contains the configuration of the build processes.
+ * A build config contains the configuration of the build processes.
  *
  * @internal
  */
-/* final*/ class BuildPlan implements \JsonSerializable
+/* final*/ class BuildConfig implements \JsonSerializable
 {
     /**
      * @var AbstractBuildStep[]
@@ -41,7 +41,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
     }
 
     /**
-     * Return a unique hash for this plan. If any of the steps change, this hash will change.
+     * Return a unique hash for this config. If any of the steps change, this hash will change.
      *
      * @return string
      */
@@ -65,41 +65,41 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
     }
 
     /**
-     * Register a build step to be included in the build plan.
+     * Register a build step to be included in the build config.
      *
      * @param AbstractBuildStep $step
      */
     public function registerStep(AbstractBuildStep $step): void
     {
         if ($this->compiled) {
-            throw new \LogicException('Buildplan is already compiled and can no longer change.');
+            throw new \LogicException('Build config is already compiled and can no longer change.');
         }
 
         $this->steps[] = $step;
     }
 
     /**
-     * Register a writer action to be included in the build plan.
+     * Register a writer action to be included in the build config.
      *
      * @param AbstractWriter $writer
      */
     public function registerWriter(AbstractWriter $writer): void
     {
         if ($this->compiled) {
-            throw new \LogicException('Buildplan is already compiled and can no longer change.');
+            throw new \LogicException('Build config is already compiled and can no longer change.');
         }
 
         $this->writers[] = $writer;
     }
 
     /**
-     * Compile the build plan, this will resolve any actions and calculate the needed build steps. After this the
-     * build plan is immutable.
+     * Compile the build config, this will resolve any actions and calculate the needed build steps. After this the
+     * build config is immutable.
      */
     public function compile(): void
     {
         if ($this->compiled) {
-            throw new \LogicException('Cannot recompile already compiled build plan.');
+            throw new \LogicException('Cannot recompile already compiled build config.');
         }
 
         $supported_extensions = [];
@@ -109,7 +109,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
             $ext = $step->acceptedExtension();
 
             if (max($step->acceptedStates()) > $step->resultingState()) {
-                throw new \RuntimeException('Cannot go bad in build states for ' . \get_class($step));
+                throw new \RuntimeException('Cannot go back in build states for ' . \get_class($step));
             }
 
             foreach ($step->acceptedStates() as $start) {
@@ -154,11 +154,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
             );
             $resulting_extension = $file_actions[\count($file_actions) - 1][4];
             $module_actions      = [];
-
-            if (!\in_array($resulting_extension, $supported_extensions, true)) {
-                throw new \RuntimeException("No module actions defined for extension \"{$resulting_extension}\"");
-            }
-            $write_actions = [];
+            $write_actions       = [];
 
             // Only module actions are needed if the file extensions keep the same. Else we switch extension plan.
             if ($resulting_extension === $extension) {
@@ -354,12 +350,8 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
         $lengths = [0];
 
         foreach ($edges as $edge) {
-            // Skip edges which loop to the same state
-            if ($edge[1] === $edge[3]) {
-                continue;
-            }
-
-            if ($edge[1] !== $start[3] || $edge[2] !== $start[4]) {
+            // Skip edges which loop to the same state, do not have the same extension or do not match this edge
+            if ($edge[1] === $edge[3] || $edge[1] !== $start[3] || $edge[2] !== $start[4]) {
                 continue;
             }
 
@@ -398,7 +390,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
                 $maxes[] = [$this->getMaxLengthToEnd($option, $edges, $ready_state), $option];
             }
 
-            $max = max(array_column($maxes, 0));
+            $max = \count($maxes) > 0 ? max(array_column($maxes, 0)) : 0;
 
             $selected_edges = array_column(array_filter($maxes, function (array $max_option) use ($max) {
                 return $max === $max_option[0];
@@ -435,7 +427,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
     public function jsonSerialize()
     {
         if (!$this->compiled) {
-            throw new \LogicException('Cannot serialize uncompiled build plan.');
+            throw new \LogicException('Cannot serialize uncompiled build config.');
         }
 
         $build_steps = [];
@@ -467,7 +459,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
     public function getExtensionMap(): ExtensionMap
     {
         if (!$this->compiled) {
-            throw new \LogicException('Cannot get mapping for uncompiled build plan.');
+            throw new \LogicException('Cannot get mapping for uncompiled build config.');
         }
 
         return new ExtensionMap($this->extension_mapping);

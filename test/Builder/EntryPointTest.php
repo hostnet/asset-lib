@@ -13,7 +13,7 @@ use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Bundler\EntryPoint
+ * @covers \Hostnet\Component\Resolver\Builder\EntryPoint
  */
 class EntryPointTest extends TestCase
 {

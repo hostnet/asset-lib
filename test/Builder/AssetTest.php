@@ -11,7 +11,7 @@ use Hostnet\Component\Resolver\Import\Dependency;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Bundler\Asset
+ * @covers \Hostnet\Component\Resolver\Builder\Asset
  */
 class AssetTest extends TestCase
 {

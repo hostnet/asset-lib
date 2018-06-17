@@ -12,7 +12,7 @@ use Hostnet\Component\Resolver\Import\RootFile;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Bundler\TreeWalker
+ * @covers \Hostnet\Component\Resolver\Builder\TreeWalker
  */
 class TreeWalkerTest extends TestCase
 {

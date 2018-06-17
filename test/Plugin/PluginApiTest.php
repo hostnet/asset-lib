@@ -8,7 +8,7 @@ namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Builder\AbstractBuildStep;
 use Hostnet\Component\Resolver\Builder\AbstractWriter;
-use Hostnet\Component\Resolver\Builder\BuildPlan;
+use Hostnet\Component\Resolver\Builder\BuildConfig;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
@@ -24,7 +24,7 @@ class PluginApiTest extends TestCase
     private $finder;
     private $config;
     private $cache;
-    private $build_plan;
+    private $build_config;
 
     /**
      * @var PluginApi
@@ -33,16 +33,16 @@ class PluginApiTest extends TestCase
 
     protected function setUp()
     {
-        $this->finder     = $this->prophesize(MutableImportFinderInterface::class);
-        $this->config     = $this->prophesize(ConfigInterface::class);
-        $this->cache      = $this->prophesize(CacheInterface::class);
-        $this->build_plan = $this->prophesize(BuildPlan::class);
+        $this->finder       = $this->prophesize(MutableImportFinderInterface::class);
+        $this->config       = $this->prophesize(ConfigInterface::class);
+        $this->cache        = $this->prophesize(CacheInterface::class);
+        $this->build_config = $this->prophesize(BuildConfig::class);
 
         $this->plugin_api = new PluginApi(
             $this->finder->reveal(),
             $this->config->reveal(),
             $this->cache->reveal(),
-            $this->build_plan->reveal()
+            $this->build_config->reveal()
         );
     }
 
@@ -56,7 +56,7 @@ class PluginApiTest extends TestCase
     public function testAddBuildStep()
     {
         $build_step = $this->prophesize(AbstractBuildStep::class)->reveal();
-        $this->build_plan->registerStep($build_step)->shouldBeCalled();
+        $this->build_config->registerStep($build_step)->shouldBeCalled();
 
         $this->plugin_api->addBuildStep($build_step);
     }
@@ -64,7 +64,7 @@ class PluginApiTest extends TestCase
     public function testAddWriter()
     {
         $writer = $this->prophesize(AbstractWriter::class)->reveal();
-        $this->build_plan->registerWriter($writer)->shouldBeCalled();
+        $this->build_config->registerWriter($writer)->shouldBeCalled();
 
         $this->plugin_api->addWriter($writer);
     }
