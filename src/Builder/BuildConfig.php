@@ -172,6 +172,10 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
                         return $writer_ext === '*' || $writer_ext === $extension;
                     }
                 ));
+
+                if (\count($write_actions) === 0) {
+                    throw new \LogicException("No writers configured for extension \"$extension\".");
+                }
             }
 
             $plans[$extension] = [

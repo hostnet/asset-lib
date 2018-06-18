@@ -162,10 +162,13 @@ class BuildConfigTest extends TestCase
             'long b'
         );
 
+        $writer = $this->makeWriter('.js', 'out');
+
         $build_config = new BuildConfig($this->config->reveal());
         $build_config->registerStep($step1);
         $build_config->registerStep($step2);
         $build_config->registerStep($step3);
+        $build_config->registerWriter($writer);
         $build_config->compile();
 
         $data = $build_config->jsonSerialize();
@@ -182,7 +185,7 @@ class BuildConfigTest extends TestCase
             '.js' => [
                 ['long a', 'long b'],
                 [],
-                [],
+                ['out'],
             ],
         ], $data['build']);
     }
@@ -210,9 +213,12 @@ class BuildConfigTest extends TestCase
             20
         );
 
+        $writer = $this->makeWriter('.js', 'out');
+
         $build_config = new BuildConfig($this->config->reveal());
         $build_config->registerStep($step1);
         $build_config->registerStep($step2);
+        $build_config->registerWriter($writer);
         $build_config->compile();
 
         $data = $build_config->jsonSerialize();
@@ -229,7 +235,7 @@ class BuildConfigTest extends TestCase
             '.js' => [
                 ['high'],
                 [],
-                [],
+                ['out'],
             ],
         ], $data['build']);
     }
@@ -274,11 +280,14 @@ class BuildConfigTest extends TestCase
             20
         );
 
+        $writer = $this->makeWriter('.js', 'out');
+
         $build_config = new BuildConfig($this->config->reveal());
         $build_config->registerStep($step1);
         $build_config->registerStep($step2);
         $build_config->registerStep($step3);
         $build_config->registerStep($step4);
+        $build_config->registerWriter($writer);
         $build_config->compile();
 
         $data = $build_config->jsonSerialize();
@@ -295,9 +304,28 @@ class BuildConfigTest extends TestCase
             '.js' => [
                 ['high', 'low', 'last b'],
                 [],
-                [],
+                ['out'],
             ],
         ], $data['build']);
+    }
+
+    public function testCompileNoWriter(): void
+    {
+        $step = $this->makeBuildStep(
+            '.js',
+            [AbstractBuildStep::FILE_READ],
+            '.js',
+            AbstractBuildStep::FILE_READY,
+            'last a',
+            10
+        );
+
+        $build_config = new BuildConfig($this->config->reveal());
+        $build_config->registerStep($step);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('No writers configured for extension ".js".');
+        $build_config->compile();
     }
 
     public function testCompileAlreadyCompiled(): void
@@ -406,10 +434,14 @@ class BuildConfigTest extends TestCase
             'long b'
         );
 
+
+        $writer = $this->makeWriter('.js', 'out');
+
         $build_config = new BuildConfig($this->config->reveal());
         $build_config->registerStep($step1);
         $build_config->registerStep($step2);
         $build_config->registerStep($step3);
+        $build_config->registerWriter($writer);
         $build_config->compile();
 
         self::assertEquals(new ExtensionMap(['.js' => '.js']), $build_config->getExtensionMap());

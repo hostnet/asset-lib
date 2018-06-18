@@ -15,25 +15,29 @@ final class Bundler implements BundlerInterface
 {
     private $finder;
     private $config;
-    private $filesystem;
+    private $build_script;
 
-    public function __construct(ImportFinderInterface $finder, ConfigInterface $config, Filesystem $filesystem)
-    {
-        $this->finder     = $finder;
-        $this->config     = $config;
-        $this->filesystem = $filesystem;
+    public function __construct(
+        ImportFinderInterface $finder,
+        ConfigInterface $config,
+        string $build_script = __DIR__ . '/js/build.js'
+    ) {
+        $this->finder       = $finder;
+        $this->config       = $config;
+        $this->build_script = $build_script;
     }
 
     public function bundle(BuildConfig $build_config): void
     {
-        $config_file = $this->config->getCacheDir() . '/build_config.json';
+        $filesystem       = new Filesystem();
+        $config_file      = $this->config->getCacheDir() . '/build_config.json';
         $new_build_config = false;
 
         if (!file_exists($config_file)
             || !$build_config->isUpToDateWith($json_data = json_decode(file_get_contents($config_file), true))
         ) {
             $build_config->compile();
-            $this->filesystem->dumpFile($config_file, json_encode($build_config, JSON_PRETTY_PRINT));
+            $filesystem->dumpFile($config_file, json_encode($build_config, JSON_PRETTY_PRINT));
 
             $new_build_config = true;
             $extension_map = $build_config->getExtensionMap();
@@ -51,7 +55,7 @@ final class Bundler implements BundlerInterface
         $cmd = sprintf(
             '%s %s --debug --log-json --stdin %s',
             escapeshellarg($this->config->getNodeJsExecutable()->getBinary()),
-            escapeshellarg(__DIR__ . '/js/build.js'),
+            escapeshellarg($this->build_script),
             escapeshellarg($config_file)
         );
 
