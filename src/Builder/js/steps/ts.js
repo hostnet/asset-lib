@@ -15,7 +15,8 @@ module.exports = function (file) {
     });
 
     // strip the .ts extension
-    let moduleName = path.basename(file.module, path.extname(file.module));
+    let dir = path.dirname(file.module);
+    let moduleName = (dir !== '.' ? dir + path.sep : '') + path.basename(file.module, path.extname(file.module));
 
     return {name: file.name, module: moduleName, content: result.outputText};
 };

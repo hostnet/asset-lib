@@ -134,7 +134,7 @@ final class ConsoleReporter implements ReporterInterface
                 foreach ($dependency->getChildren() as $child) {
                     $file = $this->makeRelativeToRoot($dependency->getFile());
 
-                    $reasons[$child->getFile()->path][] = sprintf(
+                    $reasons[$this->makeRelativeToRoot($child->getFile())][] = sprintf(
                         'Included by [%d] <fg=cyan>%s</>',
                         array_search($file, $names, true),
                         $file
