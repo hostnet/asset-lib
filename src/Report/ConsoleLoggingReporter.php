@@ -24,8 +24,11 @@ final class ConsoleLoggingReporter implements ReporterInterface
     private $size_helper;
     private $build_files = [];
 
-    public function __construct(ConfigInterface $config, OutputInterface $console_output, FileSizeHelperInterface $size_helper)
-    {
+    public function __construct(
+        ConfigInterface $config,
+        OutputInterface $console_output,
+        FileSizeHelperInterface $size_helper
+    ) {
         $this->config         = $config;
         $this->console_output = $console_output;
         $this->size_helper = $size_helper;

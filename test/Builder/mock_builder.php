@@ -1,4 +1,10 @@
 <?php
+declare(strict_types=1);
+
+/**
+ * @copyright 2018 Hostnet B.V.
+ */
+
 @mkdir(__DIR__ . '/out', 0777, true);
 
 file_put_contents(__DIR__ . '/out/args.json', json_encode(array_slice($argv, 1), JSON_PRETTY_PRINT));
