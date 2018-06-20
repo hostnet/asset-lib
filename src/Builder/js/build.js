@@ -134,6 +134,9 @@ function compile(config, files, logger) {
                 }
             });
 
+            if (!config.build[fileExtension]) {
+                throw new Error('No build config for extension "' + fileExtension + '".');
+            }
             let steps = config.build[fileExtension][0];
 
             if (isVerbose) {

@@ -23,8 +23,6 @@ final class Packer
 {
     public static function pack(ConfigInterface $config): void
     {
-        $file_system = new Filesystem();
-
         $cache = new Cache($config->getCacheDir() . '/dependencies');
         $cache->load();
 
@@ -34,7 +32,7 @@ final class Packer
         $plugin_api = new PluginApi($finder, $config, $cache, $build_config);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
-        $bundler = new Bundler($finder, $config, $file_system);
+        $bundler = new Bundler($finder, $config);
         $bundler->bundle($build_config);
 
         if (!$config->isDev()) {
