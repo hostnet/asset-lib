@@ -134,7 +134,7 @@ function compile(config, files, logger) {
             let steps = config.build[fileExtension][0];
 
             if (logger.isVerbose()) {
-                filePromise.then((file) => {
+                filePromise = filePromise.then((file) => {
                     logger.log(
                         "Initializing file build steps \"" + filePath + "\".",
                         {action: "FILE_INIT", file: filePath, metadata: {}}
@@ -233,7 +233,7 @@ function compile(config, files, logger) {
 
             // Make sure to log the write when all done.
             if (logger.isVerbose()) {
-                modulePromise.then(function () {
+                modulePromise = modulePromise.then(function () {
                     logger.log(
                         "Done writing \"" + moduleFile.name + "\".",
                         {action: "WRITE", file: moduleFile.name, metadata: {}}
