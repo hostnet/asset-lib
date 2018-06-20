@@ -13,6 +13,9 @@ describe("generic.js", function () {
                 expect(fs.existsSync(__dirname + '/generic.output.js')).toBe(true);
                 expect(fs.readFileSync(__dirname + '/generic.output.js').toString()).toBe('foobar');
             })
-            .finally(() => fs.unlinkSync(__dirname + '/generic.output.js'));
+            .then(
+                () => fs.unlinkSync(__dirname + '/generic.output.js'),
+                () => fs.unlinkSync(__dirname + '/generic.output.js')
+            );
     });
 });

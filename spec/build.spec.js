@@ -128,7 +128,7 @@ describe("build.js", function () {
             mockLogger
         )
             .catch(() => fail())
-            .finally(() => done());
+            .then(() => done(), () => done());
     });
 
     it("build simple file", function (done) {
@@ -195,10 +195,20 @@ describe("build.js", function () {
                 ]);
             })
             .catch(() => fail())
-            .finally(() => remove(__dirname + "\/fixtures\/var1"))
-            .finally(() => remove(__dirname + "\/fixtures\/config1.simple.json"))
-            .finally(() => remove(__dirname + "\/fixtures\/files1.simple.json"))
-            .finally(() => done());
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/var1");
+                    remove(__dirname + "\/fixtures\/config1.simple.json");
+                    remove(__dirname + "\/fixtures\/files1.simple.json");
+                    done();
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/var1");
+                    remove(__dirname + "\/fixtures\/config1.simple.json");
+                    remove(__dirname + "\/fixtures\/files1.simple.json");
+                    done();
+                }
+            );
     });
     it("build simple file but skip file steps", function (done) {
         let mockLogger = {
@@ -263,10 +273,20 @@ describe("build.js", function () {
                 ]);
             })
             .catch((e) => fail(e))
-            .finally(() => remove(__dirname + "\/fixtures\/var2"))
-            .finally(() => remove(__dirname + "\/fixtures\/config2.simple.json"))
-            .finally(() => remove(__dirname + "\/fixtures\/files2.simple.json"))
-            .finally(() => done());
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/var2");
+                    remove(__dirname + "\/fixtures\/config2.simple.json");
+                    remove(__dirname + "\/fixtures\/files2.simple.json");
+                    done();
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/var2");
+                    remove(__dirname + "\/fixtures\/config2.simple.json");
+                    remove(__dirname + "\/fixtures\/files2.simple.json");
+                    done();
+                }
+            );
     });
 
     it("build simple file with up-to-date file but no cache", function (done) {
@@ -333,10 +353,20 @@ describe("build.js", function () {
                 ]);
             })
             .catch((e) => fail(e))
-            .finally(() => remove(__dirname + "\/fixtures\/var3"))
-            .finally(() => remove(__dirname + "\/fixtures\/config3.simple.json"))
-            .finally(() => remove(__dirname + "\/fixtures\/files3.simple.json"))
-            .finally(() => done());
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/var3");
+                    remove(__dirname + "\/fixtures\/config3.simple.json");
+                    remove(__dirname + "\/fixtures\/files3.simple.json");
+                    done();
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/var3");
+                    remove(__dirname + "\/fixtures\/config3.simple.json");
+                    remove(__dirname + "\/fixtures\/files3.simple.json");
+                    done();
+                }
+            );
     });
 
     it("build simple file with up-to-date file with cache", function (done) {
@@ -402,9 +432,18 @@ describe("build.js", function () {
                 ]);
             })
             .catch((e) => fail(e))
-            .finally(() => remove(__dirname + "\/fixtures\/config4.simple.json"))
-            .finally(() => remove(__dirname + "\/fixtures\/files4.simple.json"))
-            .finally(() => done());
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/config4.simple.json");
+                    remove(__dirname + "\/fixtures\/files4.simple.json");
+                    done();
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/config4.simple.json");
+                    remove(__dirname + "\/fixtures\/files4.simple.json");
+                    done();
+                }
+            );
     });
 
 
@@ -454,8 +493,17 @@ describe("build.js", function () {
                 expect(mockLogger.logs).toEqual([]);
             })
             .catch(() => fail())
-            .finally(() => remove(__dirname + "\/fixtures\/config5.simple.json"))
-            .finally(() => remove(__dirname + "\/fixtures\/files5.simple.json"))
-            .finally(() => done());
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/config5.simple.json");
+                    remove(__dirname + "\/fixtures\/files5.simple.json");
+                    done();
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/config5.simple.json");
+                    remove(__dirname + "\/fixtures\/files5.simple.json");
+                    done();
+                }
+            );
     });
 });

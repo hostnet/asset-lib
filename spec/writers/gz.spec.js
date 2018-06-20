@@ -14,7 +14,10 @@ describe("gz.js", function () {
                 expect(fs.readFileSync(__dirname + '/gz.output.js.gz'))
                     .toEqual(Buffer.from([120, 156, 139, 136, 128, 129, 72, 24, 0, 0, 65, 144, 6, 146]));
             })
-            .finally(() => fs.unlinkSync(__dirname + '/gz.output.js.gz'));
+            .then(
+                () => fs.unlinkSync(__dirname + '/gz.output.js.gz'),
+                () => fs.unlinkSync(__dirname + '/gz.output.js.gz')
+            );
     });
 
     it('write output too big', function (done) {
@@ -28,6 +31,6 @@ describe("gz.js", function () {
             .then(() => {
                 expect(fs.existsSync(__dirname + '/gz-big.output.js.br')).toBe(false);
             })
-            .finally(() => done());
+            .then(() => done(), () => done());
     });
 });

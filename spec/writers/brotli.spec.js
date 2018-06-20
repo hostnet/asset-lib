@@ -14,8 +14,16 @@ describe("brotli.js", function () {
                 expect(fs.readFileSync(__dirname + '/brotli.output.js.br'))
                     .toEqual(Buffer.from([27, 18, 0, 0, 164, 176, 178, 106, 4, 18, 2, 8, 30]));
             })
-            .finally(() => fs.unlinkSync(__dirname + '/brotli.output.js.br'))
-            .finally(() => done());
+            .then(
+                () => {
+                    fs.unlinkSync(__dirname + '/brotli.output.js.br');
+                    done();
+                },
+                () => {
+                    fs.unlinkSync(__dirname + '/brotli.output.js.br');
+                    done();
+                }
+            )
     });
 
     it('write output too big', function (done) {
@@ -29,6 +37,6 @@ describe("brotli.js", function () {
             .then(() => {
                 expect(fs.existsSync(__dirname + '/brotli-big.output.js.br')).toBe(false);
             })
-            .finally(() => done());
+            .then(() => done(), () => done());
     });
 });
