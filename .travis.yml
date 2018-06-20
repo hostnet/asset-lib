@@ -7,6 +7,7 @@ node_js:
 sudo: false
 
 cache:
+  yarn: true
   directories:
     - "$HOME/.composer/cache"
 
@@ -55,6 +56,7 @@ matrix:
     # JS tests
     - language: node_js
       node_js: 8.5.0
+      env: YARN_TEST="TRUE"
       before_script:
-        - npm install
-      script: node_modules/.bin/jasmine
+        - yarn install
+      script: yarn test
