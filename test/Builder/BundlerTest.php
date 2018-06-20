@@ -150,6 +150,10 @@ class BundlerTest extends TestCase
 
         try {
             $fs->dumpFile(__DIR__ . '/dist/require.js', 'foo');
+            $fs->dumpFile(
+                __DIR__ . '/var/52/689af_dist.require.js.sources',
+                'a:1:{i:0;s:31:"../../src/Builder/js/require.js";}'
+            );
 
             // Fake node by using PHP and making the build script a php file.
             $node = new Executable('php', '');
@@ -157,7 +161,7 @@ class BundlerTest extends TestCase
 
             $this->config->getOutputFolder()->willReturn('dist');
             $this->config->getOutputFolder(true)->willReturn('dist');
-            $this->config->getCacheDir()->willReturn(__DIR__ . '/var-saved');
+            $this->config->getCacheDir()->willReturn(__DIR__ . '/var');
             $this->config->getSourceRoot()->willReturn('fixtures');
             $this->config->getProjectRoot()->willReturn(__DIR__);
             $this->config->isDev()->willReturn(true);
@@ -170,6 +174,11 @@ class BundlerTest extends TestCase
             $build_config = new BuildConfig($this->config->reveal());
             $build_config->registerStep(new JsBuildStep());
             $build_config->registerWriter(new GenericFileWriter());
+
+            $fs->dumpFile(__DIR__ . '/var/build_config.json', json_encode([
+                'checksum' => $build_config->getHash(),
+                'mapping' => ['.js' => '.js'],
+            ]));
 
             $this->bundler->bundle($build_config);
 
@@ -196,7 +205,7 @@ class BundlerTest extends TestCase
 
             $this->config->getOutputFolder()->willReturn('dist');
             $this->config->getOutputFolder(true)->willReturn('dist');
-            $this->config->getCacheDir()->willReturn(__DIR__ . '/var-saved');
+            $this->config->getCacheDir()->willReturn(__DIR__ . '/var');
             $this->config->getSourceRoot()->willReturn('fixtures');
             $this->config->getProjectRoot()->willReturn(__DIR__);
             $this->config->isDev()->willReturn(true);

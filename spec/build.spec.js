@@ -383,6 +383,7 @@ describe("build.js", function () {
         fs.writeFileSync(__dirname + "/fixtures/config4.simple.json", JSON.stringify(config));
         fs.writeFileSync(__dirname + "/fixtures/files4.simple.json", JSON.stringify(files));
 
+        // First perform a build. Then do it again and check that result
         return builder.main(
             [
                 '--debug',
@@ -394,6 +395,23 @@ describe("build.js", function () {
             "",
             mockLogger
         )
+            .then(() => {
+                // reset the logger
+                mockLogger.logs = [];
+
+                // Do another build.
+                return builder.main(
+                    [
+                        '--debug',
+                        '--verbose',
+                        '--log-json',
+                        __dirname + '/fixtures/config4.simple.json',
+                        __dirname + '/fixtures/files4.simple.json'
+                    ],
+                    "",
+                    mockLogger
+                )
+            })
             .then(() => {
                 let inFile = path.join(__dirname, 'fixtures', 'input', 'foo.js');
                 let outFile = path.join(__dirname, 'fixtures', 'foo.js');
@@ -410,10 +428,12 @@ describe("build.js", function () {
             .catch((e) => fail(e))
             .then(
                 () => {
+                    remove(__dirname + "\/fixtures\/var4");
                     remove(__dirname + "\/fixtures\/config4.simple.json");
                     remove(__dirname + "\/fixtures\/files4.simple.json");
                 },
                 () => {
+                    remove(__dirname + "\/fixtures\/var4");
                     remove(__dirname + "\/fixtures\/config4.simple.json");
                     remove(__dirname + "\/fixtures\/files4.simple.json");
                 }
