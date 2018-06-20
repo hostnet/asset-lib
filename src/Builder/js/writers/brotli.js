@@ -2,12 +2,10 @@ let fs = require('fs'), compress = require('brotli/compress');
 
 module.exports = function (file) {
     let options = { mode: 0, quality: 11, lgwin: 22 };
-    let content = compress(file.content, options) || '';
+    let content = compress(file.content, options);
 
-    if (content.length > file.content.length) {
-        return new Promise(function (resolve, reject) {
-            return resolve();
-        });
+    if (content === null || content.length > file.content.length) {
+        return Promise.resolve();
     }
 
     return new Promise(function (resolve, reject) {

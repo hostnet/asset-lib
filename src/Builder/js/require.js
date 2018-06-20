@@ -9,20 +9,11 @@
     var RequireError = function (name) {
         this.message = 'Cannot find module "' + name + '", did you define it?';
     };
-    var OutOfDomainError = function (name, parent) {
-        this.message = 'Module is outside of the web root when requiring "' + name + '" from "' + parent + '".';
-    };
-    var ModuleInitializationError = function (name, parent) {
-        this.message = 'Cannot initialize module "' + name + '".';
-        this.parent = parent;
-    };
     var ModuleRedeclareError = function (name) {
         this.message = 'Cannot redeclare module "' + name + '".';
     };
 
     RequireError.prototype = new Error();
-    OutOfDomainError.prototype = new Error();
-    ModuleInitializationError.prototype = new Error();
     ModuleRedeclareError.prototype = new Error();
 
     var _resolveRelativeName = function (name, parent_module) {
@@ -73,7 +64,6 @@
                     initializer = a;
                 } else if (typeof a === 'string' && typeof b === 'function') {
                     // define("foo", function (require, exports, module) {})
-
                     module_name = a;
                     dependencies = ['require', 'exports', 'module'];
                     initializer = b;

@@ -1,13 +1,5 @@
 let path = require('path'), fs = require('fs'), crypto = require('crypto');
 
-function log(message, data, type) {
-    if (type === 'plain') {
-        console.log(message);
-    } else if (type === 'json') {
-        console.log(JSON.stringify(data));
-    }
-}
-
 function mkdirRecursive(rootDir, pathToCreate) {
     let relativePath = path.relative(rootDir, pathToCreate);
 
@@ -29,7 +21,7 @@ function getCachedFileLocation(cacheDir, rootDir, file) {
     rootDir = path.resolve(rootDir);
 
     if (!cleanPath.startsWith(rootDir)) {
-        throw new Error("Cannot get file outside of the root.");
+        throw new Error('Cannot get file "' + cleanPath + '" outside of the root.');
     }
     let hash = crypto.createHash('sha1').update(cleanPath.substr(rootDir.length)).digest('hex');
 
@@ -37,6 +29,8 @@ function getCachedFileLocation(cacheDir, rootDir, file) {
 }
 
 function compile(config, files, logger) {
+    let outputFilePromises = [];
+
     for (let outputFile in files.input) {
         if (!files.input.hasOwnProperty(outputFile)) {
             continue;
@@ -58,10 +52,10 @@ function compile(config, files, logger) {
 
             // Do we want to skip the file steps and go straight to the module?
             if (fileSkipFileSteps) {
-                if (isVerbose) {
+                if (logger.isVerbose()) {
                     logger.log(
                         "Skipping build file steps for  \"" + filePath + "\".",
-                        {action: "FILE_BUILD", file: filePath, metadata: {}}
+                        {action: "FILE_INIT", file: filePath, metadata: {}}
                     );
                 }
 
@@ -98,7 +92,7 @@ function compile(config, files, logger) {
             if (!fileNeedsRebuild && hasCache) {
                 modulePromises.push(new Promise(function (resolve, reject) {
                     try {
-                        if (isVerbose) {
+                        if (logger.isVerbose()) {
                             logger.log(
                                 "Reading from cache for \"" + filePath + "\".",
                                 {action: "FILE_CACHE", file: filePath, metadata: {}}
@@ -139,19 +133,22 @@ function compile(config, files, logger) {
             }
             let steps = config.build[fileExtension][0];
 
-            if (isVerbose) {
-                logger.log(
-                    "Initializing file build steps \"" + filePath + "\".",
-                    {action: "FILE_BUILD", file: filePath, metadata: {}}
-                );
+            if (logger.isVerbose()) {
+                filePromise.then((file) => {
+                    logger.log(
+                        "Initializing file build steps \"" + filePath + "\".",
+                        {action: "FILE_INIT", file: filePath, metadata: {}}
+                    );
+                    return file;
+                });
             }
             for (let j = 0; j < steps.length; j++) {
                 filePromise = filePromise.then(function (file) {
                     return new Promise(function (resolve, reject) {
                         try {
-                            if (isVerbose) {
+                            if (logger.isVerbose()) {
                                 logger.log(
-                                    "Processing \"" + file.name + "\" file with \"" + steps[j] +"\".",
+                                    "Processing \"" + file.name + "\" file with \"" + steps[j] + "\".",
                                     {action: "FILE_STEP", file: file.name, metadata: {step: steps[j]}}
                                 );
                             }
@@ -182,8 +179,7 @@ function compile(config, files, logger) {
             modulePromises.push(filePromise);
         }
 
-        // Module steps
-        Promise.all(modulePromises).then(function (moduleFiles) {
+        outputFilePromises.push(Promise.all(modulePromises).then(function (moduleFiles) {
             let ext = path.extname(outputFile);
             let content = '';
 
@@ -199,15 +195,15 @@ function compile(config, files, logger) {
                 content: content
             };
 
-            if (isVerbose) {
+            if (logger.isVerbose()) {
                 logger.log(
                     "Initializing module build steps \"" + moduleFile.name + "\".",
-                    {action: "MODULE_BUILD", file: moduleFile.name, metadata: {}}
+                    {action: "MODULE_INIT", file: moduleFile.name, metadata: {}}
                 );
             }
 
             for (let j = 0; j < steps.length; j++) {
-                if (isVerbose) {
+                if (logger.isVerbose()) {
                     logger.log(
                         "Processing \"" + moduleFile.name + "\" file with \"" + steps[j] + "\".",
                         {action: "MODULE_STEP", file: moduleFile.name, metadata: {step: steps[j]}}
@@ -222,7 +218,7 @@ function compile(config, files, logger) {
             let writePromises = [];
 
             for (let j = 0; j < writers.length; j++) {
-                if (isVerbose) {
+                if (logger.isVerbose()) {
                     logger.log(
                         "Writing \"" + moduleFile.name + "\" file with \"" + writers[j] + "\".",
                         {action: "WRITE_STEP", file: moduleFile.name, metadata: {step: writers[j]}}
@@ -232,98 +228,130 @@ function compile(config, files, logger) {
                 writePromises.push(require(writers[j])(moduleFile));
             }
 
+            // Collect all the write promises.
+            let modulePromise = Promise.all(writePromises);
+
             // Make sure to log the write when all done.
-            if (isVerbose) {
-                Promise.all(writePromises).then(function () {
+            if (logger.isVerbose()) {
+                modulePromise.then(function () {
                     logger.log(
                         "Done writing \"" + moduleFile.name + "\".",
                         {action: "WRITE", file: moduleFile.name, metadata: {}}
                     );
                 });
             }
+
+            return modulePromise;
+        }));
+    }
+
+    return Promise.all(outputFilePromises);
+}
+
+function main(args, stdin, stdout) {
+    return new Promise(function (resolve, reject) {
+        // Parse the CLI arguments
+        let isVerbose = false;
+        let isDebug = false;
+        let isStdIn = false;
+        let logJson = false;
+        let configFile = undefined;
+        let filesFile = undefined;
+
+        args.forEach(function (val, index) {
+            if (val.startsWith('--')) {
+                switch (val) {
+                    case "--debug":
+                        isVerbose = true;
+                        isDebug = true;
+                        break;
+                    case "--verbose":
+                        isVerbose = true;
+                        break;
+                    case "--stdin":
+                        isStdIn = true;
+                        break;
+                    case "--log-json":
+                        logJson = true;
+                        break;
+                }
+            } else {
+                if (!configFile) {
+                    configFile = val;
+                } else if (!filesFile) {
+                    filesFile = val;
+                }
+            }
         });
-    }
-}
 
-// Parse the CLI arguments
-let isVerbose = false;
-let isDebug = false;
-let isStdIn = false;
-let logJson = false;
-let configFile = undefined;
-let filesFile = undefined;
-
-process.argv.forEach(function (val, index) {
-    if (index < 2) {
-        return;
-    }
-    if (val.startsWith('--')) {
-        switch (val) {
-            case "--debug":
-                isVerbose = true;
-                isDebug = true;
-                break;
-            case "--verbose":
-                isVerbose = true;
-                break;
-            case "--stdin":
-                isStdIn = true;
-                break;
-            case "--log-json":
-                logJson = true;
-                break;
-        }
-    } else {
         if (!configFile) {
-            configFile = val;
-        } else if (!filesFile) {
-            filesFile = val;
+            stdout.error("Missing config file.");
+            reject();
+            return;
         }
-    }
-});
 
-if (!configFile) {
-    console.error("Missing config file.");
-    process.exit(1);
+        let config = {},
+            files = {},
+            logType = logJson ? 'json' : 'plain',
+            logger = {
+                log: (message, data) => {
+                    if (logType === 'plain') {
+                        stdout.log(message);
+                    } else if (logType === 'json') {
+                        stdout.log(JSON.stringify(data));
+                    }
+                },
+                isVerbose: () => {
+                    return isVerbose;
+                }
+            };
+
+        try {
+            fs.accessSync(configFile, fs.constants.R_OK | fs.constants.W_OK);
+            config = JSON.parse(fs.readFileSync(configFile));
+        } catch (err) {
+            stdout.error("Cannot read config file.");
+            reject();
+            return;
+        }
+
+        if (filesFile) {
+            try {
+                fs.accessSync(filesFile, fs.constants.R_OK | fs.constants.W_OK);
+                files = JSON.parse(fs.readFileSync(filesFile));
+            } catch (err) {
+                stdout.error("Cannot read files file.");
+                reject();
+                return;
+            }
+
+            compile(config, files, logger)
+                .then(() => resolve())
+                .catch(() => reject());
+        } else if (isStdIn) {
+            let content = '';
+
+            // we need to split it on newlines so unicode characters can not be split in 2 data events.
+            let stream = stdin.pipe(require('split')());
+            stream.on('data', (buf) => content += buf.toString() + '\n');
+            stream.on('end', () => {
+                compile(config, JSON.parse(content), logger)
+                    .then(() => resolve())
+                    .catch(() => reject());
+            });
+        } else {
+            stdout.error("Cannot read stdin or files file.");
+            reject();
+        }
+    });
 }
 
-let config = {},
-    files = {},
-    logType = logJson ? 'json' : 'plain',
-    logger = {log: function (message, data) {
-        log(message, data, logType);
-    }};
+exports.main = main;
 
-try {
-    fs.accessSync(configFile, fs.constants.R_OK | fs.constants.W_OK);
-    config = JSON.parse(fs.readFileSync(configFile));
-} catch (err) {
-    console.error("Cannot read config file.");
-    process.exit(1);
-}
-
-if (filesFile) {
-    try {
-        fs.accessSync(filesFile, fs.constants.R_OK | fs.constants.W_OK);
-        files = JSON.parse(fs.readFileSync(filesFile));
-    } catch (err) {
-        console.error("Cannot read files file.");
-        process.exit(1);
-    }
-
-    compile(config, files, logger);
-} else if(isStdIn) {
-    let content = '';
-
-    // we need to split it on newlines so unicode characters can not be split in 2 data events.
-    let stream = process.stdin.pipe(require('split')());
-    stream.on('data', function (buf) {
-        content += buf.toString() + '\n';
-    });
-    stream.on('end', function () {
-        compile(config, JSON.parse(content), logger);
-    });
-} else {
-    console.error("Cannot read stdin or files file.");
-    process.exit(1);
+// CLI entry point
+if (require.main === module) {
+    const args = process.argv.slice(2);
+    main(args, process.stdin, console)
+        .then(() => process.exitCode = 0)
+        .catch(() => process.exitCode = 1);
 }
