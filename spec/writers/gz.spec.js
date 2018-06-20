@@ -20,17 +20,13 @@ describe("gz.js", function () {
             );
     });
 
-    it('write output too big', function (done) {
+    it('write output too big', function () {
         let writer = require('../../src/Builder/js/writers/gz');
 
-        writer({
+        return writer({
             name: __dirname + '/gz-big.output.js',
             module: 'foo.js',
             content: Buffer.from("A", 'utf8')
-        })
-            .then(() => {
-                expect(fs.existsSync(__dirname + '/gz-big.output.js.br')).toBe(false);
-            })
-            .then(() => done(), () => done());
+        }).then(() => expect(fs.existsSync(__dirname + '/gz-big.output.js.br')).toBe(false));
     });
 });

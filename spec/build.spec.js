@@ -1,3 +1,8 @@
+// Load promises jasmine plugin
+// https://github.com/matthewjh/jasmine-promises/issues/3
+global.jasmineRequire = global.jasmineRequire || require('jasmine-core');
+require('jasmine-promises');
+
 let path = require('path'), fs = require('fs');
 
 describe("build.js", function () {
@@ -15,7 +20,7 @@ describe("build.js", function () {
         }
     };
 
-    it("when nothing given", function (done) {
+    it("when nothing given", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -28,17 +33,11 @@ describe("build.js", function () {
 
         return builder
             .main([], "", mockLogger)
-            .then(() => {
-                fail();
-                done()
-            })
-            .catch(() => {
-                expect(mockLogger.logs[0]).toEqual(['ERROR', 'Missing config file.']);
-                done();
-            });
+            .then(() => fail())
+            .catch(() => expect(mockLogger.logs[0]).toEqual(['ERROR', 'Missing config file.']));
     });
 
-    it("with bad config", function (done) {
+    it("with bad config", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -51,17 +50,11 @@ describe("build.js", function () {
 
         return builder
             .main(['idonotexists'], "", mockLogger)
-            .then(() => {
-                fail();
-                done()
-            })
-            .catch(() => {
-                expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read config file.']);
-                done();
-            });
+            .then(() => fail())
+            .catch(() => expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read config file.']));
     });
 
-    it("with empty files", function (done) {
+    it("with empty files", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -74,17 +67,11 @@ describe("build.js", function () {
 
         return builder
             .main([__dirname + '/fixtures/config.json'], "", mockLogger)
-            .then(() => {
-                fail();
-                done()
-            })
-            .catch(() => {
-                expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read stdin or files file.']);
-                done();
-            });
+            .then(() => fail())
+            .catch(() => expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read stdin or files file.']));
     });
 
-    it("with bad config and files", function (done) {
+    it("with bad config and files", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -99,13 +86,10 @@ describe("build.js", function () {
             ['--debug', '--verbose', '--log-json', __dirname + '/fixtures/config.json', 'idonotexisits'],
             "",
             mockLogger
-        ).then(() => {fail(); done()}).catch(() => {
-            expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read files file.']);
-            done();
-        });
+        ).then(() => fail()).catch(() => expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read files file.']));
     });
 
-    it("with empty config and files", function (done) {
+    it("with empty config and files", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -126,12 +110,10 @@ describe("build.js", function () {
             ],
             "",
             mockLogger
-        )
-            .catch(() => fail())
-            .then(() => done(), () => done());
+        ).catch(() => fail());
     });
 
-    it("build simple file", function (done) {
+    it("build simple file", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -200,17 +182,15 @@ describe("build.js", function () {
                     remove(__dirname + "\/fixtures\/var1");
                     remove(__dirname + "\/fixtures\/config1.simple.json");
                     remove(__dirname + "\/fixtures\/files1.simple.json");
-                    done();
                 },
                 () => {
                     remove(__dirname + "\/fixtures\/var1");
                     remove(__dirname + "\/fixtures\/config1.simple.json");
                     remove(__dirname + "\/fixtures\/files1.simple.json");
-                    done();
                 }
             );
     });
-    it("build simple file but skip file steps", function (done) {
+    it("build simple file but skip file steps", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -278,18 +258,16 @@ describe("build.js", function () {
                     remove(__dirname + "\/fixtures\/var2");
                     remove(__dirname + "\/fixtures\/config2.simple.json");
                     remove(__dirname + "\/fixtures\/files2.simple.json");
-                    done();
                 },
                 () => {
                     remove(__dirname + "\/fixtures\/var2");
                     remove(__dirname + "\/fixtures\/config2.simple.json");
                     remove(__dirname + "\/fixtures\/files2.simple.json");
-                    done();
                 }
             );
     });
 
-    it("build simple file with up-to-date file but no cache", function (done) {
+    it("build simple file with up-to-date file but no cache", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -358,18 +336,16 @@ describe("build.js", function () {
                     remove(__dirname + "\/fixtures\/var3");
                     remove(__dirname + "\/fixtures\/config3.simple.json");
                     remove(__dirname + "\/fixtures\/files3.simple.json");
-                    done();
                 },
                 () => {
                     remove(__dirname + "\/fixtures\/var3");
                     remove(__dirname + "\/fixtures\/config3.simple.json");
                     remove(__dirname + "\/fixtures\/files3.simple.json");
-                    done();
                 }
             );
     });
 
-    it("build simple file with up-to-date file with cache", function (done) {
+    it("build simple file with up-to-date file with cache", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -436,18 +412,16 @@ describe("build.js", function () {
                 () => {
                     remove(__dirname + "\/fixtures\/config4.simple.json");
                     remove(__dirname + "\/fixtures\/files4.simple.json");
-                    done();
                 },
                 () => {
                     remove(__dirname + "\/fixtures\/config4.simple.json");
                     remove(__dirname + "\/fixtures\/files4.simple.json");
-                    done();
                 }
             );
     });
 
 
-    it("build simple file quiet", function (done) {
+    it("build simple file quiet", function () {
         let mockLogger = {
             logs: [],
             log: function (msg) {
@@ -497,12 +471,10 @@ describe("build.js", function () {
                 () => {
                     remove(__dirname + "\/fixtures\/config5.simple.json");
                     remove(__dirname + "\/fixtures\/files5.simple.json");
-                    done();
                 },
                 () => {
                     remove(__dirname + "\/fixtures\/config5.simple.json");
                     remove(__dirname + "\/fixtures\/files5.simple.json");
-                    done();
                 }
             );
     });

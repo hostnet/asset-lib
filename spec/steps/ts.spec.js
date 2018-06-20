@@ -9,7 +9,7 @@ describe("ts.js", function () {
 
         expect(result.name).toBe('foo.ts');
         expect(result.module).toBe('foo');
-        expect(result.content).toBe(
+        expect(result.content.replace(/[\r]/g, '')).toBe(
             'var A = /** @class */ (function () {\n' +
             '    function A() {\n' +
             '    }\n' +
@@ -28,7 +28,7 @@ describe("ts.js", function () {
 
         expect(result.name).toBe('foo.ts');
         expect(result.module).toBe('foo/foo');
-        expect(result.content).toBe(
+        expect(result.content.replace(/[\r]/g, '')).toBe(
             'var A = /** @class */ (function () {\n' +
             '    function A() {\n' +
             '    }\n' +
