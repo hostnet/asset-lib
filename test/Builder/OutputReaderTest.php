@@ -43,8 +43,8 @@ class OutputReaderTest extends TestCase
         $this->output_reader->append(json_encode(['action' => 'WRITE', 'file' => 'a.js', 'metadata' => []]) . "\n");
         // Multiple
         $this->output_reader->append(
-            json_encode(['action' => 'FILE_BUILD', 'file' => 'b.js', 'metadata' => []]) . "\n" .
-            json_encode(['action' => 'FILE_BUILD', 'file' => 'c.js', 'metadata' => []]) . "\n"
+            json_encode(['action' => 'FILE_INIT', 'file' => 'b.js', 'metadata' => []]) . "\n" .
+            json_encode(['action' => 'FILE_INIT', 'file' => 'c.js', 'metadata' => []]) . "\n"
         );
         // In parts
         $line = json_encode(['action' => 'FILE_CACHE', 'file' => 'd.js', 'metadata' => []]) . "\n";

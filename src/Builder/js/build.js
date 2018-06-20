@@ -6,7 +6,7 @@ function mkdirRecursive(rootDir, pathToCreate) {
     relativePath
         .split(path.sep)
         .reduce((currentPath, folder) => {
-            currentPath += folder + path.sep;
+            currentPath = path.join(currentPath, folder);
             try {
                 fs.accessSync(currentPath, fs.constants.R_OK | fs.constants.W_OK);
             } catch (err) {
@@ -23,9 +23,9 @@ function getCachedFileLocation(cacheDir, rootDir, file) {
     if (!cleanPath.startsWith(rootDir)) {
         throw new Error('Cannot get file "' + cleanPath + '" outside of the root.');
     }
-    let hash = crypto.createHash('sha1').update(cleanPath.substr(rootDir.length)).digest('hex');
+    let hash = crypto.createHash('sha1').update(cleanPath.substr(rootDir.length).replace(path.sep, '|')).digest('hex');
 
-    return {dir: cacheDir + hash.substr(0, 2) + path.sep, file: hash.substr(2)};
+    return {dir: path.join(cacheDir, hash.substr(0, 2)), file: hash.substr(2)};
 }
 
 function compile(config, files, logger) {
@@ -80,12 +80,7 @@ function compile(config, files, logger) {
                 cacheFile = getCachedFileLocation(config.paths.cache, config.paths.root, filePath);
                 mkdirRecursive(config.paths.root, cacheFile.dir);
 
-                try {
-                    fs.accessSync(cacheFile.dir + cacheFile.file, fs.constants.R_OK | fs.constants.W_OK);
-                    hasCache = true;
-                } catch (err) {
-                    hasCache = false;
-                }
+                hasCache = fs.existsSync(path.join(cacheFile.dir, cacheFile.file));
             }
 
             // Do we need a recompile or we do not have cache?
@@ -99,7 +94,7 @@ function compile(config, files, logger) {
                             );
                         }
 
-                        fs.readFile(cacheFile.dir + cacheFile.file, function (err, buffer) {
+                        fs.readFile(path.join(cacheFile.dir, cacheFile.file), function (err, buffer) {
                             if (err) reject(err); else resolve({
                                 name: filePath,
                                 module: fileModuleName,
@@ -131,6 +126,7 @@ function compile(config, files, logger) {
             if (!config.build[fileExtension]) {
                 throw new Error('No build config for extension "' + fileExtension + '".');
             }
+
             let steps = config.build[fileExtension][0];
 
             if (logger.isVerbose()) {
@@ -166,7 +162,7 @@ function compile(config, files, logger) {
                 filePromise = filePromise.then(function (file) {
                     return new Promise(function (resolve, reject) {
                         try {
-                            fs.writeFile(cacheFile.dir + cacheFile.file, file.content, function (err) {
+                            fs.writeFile(path.join(cacheFile.dir, cacheFile.file), file.content, function (err) {
                                 if (err) reject(err); else resolve(file);
                             });
                         } catch (err) {
@@ -190,7 +186,7 @@ function compile(config, files, logger) {
             let steps = config.build[ext][1];
             let writers = config.build[ext][2];
             let moduleFile = {
-                name: config.paths.root + outputFile,
+                name: path.join(config.paths.root, outputFile),
                 module: path.basename(outputFile, ext),
                 content: content
             };
@@ -286,7 +282,7 @@ function main(args, stdin, stdout) {
 
         if (!configFile) {
             stdout.error("Missing config file.");
-            reject();
+            reject("Missing config file.");
             return;
         }
 
@@ -311,7 +307,7 @@ function main(args, stdin, stdout) {
             config = JSON.parse(fs.readFileSync(configFile));
         } catch (err) {
             stdout.error("Cannot read config file.");
-            reject();
+            reject("Cannot read config file.");
             return;
         }
 
@@ -321,13 +317,13 @@ function main(args, stdin, stdout) {
                 files = JSON.parse(fs.readFileSync(filesFile));
             } catch (err) {
                 stdout.error("Cannot read files file.");
-                reject();
+                reject("Cannot read files file.");
                 return;
             }
 
             compile(config, files, logger)
                 .then(() => resolve())
-                .catch(() => reject());
+                .catch((e) => reject(e));
         } else if (isStdIn) {
             let content = '';
 
@@ -341,7 +337,7 @@ function main(args, stdin, stdout) {
             });
         } else {
             stdout.error("Cannot read stdin or files file.");
-            reject();
+            reject("Cannot read stdin or files file.");
         }
     });
 }

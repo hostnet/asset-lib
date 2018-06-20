@@ -44,7 +44,7 @@ class OutputReader
                 $this->reporter->reportFileState(new File($file), ReporterInterface::STATE_BUILT);
                 $this->reporter->reportOutputFile(new File($file));
                 break;
-            case 'FILE_BUILD':
+            case 'FILE_INIT':
                 $this->reporter->reportFileState(new File($file), ReporterInterface::STATE_BUILT);
                 break;
             case 'FILE_CACHE':

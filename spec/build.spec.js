@@ -1,4 +1,4 @@
-let fs = require('fs');
+let path = require('path'), fs = require('fs');
 
 describe("build.js", function () {
     let builder = require('../src/Builder/js/build');
@@ -147,22 +147,22 @@ describe("build.js", function () {
                 ".js": ".js"
             },
             "paths": {
-                "root": __dirname + "\/fixtures\/",
-                "out": __dirname + "\/out\/",
-                "cache": __dirname + "\/fixtures\/var1\/"
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out"),
+                "cache": path.join(__dirname, "fixtures", "var1")
             },
             "build": {
                 ".js": [
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
                 ]
             }
         };
         let files = {
             "input": {
                 'foo.js': [
-                    [__dirname + '/fixtures/input/foo.js', '.js', 'input.js', true, false]
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.js'), '.js', 'input.js', true, false]
                 ]
             }
         };
@@ -181,20 +181,20 @@ describe("build.js", function () {
             mockLogger
         )
             .then(() => {
-                let inFile = '"file":"' + __dirname + '/fixtures/input/foo.js"';
-                let outFile = '"file":"' + __dirname + '/fixtures/foo.js"';
-                let step = '"step":"' + __dirname + '/../src/Builder/js/steps/identity.js"';
+                let inFile = path.join(__dirname, 'fixtures', 'input', 'foo.js');
+                let outFile = path.join(__dirname, 'fixtures', 'foo.js');
+                let step = path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js');
 
                 expect(mockLogger.logs).toEqual([
-                    [ 'LOG', '{"action":"FILE_INIT",' + inFile+ ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"FILE_STEP",' + inFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"MODULE_INIT",' + outFile + ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"MODULE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE",' + outFile + ',"metadata":{}}' ]
+                    [ 'LOG', JSON.stringify({action:"FILE_INIT", file: inFile, "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"FILE_STEP", file: inFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_INIT", file: outFile , "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE", file: outFile , "metadata":{}}) ]
                 ]);
             })
-            .catch(() => fail())
+            .catch((e) => {console.error(e); fail(e)})
             .then(
                 () => {
                     remove(__dirname + "\/fixtures\/var1");
@@ -226,22 +226,22 @@ describe("build.js", function () {
                 ".js": ".js"
             },
             "paths": {
-                "root": __dirname + "\/fixtures\/",
-                "out": __dirname + "\/out\/",
-                "cache": __dirname + "\/fixtures\/var2\/"
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out"),
+                "cache": path.join(__dirname, "fixtures", "var2")
             },
             "build": {
                 ".js": [
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js']
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
                 ]
             }
         };
         let files = {
             "input": {
                 'foo.js': [
-                    [__dirname + '/fixtures/input/foo.js', '.js', 'input.js', true, true]
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.js'), '.js', 'input.js', true, true]
                 ]
             }
         };
@@ -260,16 +260,16 @@ describe("build.js", function () {
             mockLogger
         )
             .then(() => {
-                let inFile = '"file":"' + __dirname + '/fixtures/input/foo.js"';
-                let outFile = '"file":"' + __dirname + '/fixtures/foo.js"';
-                let step = '"step":"' + __dirname + '/../src/Builder/js/steps/identity.js"';
+                let inFile = path.join(__dirname, 'fixtures', 'input', 'foo.js');
+                let outFile = path.join(__dirname, 'fixtures', 'foo.js');
+                let step = path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js');
 
                 expect(mockLogger.logs).toEqual([
-                    [ 'LOG', '{"action":"FILE_INIT",' + inFile+ ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"MODULE_INIT",' + outFile + ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"MODULE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE",' + outFile + ',"metadata":{}}' ]
+                    [ 'LOG', JSON.stringify({action:"FILE_INIT", file: inFile, "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_INIT", file: outFile , "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE", file: outFile , "metadata":{}}) ]
                 ]);
             })
             .catch((e) => fail(e))
@@ -305,22 +305,22 @@ describe("build.js", function () {
                 ".js": ".js"
             },
             "paths": {
-                "root": __dirname + "\/fixtures\/",
-                "out": __dirname + "\/out\/",
-                "cache": __dirname + "\/fixtures\/var3\/"
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out"),
+                "cache": path.join(__dirname, "fixtures", "var3")
             },
             "build": {
                 ".js": [
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js']
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
                 ]
             }
         };
         let files = {
             "input": {
                 'foo.js': [
-                    [__dirname + '/fixtures/input/foo.js', '.js', 'input.js', false, false]
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.js'), '.js', 'input.js', false, false]
                 ]
             }
         };
@@ -339,17 +339,17 @@ describe("build.js", function () {
             mockLogger
         )
             .then(() => {
-                let inFile = '"file":"' + __dirname + '/fixtures/input/foo.js"';
-                let outFile = '"file":"' + __dirname + '/fixtures/foo.js"';
-                let step = '"step":"' + __dirname + '/../src/Builder/js/steps/identity.js"';
+                let inFile = path.join(__dirname, 'fixtures', 'input', 'foo.js');
+                let outFile = path.join(__dirname, 'fixtures', 'foo.js');
+                let step = path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js');
 
                 expect(mockLogger.logs).toEqual([
-                    [ 'LOG', '{"action":"FILE_INIT",' + inFile+ ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"FILE_STEP",' + inFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"MODULE_INIT",' + outFile + ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"MODULE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE",' + outFile + ',"metadata":{}}' ]
+                    [ 'LOG', JSON.stringify({action:"FILE_INIT", file: inFile, "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"FILE_STEP", file: inFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_INIT", file: outFile , "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE", file: outFile , "metadata":{}}) ]
                 ]);
             })
             .catch((e) => fail(e))
@@ -385,22 +385,22 @@ describe("build.js", function () {
                 ".js": ".js"
             },
             "paths": {
-                "root": __dirname + "\/fixtures\/",
-                "out": __dirname + "\/out\/",
-                "cache": __dirname + "\/fixtures\/var4\/"
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out"),
+                "cache": path.join(__dirname, "fixtures", "var4")
             },
             "build": {
                 ".js": [
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js']
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
                 ]
             }
         };
         let files = {
             "input": {
                 'foo.js': [
-                    [__dirname + '/fixtures/input/foo.js', '.js', 'input.js', false, false]
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.js'), '.js', 'input.js', false, false]
                 ]
             }
         };
@@ -419,16 +419,16 @@ describe("build.js", function () {
             mockLogger
         )
             .then(() => {
-                let inFile = '"file":"' + __dirname + '/fixtures/input/foo.js"';
-                let outFile = '"file":"' + __dirname + '/fixtures/foo.js"';
-                let step = '"step":"' + __dirname + '/../src/Builder/js/steps/identity.js"';
+                let inFile = path.join(__dirname, 'fixtures', 'input', 'foo.js');
+                let outFile = path.join(__dirname, 'fixtures', 'foo.js');
+                let step = path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js');
 
                 expect(mockLogger.logs).toEqual([
-                    [ 'LOG', '{"action":"FILE_CACHE",' + inFile+ ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"MODULE_INIT",' + outFile + ',"metadata":{}}' ],
-                    [ 'LOG', '{"action":"MODULE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE_STEP",' + outFile + ',"metadata":{' + step + '}}' ],
-                    [ 'LOG', '{"action":"WRITE",' + outFile + ',"metadata":{}}' ]
+                    [ 'LOG', JSON.stringify({action:"FILE_CACHE", file: inFile, "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_INIT", file: outFile , "metadata":{}}) ],
+                    [ 'LOG', JSON.stringify({action:"MODULE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', JSON.stringify({action:"WRITE", file: outFile , "metadata":{}}) ]
                 ]);
             })
             .catch((e) => fail(e))
@@ -463,21 +463,21 @@ describe("build.js", function () {
                 ".js": ".js"
             },
             "paths": {
-                "root": __dirname + "\/fixtures\/",
-                "out": __dirname + "\/out\/"
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out")
             },
             "build": {
                 ".js": [
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
-                    [__dirname + '/../src/Builder/js/steps/identity.js'],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
                 ]
             }
         };
         let files = {
             "input": {
                 'foo.js': [
-                    [__dirname + '/fixtures/input/foo.js', '.js', 'input.js', true, false]
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.js'), '.js', 'input.js', true, false]
                 ]
             }
         };
