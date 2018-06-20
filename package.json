@@ -12,7 +12,7 @@
     "url": "https://github.com/hostnet/resolver-lib/issues"
   },
   "scripts": {
-    "test": "yarn jasmine",
+    "test": "node_modules/.bin/jasmine",
     "jasmine": "node_modules/.bin/jasmine",
     "istanbul": "node_modules/.bin/istanbul cover node_modules/.bin/jasmine"
   },

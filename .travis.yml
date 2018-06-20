@@ -57,6 +57,4 @@ matrix:
     - language: node_js
       node_js: 8.5.0
       env: YARN_TEST="TRUE"
-      before_script:
-        - yarn install
-      script: yarn test
+      script: npm test
