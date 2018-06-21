@@ -4,9 +4,7 @@ module.exports = function (file) {
     let content = zlib.deflateSync(file.content) || '';
 
     if (content.length > file.content.length) {
-        return new Promise(function (resolve, reject) {
-            return resolve();
-        });
+        return Promise.resolve();
     }
 
     return new Promise(function (resolve, reject) {

@@ -1,19 +1,22 @@
 let path = require('path'), fs = require('fs'), crypto = require('crypto');
 
 function mkdirRecursive(rootDir, pathToCreate) {
-    let relativePath = path.relative(rootDir, pathToCreate);
+    try {
+        let relativePath = path.relative(rootDir, pathToCreate);
 
-    relativePath
-        .split(path.sep)
-        .reduce((currentPath, folder) => {
-            currentPath = path.join(currentPath, folder);
-            try {
-                fs.accessSync(currentPath, fs.constants.R_OK | fs.constants.W_OK);
-            } catch (err) {
-                fs.mkdirSync(currentPath);
-            }
-            return currentPath;
-        }, rootDir);
+        relativePath
+            .split(path.sep)
+            .reduce((currentPath, folder) => {
+                currentPath = path.join(currentPath, folder);
+                if (!fs.existsSync(currentPath)) {
+                    fs.mkdirSync(currentPath);
+                }
+                return currentPath;
+            }, rootDir);
+    } catch (e) {
+
+        throw e;
+    }
 }
 
 function getCachedFileLocation(cacheDir, rootDir, file) {
@@ -171,7 +174,6 @@ function compile(config, files, logger) {
                     });
                 });
             }
-
             modulePromises.push(filePromise);
         }
 
@@ -209,9 +211,10 @@ function compile(config, files, logger) {
                 moduleFile = require(steps[j])(moduleFile);
             }
 
+
             mkdirRecursive(config.paths.root, path.dirname(moduleFile.name));
 
-            let writePromises = [];
+            let writerPromises = [];
 
             for (let j = 0; j < writers.length; j++) {
                 if (logger.isVerbose()) {
@@ -221,23 +224,18 @@ function compile(config, files, logger) {
                     );
                 }
 
-                writePromises.push(require(writers[j])(moduleFile));
+                writerPromises.push(require(writers[j])(moduleFile));
             }
 
-            // Collect all the write promises.
-            let modulePromise = Promise.all(writePromises);
-
-            // Make sure to log the write when all done.
-            if (logger.isVerbose()) {
-                modulePromise = modulePromise.then(function () {
+            return Promise.all(writerPromises).then(() => {
+                // Make sure to log the write when all done.
+                if (logger.isVerbose()) {
                     logger.log(
                         "Done writing \"" + moduleFile.name + "\".",
                         {action: "WRITE", file: moduleFile.name, metadata: {}}
                     );
-                });
-            }
-
-            return modulePromise;
+                }
+            })
         }));
     }
 
@@ -349,5 +347,8 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     main(args, process.stdin, console)
         .then(() => process.exitCode = 0)
-        .catch(() => process.exitCode = 1);
+        .catch((e) => {
+            console.error(e);
+            process.exitCode = 1;
+        });
 }

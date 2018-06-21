@@ -44,7 +44,7 @@ class BundlerTest extends TestCase
         );
     }
 
-    public function testBundle(): void
+    public function testBundleAll(): void
     {
         try {
             // Fake node by using PHP and making the build script a php file.
@@ -78,7 +78,7 @@ class BundlerTest extends TestCase
             $reporter->reportFileState(new File('a.js'), ReporterInterface::STATE_BUILT)->shouldBeCalled();
             $reporter->reportOutputFile(new File('a.js'))->shouldBeCalled();
 
-            $this->bundler->bundle($build_config);
+            $this->bundler->bundleAll($build_config);
 
             // check the output
             self::assertJsonFileEqualsJsonFile(__DIR__ . '/stdin.expected.json', __DIR__ . '/out/stdin.json');
@@ -94,7 +94,7 @@ class BundlerTest extends TestCase
         }
     }
 
-    public function testBundleWithCache(): void
+    public function testBundleAllWithCache(): void
     {
         try {
             // Fake node by using PHP and making the build script a php file.
@@ -128,7 +128,7 @@ class BundlerTest extends TestCase
             $reporter->reportFileState(new File('a.js'), ReporterInterface::STATE_BUILT)->shouldBeCalled();
             $reporter->reportOutputFile(new File('a.js'))->shouldBeCalled();
 
-            $this->bundler->bundle($build_config);
+            $this->bundler->bundleAll($build_config);
 
             // check the output
             self::assertJsonFileEqualsJsonFile(__DIR__ . '/stdin.expected.json', __DIR__ . '/out/stdin.json');
@@ -144,7 +144,7 @@ class BundlerTest extends TestCase
         }
     }
 
-    public function testBundleWithNoFiles(): void
+    public function testBundleAllWithNoFiles(): void
     {
         $fs = new Filesystem();
 
@@ -180,7 +180,7 @@ class BundlerTest extends TestCase
                 'mapping' => ['.js' => '.js'],
             ]));
 
-            $this->bundler->bundle($build_config);
+            $this->bundler->bundleAll($build_config);
 
             // check the output
             self::assertFileNotExists(__DIR__ . '/out/args.json');
@@ -190,7 +190,7 @@ class BundlerTest extends TestCase
         }
     }
 
-    public function testBundleBuildError(): void
+    public function testBundleAllBuildError(): void
     {
         $bundler = new Bundler(
             $this->finder->reveal(),
@@ -228,7 +228,51 @@ class BundlerTest extends TestCase
 
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessage('Cannot compile due to compiler error. Output: BARFOO');
-            $bundler->bundle($build_config);
+            $bundler->bundleAll($build_config);
+        } finally {
+            $fs = new Filesystem();
+            $fs->remove([__DIR__ . '/var', __DIR__ . '/out']);
+        }
+    }
+
+    public function testBundleFiles(): void
+    {
+        try {
+            // Fake node by using PHP and making the build script a php file.
+            $node = new Executable('php', '');
+            $reporter = $this->prophesize(ReporterInterface::class);
+
+            $this->config->getOutputFolder()->willReturn('dist');
+            $this->config->getOutputFolder(true)->willReturn('dist');
+            $this->config->getCacheDir()->willReturn(__DIR__ . '/var');
+            $this->config->getSourceRoot()->willReturn('fixtures');
+            $this->config->getProjectRoot()->willReturn(__DIR__);
+            $this->config->isDev()->willReturn(true);
+            $this->config->getReporter()->willReturn($reporter);
+            $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
+            $this->config->getNodeJsExecutable()->willReturn($node);
+
+            $this->finder->all(new File('fixtures/foo.js'))->willReturn(new RootFile(new File('fixtures/foo.js')));
+            $this->finder->all(new File('fixtures/bar.js'))->willReturn(new RootFile(new File('fixtures/bar.js')));
+
+            $build_config = new BuildConfig($this->config->reveal());
+            $build_config->registerStep(new JsBuildStep());
+            $build_config->registerWriter(new GenericFileWriter());
+
+            $reporter->reportFileDependencies(Argument::any(), Argument::any())->shouldBeCalled();
+            $reporter->reportFileState(new File('a.js'), ReporterInterface::STATE_BUILT)->shouldBeCalled();
+            $reporter->reportOutputFile(new File('a.js'))->shouldBeCalled();
+
+            $this->bundler->bundleFromFiles($build_config, ['foo.js', 'bar.js']);
+
+            // check the output
+            self::assertJsonFileEqualsJsonFile(__DIR__ . '/stdin-files.expected.json', __DIR__ . '/out/stdin.json');
+            self::assertSame([
+                '--debug',
+                '--log-json',
+                '--stdin',
+                __DIR__ . '/var/build_config.json',
+            ], json_decode(file_get_contents(__DIR__ . '/out/args.json'), true));
         } finally {
             $fs = new Filesystem();
             $fs->remove([__DIR__ . '/var', __DIR__ . '/out']);

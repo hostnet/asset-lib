@@ -33,7 +33,7 @@ final class Packer
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
         $bundler = new Bundler($finder, $config);
-        $bundler->bundle($build_config);
+        $bundler->bundleAll($build_config);
 
         if (!$config->isDev()) {
             return;

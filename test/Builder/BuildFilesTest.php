@@ -44,7 +44,85 @@ class BuildFilesTest extends TestCase
         );
     }
 
-    public function testCompile(): void
+    public function testCompileFromFileList(): void
+    {
+        $fs = new Filesystem();
+
+        try {
+            $fs->dumpFile(__DIR__ . '/dist/require.js', 'foo');
+            $fs->dumpFile(__DIR__ . '/dist/fixtures/foo.js', 'foo');
+
+            $this->config->getOutputFolder()->willReturn('dist');
+            $this->config->getCacheDir()->willReturn(__DIR__ . '/var');
+            $this->config->getSourceRoot()->willReturn('fixtures');
+            $this->config->getProjectRoot()->willReturn(__DIR__);
+            $this->config->isDev()->willReturn(true);
+            $this->config->getReporter()->willReturn(new NullReporter());
+            $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
+
+            $r1 = new RootFile(new File('fixtures/sub/bar.js'));
+            $r1->addChild(new Dependency(new File('fixtures/baz.js'), true));
+
+            $this->finder->all(new File('fixtures/foo.js'))->willReturn(new RootFile(new File('fixtures/foo.js')));
+            $this->finder->all(new File('fixtures/sub/bar.js'))->willReturn($r1);
+
+            $this->build_files->compileFromFileList(['foo.js', 'sub/bar.js'], true);
+
+            $data = $this->build_files->jsonSerialize();
+
+            self::assertTrue($this->build_files->hasFiles());
+            self::assertSame([
+                'dist/foo.js' => [
+                    [
+                        'fixtures/foo.js',
+                        '.js',
+                        'foo.js',
+                        true,
+                        false,
+                    ],
+                ],
+                'dist/sub/bar.js' => [
+                    [
+                        'fixtures/sub/bar.js',
+                        '.js',
+                        'sub/bar.js',
+                        true,
+                        false,
+                    ],
+                ],
+            ], $data['input']);
+        } finally {
+            // clean the var folder
+            $fs->remove([__DIR__ . '/dist']);
+            $fs->remove([__DIR__ . '/var']);
+        }
+    }
+
+    public function testCompileFromFileListAlreadyCompiled(): void
+    {
+        try {
+            $this->config->getOutputFolder()->willReturn('dist');
+            $this->config->getCacheDir()->willReturn(__DIR__ . '/var');
+            $this->config->getSourceRoot()->willReturn('');
+            $this->config->getProjectRoot()->willReturn(__DIR__);
+            $this->config->isDev()->willReturn(true);
+            $this->config->getReporter()->willReturn(new NullReporter());
+            $this->config->getEntryPoints()->willReturn([]);
+            $this->config->getAssetFiles()->willReturn([]);
+
+            $this->build_files->compileFromFileList([], true);
+
+            $this->expectException(\LogicException::class);
+            $this->expectExceptionMessage('Cannot recompile already compiled build files.');
+            $this->build_files->compileFromFileList([]);
+        } finally {
+            // clean the var folder
+            $fs = new Filesystem();
+            $fs->remove([__DIR__ . '/var']);
+        }
+    }
+
+    public function testCompileFromConfig(): void
     {
         $fs = new Filesystem();
 
@@ -72,7 +150,7 @@ class BuildFilesTest extends TestCase
             $this->finder->all(new File('fixtures/foo.js'))->willReturn(new RootFile(new File('fixtures/foo.js')));
             $this->finder->all(new File('fixtures/sub/bar.js'))->willReturn($r1);
 
-            $this->build_files->compile(true);
+            $this->build_files->compileFromConfig(true);
 
             $data = $this->build_files->jsonSerialize();
 
@@ -113,7 +191,7 @@ class BuildFilesTest extends TestCase
         }
     }
 
-    public function testCompileWithCacheAndOutput(): void
+    public function testCompileFromConfigWithCacheAndOutput(): void
     {
         $fs = new Filesystem();
 
@@ -135,7 +213,7 @@ class BuildFilesTest extends TestCase
 
             $this->finder->all(new File('fixtures/foo.js'))->willReturn(new RootFile(new File('fixtures/foo.js')));
 
-            $this->build_files->compile();
+            $this->build_files->compileFromConfig();
 
             $data = $this->build_files->jsonSerialize();
 
@@ -146,7 +224,7 @@ class BuildFilesTest extends TestCase
         }
     }
 
-    public function testCompileWithOutdatedCacheAndOutput(): void
+    public function testCompileFromConfigWithOutdatedCacheAndOutput(): void
     {
         $fs = new Filesystem();
 
@@ -172,7 +250,7 @@ class BuildFilesTest extends TestCase
 
             $this->finder->all(new File('fixtures/foo.js'))->willReturn($root);
 
-            $this->build_files->compile();
+            $this->build_files->compileFromConfig();
 
             $data = $this->build_files->jsonSerialize();
 
@@ -209,7 +287,7 @@ class BuildFilesTest extends TestCase
         $this->build_files->hasFiles();
     }
 
-    public function testCompileAlreadyCompiled(): void
+    public function testCompileFromConfigAlreadyCompiled(): void
     {
         try {
             $this->config->getOutputFolder()->willReturn('dist');
@@ -221,11 +299,11 @@ class BuildFilesTest extends TestCase
             $this->config->getEntryPoints()->willReturn([]);
             $this->config->getAssetFiles()->willReturn([]);
 
-            $this->build_files->compile(true);
+            $this->build_files->compileFromConfig(true);
 
             $this->expectException(\LogicException::class);
             $this->expectExceptionMessage('Cannot recompile already compiled build files.');
-            $this->build_files->compile();
+            $this->build_files->compileFromConfig();
         } finally {
             // clean the var folder
             $fs = new Filesystem();
@@ -233,7 +311,7 @@ class BuildFilesTest extends TestCase
         }
     }
 
-    public function testCompileEmptyEntryPoint(): void
+    public function testCompileFromConfigEmptyEntryPoint(): void
     {
         try {
             $splitter = $this->prophesize(EntryPointSplittingStrategyInterface::class);
@@ -254,7 +332,7 @@ class BuildFilesTest extends TestCase
 
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessage('Entry point "foo.js" did not resolve in any output file.');
-            $this->build_files->compile();
+            $this->build_files->compileFromConfig();
         } finally {
             // clean the var folder
             $fs = new Filesystem();

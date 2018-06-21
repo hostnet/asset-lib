@@ -27,7 +27,27 @@ final class Bundler implements BundlerInterface
         $this->build_script = $build_script;
     }
 
-    public function bundle(BuildConfig $build_config): void
+    public function bundleAll(BuildConfig $build_config): void
+    {
+        [$config_file, $new_build_config, $extension_map] = $this->checkConfig($build_config);
+
+        $build_files = new BuildFiles($this->finder, $extension_map, $this->config);
+        $build_files->compileFromConfig($new_build_config);
+
+        $this->execute($config_file, $build_files);
+    }
+
+    public function bundleFromFiles(BuildConfig $build_config, array $files): void
+    {
+        [$config_file, $new_build_config, $extension_map] = $this->checkConfig($build_config);
+
+        $build_files = new BuildFiles($this->finder, $extension_map, $this->config);
+        $build_files->compileFromFileList($files, $new_build_config);
+
+        $this->execute($config_file, $build_files);
+    }
+
+    private function checkConfig(BuildConfig $build_config): array
     {
         $filesystem       = new Filesystem();
         $config_file      = $this->config->getCacheDir() . '/build_config.json';
@@ -45,9 +65,11 @@ final class Bundler implements BundlerInterface
             $extension_map = new ExtensionMap($json_data['mapping']);
         }
 
-        $build_files = new BuildFiles($this->finder, $extension_map, $this->config);
-        $build_files->compile($new_build_config);
+        return [$config_file, $new_build_config, $extension_map];
+    }
 
+    private function execute(string $config_file, BuildFiles $build_files): void
+    {
         if (!$build_files->hasFiles()) {
             return;
         }
@@ -59,7 +81,7 @@ final class Bundler implements BundlerInterface
             escapeshellarg($config_file)
         );
 
-        $process = new Process($cmd, null, [
+        $process = new Process($cmd, $this->config->getProjectRoot(), [
             'NODE_PATH' => $this->config->getNodeJsExecutable()->getNodeModulesLocation(),
         ], json_encode($build_files));
         $process->inheritEnvironmentVariables();
