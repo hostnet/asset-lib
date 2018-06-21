@@ -16,13 +16,5 @@ interface BundlerInterface
      *
      * @param BuildConfig $build_config
      */
-    public function bundleAll(BuildConfig $build_config): void;
-
-    /**
-     * Bundle based on a list of files.
-     *
-     * @param BuildConfig $build_config
-     * @param string[]    $files
-     */
-    public function bundleFromFiles(BuildConfig $build_config, array $files): void;
+    public function bundle(BuildConfig $build_config): void;
 }

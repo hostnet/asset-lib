@@ -36,36 +36,12 @@ use Symfony\Component\Filesystem\Filesystem;
         $this->config        = $config;
     }
 
-    public function compileFromFileList(array $files, bool $force = false): void
-    {
-        if ($this->compiled) {
-            throw new \LogicException('Cannot recompile already compiled build files.');
-        }
-
-        $output_folder = $this->config->getOutputFolder();
-        $source_dir    = (!empty($this->config->getSourceRoot()) ? $this->config->getSourceRoot() . '/' : '');
-
-        foreach ($files as $file_name) {
-            $file  = new File($source_dir . $file_name);
-            $asset = new Asset($this->finder->all($file));
-
-            $this->addToFiles(
-                $asset->getAssetFile($output_folder, $this->config->getSourceRoot()),
-                $asset->getFiles(),
-                false,
-                $force
-            );
-        }
-
-        $this->compiled = true;
-    }
-
     /**
      * Compile all files listed in the config. This includes the require.js, all entry points and all assets.
      *
      * @param bool $force
      */
-    public function compileFromConfig(bool $force = false): void
+    public function compile(bool $force = false): void
     {
         if ($this->compiled) {
             throw new \LogicException('Cannot recompile already compiled build files.');

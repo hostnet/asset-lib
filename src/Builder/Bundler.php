@@ -27,27 +27,7 @@ final class Bundler implements BundlerInterface
         $this->build_script = $build_script;
     }
 
-    public function bundleAll(BuildConfig $build_config): void
-    {
-        [$config_file, $new_build_config, $extension_map] = $this->checkConfig($build_config);
-
-        $build_files = new BuildFiles($this->finder, $extension_map, $this->config);
-        $build_files->compileFromConfig($new_build_config);
-
-        $this->execute($config_file, $build_files);
-    }
-
-    public function bundleFromFiles(BuildConfig $build_config, array $files): void
-    {
-        [$config_file, $new_build_config, $extension_map] = $this->checkConfig($build_config);
-
-        $build_files = new BuildFiles($this->finder, $extension_map, $this->config);
-        $build_files->compileFromFileList($files, $new_build_config);
-
-        $this->execute($config_file, $build_files);
-    }
-
-    private function checkConfig(BuildConfig $build_config): array
+    public function bundle(BuildConfig $build_config): void
     {
         $filesystem       = new Filesystem();
         $config_file      = $this->config->getCacheDir() . '/build_config.json';
@@ -65,11 +45,9 @@ final class Bundler implements BundlerInterface
             $extension_map = new ExtensionMap($json_data['mapping']);
         }
 
-        return [$config_file, $new_build_config, $extension_map];
-    }
+        $build_files = new BuildFiles($this->finder, $extension_map, $this->config);
+        $build_files->compile($new_build_config);
 
-    private function execute(string $config_file, BuildFiles $build_files): void
-    {
         if (!$build_files->hasFiles()) {
             return;
         }
