@@ -57,4 +57,26 @@ class TreeWalkerTest extends TestCase
 
         self::assertSame([$root], $seen);
     }
+
+    public function testWalkSkipSubtree()
+    {
+        $root        = new RootFile(new File('foo'));
+        $child       = new RootFile(new File('foo'));
+        $grand_child = new RootFile(new File('foo'));
+
+        $root->addChild($child);
+        $child->addChild($grand_child);
+
+        $seen = [];
+
+        $walker = new TreeWalker(function (DependencyNodeInterface $node) use (&$seen, $child) {
+            $seen[] = $node;
+
+            return $node !== $child;
+        });
+
+        $walker->walk($root);
+
+        self::assertSame([$root, $child], $seen);
+    }
 }

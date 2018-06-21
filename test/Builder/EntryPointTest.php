@@ -17,9 +17,9 @@ use PHPUnit\Framework\TestCase;
  */
 class EntryPointTest extends TestCase
 {
-    public function testGeneric()
+    public function testGeneric(): void
     {
-        $file = new File(__FILE__);
+        $file = new File('root.js');
         $dep1 = new Dependency(new File('some.file'));
         $dep2 = new Dependency(new File('other.file'), false, true);
         $dep3 = new Dependency(new File('node_modules/foo'));
@@ -29,9 +29,51 @@ class EntryPointTest extends TestCase
         $dep->addChild($dep2);
         $dep->addChild($dep3);
 
+        $entry_point = new EntryPoint($dep);
+
+        self::assertEquals($file, $entry_point->getFile());
+        $expected = [
+            'output/root.js' => ['root.js', 'some.file', 'node_modules/foo'],
+            'output/other.file' => ['other.file'],
+        ];
+
+        self::assertEquals(
+            $expected,
+            array_map(
+                function (array $dependencies) {
+                    return array_map(
+                        function (DependencyNodeInterface $dep) {
+                            return $dep->getFile()->getName();
+                        },
+                        $dependencies
+                    );
+                },
+                $entry_point->getFilesToBuild('output')
+            )
+        );
+    }
+
+    public function testGenericCustomSplittingStrategy(): void
+    {
+        $file = new File(__FILE__);
+        $dep1 = new Dependency(new File('some.file'));
+        $dep2 = new Dependency(new File('other.file'), false, true);
+        $dep3 = new Dependency(new File('node_modules/foo'));
+        $dep4 = new Dependency(new File('ignore.file'));
+
+        $dep = new Dependency($file);
+        $dep->addChild($dep1);
+        $dep->addChild($dep2);
+        $dep->addChild($dep3);
+        $dep->addChild($dep4);
+
         $resolve_strategy = new class implements EntryPointSplittingStrategyInterface {
             public function resolveChunk(string $entry_point, DependencyNodeInterface $dependency): ?string
             {
+                if ($dependency->getFile()->path === 'ignore.file') {
+                    return null;
+                }
+
                 return false === strpos($dependency->getFile()->path, 'node_modules')
                     ? 'file1.js'
                     : 'file2.js';

@@ -8,20 +8,14 @@ namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\JsBuildStep;
-use Hostnet\Component\Resolver\Builder\Step\LessBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
-use Hostnet\Component\Resolver\Builder\Step\TypescriptBuildStep;
 use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 
 /**
- * Basic support for the JavaScript/css/html languages.
- *
- * Don't really see a use-case for the asset-lib without this plugin.
- *
- * Hence it's enabled by default, see PluginActivator.
+ * Basic support for the JavaScript/css/html languages as well as a generic way of outputting files.
  */
 final class CorePlugin implements PluginInterface
 {

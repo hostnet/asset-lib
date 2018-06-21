@@ -65,7 +65,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
             if (empty($files_to_build)) {
                 throw new \RuntimeException(
-                    sprintf('%s did not resolve in any output file', $file_name)
+                    sprintf('Entry point "%s" did not resolve in any output file.', $file_name)
                 );
             }
 
@@ -90,6 +90,12 @@ use Symfony\Component\Filesystem\Filesystem;
         $this->compiled = true;
     }
 
+    /**
+     * @param File                      $base_file
+     * @param DependencyNodeInterface[] $dependencies
+     * @param bool                      $skip_file_actions
+     * @param bool                      $force
+     */
     private function addToFiles(File $base_file, array $dependencies, bool $skip_file_actions, bool $force): void
     {
         $reporter    = $this->config->getReporter();
@@ -113,37 +119,39 @@ use Symfony\Component\Filesystem\Filesystem;
             return;
         }
 
-        $this->files[$output_file->getName()] = array_map(
-            function (DependencyNodeInterface $dep) use ($skip_file_actions, $force, $mtime) {
-                $file       = $dep->getFile();
-                $path       = File::makeAbsolutePath($file->path, $this->config->getProjectRoot());
-                $file_mtime = file_exists($path) ? filemtime($path) : -1;
-                $module_name = $file->getName();
+        foreach ($dependencies as $dep) {
+            $file = $dep->getFile();
 
-                if (!empty($this->config->getSourceRoot())
-                    && 0 === strpos($module_name, $this->config->getSourceRoot())
-                ) {
-                    $chopped  = substr($file->dir, \strlen($this->config->getSourceRoot()));
-                    $base_dir = $chopped ? trim($chopped, '/') : '';
-                    if (\strlen($base_dir) > 0) {
-                        $base_dir .= '/';
-                    }
+            if ($dep->isInlineDependency()) {
+                $reporter->reportFileState($file, ReporterInterface::STATE_INLINE);
 
-                    $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
+                continue;
+            }
+
+            $path       = File::makeAbsolutePath($file->path, $this->config->getProjectRoot());
+            $file_mtime = file_exists($path) ? filemtime($path) : -1;
+            $module_name = $file->getName();
+
+            if (!empty($this->config->getSourceRoot())
+                && 0 === strpos($module_name, $this->config->getSourceRoot())
+            ) {
+                $chopped  = substr($file->dir, \strlen($this->config->getSourceRoot()));
+                $base_dir = $chopped ? trim($chopped, '/') : '';
+                if (\strlen($base_dir) > 0) {
+                    $base_dir .= '/';
                 }
 
-                return [
-                    $file->path,
-                    '.' . $file->extension,
-                    $module_name,
-                    $force || $mtime === -1 || $file_mtime === -1 || $mtime <= $file_mtime,
-                    $skip_file_actions,
-                ];
-            },
-            array_filter($dependencies, function (DependencyNodeInterface $dep) {
-                return !$dep->isInlineDependency();
-            })
-        );
+                $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
+            }
+
+            $this->files[$output_file->getName()][] = [
+                $file->path,
+                '.' . $file->extension,
+                $module_name,
+                $force || $mtime === -1 || $file_mtime === -1 || $mtime <= $file_mtime,
+                $skip_file_actions,
+            ];
+        }
     }
 
     /**

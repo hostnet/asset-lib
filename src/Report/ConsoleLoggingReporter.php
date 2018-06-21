@@ -46,9 +46,11 @@ final class ConsoleLoggingReporter implements ReporterInterface
                 : $this->config->getProjectRoot() . '/' . $file->path
         );
 
-        $this->console_output->writeln(
-            sprintf('Outputting "%s" <fg=yellow>%s</>.', $file->path, $this->size_helper->format($file_size))
-        );
+        $this->console_output->writeln(sprintf(
+            'Outputting "%s" <fg=yellow>%s</>.',
+            $this->makeRelativeToRoot($file),
+            $this->size_helper->format($file_size)
+        ));
     }
 
     public function reportFileDependencies(File $file, array $dependencies): void
@@ -66,5 +68,18 @@ final class ConsoleLoggingReporter implements ReporterInterface
 
     public function reportFileContent(File $file, string $content): void
     {
+    }
+
+    private function makeRelativeToRoot(File $file): string
+    {
+        // make the output file relative to the output folder
+        $path = File::clean($file->path);
+        $output_dir = $this->config->getProjectRoot() . '/';
+
+        if (false !== strpos($path, $output_dir)) {
+            $path = substr($path, \strlen($output_dir));
+        }
+
+        return $path;
     }
 }
