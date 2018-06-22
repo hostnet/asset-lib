@@ -227,7 +227,7 @@ class BundlerTest extends TestCase
             $build_config->registerWriter(new GenericFileWriter());
 
             $this->expectException(\RuntimeException::class);
-            $this->expectExceptionMessage('Cannot compile due to compiler error. Output: BARFOO');
+            $this->expectExceptionMessage('Cannot compile due to compiler error. Output: FOO');
             $bundler->bundle($build_config);
         } finally {
             $fs = new Filesystem();

@@ -76,7 +76,7 @@ final class Bundler implements BundlerInterface
 
         if (!$process->isSuccessful()) {
             throw new \RuntimeException(
-                'Cannot compile due to compiler error. Output: ' . $process->getOutput() . $process->getErrorOutput()
+                'Cannot compile due to compiler error. Output: ' . $process->getErrorOutput()
             );
         }
     }

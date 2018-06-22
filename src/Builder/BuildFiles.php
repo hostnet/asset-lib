@@ -130,8 +130,6 @@ use Symfony\Component\Filesystem\Filesystem;
                 continue;
             }
 
-            $path       = File::makeAbsolutePath($file->path, $this->config->getProjectRoot());
-            $file_mtime = file_exists($path) ? filemtime($path) : -1;
             $module_name = $file->getName();
 
             if (!empty($this->config->getSourceRoot())
@@ -150,7 +148,7 @@ use Symfony\Component\Filesystem\Filesystem;
                 $file->path,
                 '.' . $file->extension,
                 $module_name,
-                $force || $mtime === -1 || $file_mtime === -1 || $mtime <= $file_mtime,
+                $force || $mtime === -1 || $this->hasUpdatedFiles($mtime, $dep),
                 $skip_file_actions,
             ];
         }
@@ -200,6 +198,29 @@ use Symfony\Component\Filesystem\Filesystem;
             $path = File::makeAbsolutePath($input_file->getFile()->path, $this->config->getProjectRoot());
 
             if ($mtime < filemtime($path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasUpdatedFiles(int $mtime, DependencyNodeInterface $dependency): bool
+    {
+        $path       = File::makeAbsolutePath($dependency->getFile()->path, $this->config->getProjectRoot());
+        $file_mtime = file_exists($path) ? filemtime($path) : -1;
+
+        if ($file_mtime === -1 || $mtime <= $file_mtime) {
+            return true;
+        }
+
+        // Did any of the inline children change?
+        foreach ($dependency->getChildren() as $child) {
+            if (!$child->isInlineDependency()) {
+                continue;
+            }
+
+            if ($this->hasUpdatedFiles($mtime, $child)) {
                 return true;
             }
         }
