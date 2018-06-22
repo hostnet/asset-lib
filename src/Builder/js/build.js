@@ -31,6 +31,138 @@ function getCachedFileLocation(cacheDir, rootDir, file) {
     return {dir: path.join(cacheDir, hash.substr(0, 2)), file: hash.substr(2)};
 }
 
+function compileFile(file, config, logger) {
+    let filePath = file[0];
+    let fileExtension = file[1];
+    let fileModuleName = file[2];
+    let fileNeedsRebuild = file[3];
+    let fileSkipFileSteps = file[4];
+
+    // Check if there is a cache file.
+    let hasCache = false;
+    let cacheFile;
+
+    // Do we want to skip the file steps and go straight to the module?
+    if (fileSkipFileSteps) {
+        if (logger.isVerbose()) {
+            logger.log(
+                "Skipping build file steps for  \"" + filePath + "\".",
+                {action: "FILE_INIT", file: filePath, metadata: {}}
+            );
+        }
+
+        return new Promise(function (resolve, reject) {
+            try {
+                fs.readFile(filePath, function (err, buffer) {
+                    if (err) reject(err); else resolve({
+                        name: filePath,
+                        module: fileModuleName,
+                        content: buffer
+                    });
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    if (config.paths.cache !== undefined) {
+        cacheFile = getCachedFileLocation(config.paths.cache, config.paths.root, filePath);
+        mkdirRecursive(config.paths.root, cacheFile.dir);
+
+        hasCache = fs.existsSync(path.join(cacheFile.dir, cacheFile.file));
+    }
+
+    // Do we need a recompile or we do not have cache?
+    if (!fileNeedsRebuild && hasCache) {
+        return new Promise(function (resolve, reject) {
+            try {
+                if (logger.isVerbose()) {
+                    logger.log(
+                        "Reading from cache for \"" + filePath + "\".",
+                        {action: "FILE_CACHE", file: filePath, metadata: {}}
+                    );
+                }
+
+                fs.readFile(path.join(cacheFile.dir, cacheFile.file), function (err, buffer) {
+                    if (err) reject(err); else resolve({
+                        name: filePath,
+                        module: fileModuleName,
+                        content: buffer
+                    });
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    let filePromise = new Promise(function (resolve, reject) {
+        try {
+            fs.readFile(filePath, function (err, buffer) {
+                if (err) reject(err); else resolve({
+                    name: filePath,
+                    module: fileModuleName,
+                    content: buffer
+                });
+            });
+        } catch (err) {
+            reject(err);
+        }
+    });
+
+    if (!config.build[fileExtension]) {
+        throw new Error('No build config for extension "' + fileExtension + '".');
+    }
+
+    let steps = config.build[fileExtension][0];
+
+    if (logger.isVerbose()) {
+        filePromise = filePromise.then((file) => {
+            logger.log(
+                "Initializing file build steps \"" + filePath + "\".",
+                {action: "FILE_INIT", file: filePath, metadata: {}}
+            );
+            return file;
+        });
+    }
+    for (let j = 0; j < steps.length; j++) {
+        filePromise = filePromise.then(function (file) {
+            return new Promise(function (resolve, reject) {
+                try {
+                    if (logger.isVerbose()) {
+                        logger.log(
+                            "Processing \"" + file.name + "\" file with \"" + steps[j] + "\".",
+                            {action: "FILE_STEP", file: file.name, metadata: {step: steps[j]}}
+                        );
+                    }
+
+                    resolve(require(steps[j])(file, (file) => compileFile(file, config, logger)));
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+    }
+
+    if (config.paths.cache !== undefined) {
+        // cache the result
+        filePromise = filePromise.then(function (file) {
+            return new Promise(function (resolve, reject) {
+                try {
+                    fs.writeFile(path.join(cacheFile.dir, cacheFile.file), file.content, function (err) {
+                        if (err) reject(err); else resolve(file);
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+    }
+
+    return filePromise;
+}
+
 function compile(config, files, logger) {
     let outputFilePromises = [];
 
@@ -43,138 +175,7 @@ function compile(config, files, logger) {
 
         // File steps
         for (let i = 0; i < files.input[outputFile].length; i++) {
-            let filePath = files.input[outputFile][i][0];
-            let fileExtension = files.input[outputFile][i][1];
-            let fileModuleName = files.input[outputFile][i][2];
-            let fileNeedsRebuild = files.input[outputFile][i][3];
-            let fileSkipFileSteps = files.input[outputFile][i][4];
-
-            // Check if there is a cache file.
-            let hasCache = false;
-            let cacheFile;
-
-            // Do we want to skip the file steps and go straight to the module?
-            if (fileSkipFileSteps) {
-                if (logger.isVerbose()) {
-                    logger.log(
-                        "Skipping build file steps for  \"" + filePath + "\".",
-                        {action: "FILE_INIT", file: filePath, metadata: {}}
-                    );
-                }
-
-                modulePromises.push(new Promise(function (resolve, reject) {
-                    try {
-                        fs.readFile(filePath, function (err, buffer) {
-                            if (err) reject(err); else resolve({
-                                name: filePath,
-                                module: fileModuleName,
-                                content: buffer
-                            });
-                        });
-                    } catch (err) {
-                        reject(err);
-                    }
-                }));
-
-                continue;
-            }
-
-            if (config.paths.cache !== undefined) {
-                cacheFile = getCachedFileLocation(config.paths.cache, config.paths.root, filePath);
-                mkdirRecursive(config.paths.root, cacheFile.dir);
-
-                hasCache = fs.existsSync(path.join(cacheFile.dir, cacheFile.file));
-            }
-
-            // Do we need a recompile or we do not have cache?
-            if (!fileNeedsRebuild && hasCache) {
-                modulePromises.push(new Promise(function (resolve, reject) {
-                    try {
-                        if (logger.isVerbose()) {
-                            logger.log(
-                                "Reading from cache for \"" + filePath + "\".",
-                                {action: "FILE_CACHE", file: filePath, metadata: {}}
-                            );
-                        }
-
-                        fs.readFile(path.join(cacheFile.dir, cacheFile.file), function (err, buffer) {
-                            if (err) reject(err); else resolve({
-                                name: filePath,
-                                module: fileModuleName,
-                                content: buffer
-                            });
-                        });
-                    } catch (err) {
-                        reject(err);
-                    }
-                }));
-
-                continue;
-            }
-
-            let filePromise = new Promise(function (resolve, reject) {
-                try {
-                    fs.readFile(filePath, function (err, buffer) {
-                        if (err) reject(err); else resolve({
-                            name: filePath,
-                            module: fileModuleName,
-                            content: buffer
-                        });
-                    });
-                } catch (err) {
-                    reject(err);
-                }
-            });
-
-            if (!config.build[fileExtension]) {
-                throw new Error('No build config for extension "' + fileExtension + '".');
-            }
-
-            let steps = config.build[fileExtension][0];
-
-            if (logger.isVerbose()) {
-                filePromise = filePromise.then((file) => {
-                    logger.log(
-                        "Initializing file build steps \"" + filePath + "\".",
-                        {action: "FILE_INIT", file: filePath, metadata: {}}
-                    );
-                    return file;
-                });
-            }
-            for (let j = 0; j < steps.length; j++) {
-                filePromise = filePromise.then(function (file) {
-                    return new Promise(function (resolve, reject) {
-                        try {
-                            if (logger.isVerbose()) {
-                                logger.log(
-                                    "Processing \"" + file.name + "\" file with \"" + steps[j] + "\".",
-                                    {action: "FILE_STEP", file: file.name, metadata: {step: steps[j]}}
-                                );
-                            }
-
-                            resolve(require(steps[j])(file));
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-                });
-            }
-
-            if (config.paths.cache !== undefined) {
-                // cache the result
-                filePromise = filePromise.then(function (file) {
-                    return new Promise(function (resolve, reject) {
-                        try {
-                            fs.writeFile(path.join(cacheFile.dir, cacheFile.file), file.content, function (err) {
-                                if (err) reject(err); else resolve(file);
-                            });
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-                });
-            }
-            modulePromises.push(filePromise);
+            modulePromises.push(compileFile(files.input[outputFile][i], config, logger))
         }
 
         outputFilePromises.push(Promise.all(modulePromises).then(function (moduleFiles) {
@@ -236,10 +237,10 @@ function compile(config, files, logger) {
                     );
                 }
             })
-        }));
+        }, (e) => { logger.error(e); return Promise.reject(e); }));
     }
 
-    return Promise.all(outputFilePromises);
+    return Promise.all(outputFilePromises).catch((e) => { logger.error(e); return Promise.reject(e); });
 }
 
 function main(args, stdin, stdout) {
@@ -294,6 +295,9 @@ function main(args, stdin, stdout) {
                     } else if (logType === 'json') {
                         stdout.log(JSON.stringify(data));
                     }
+                },
+                error: (e) => {
+                    stdout.error(e.stack)
                 },
                 isVerbose: () => {
                     return isVerbose;
