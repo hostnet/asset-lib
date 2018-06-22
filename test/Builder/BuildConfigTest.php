@@ -386,7 +386,7 @@ class BuildConfigTest extends TestCase
         $build_config->registerWriter($writer);
     }
 
-    public function testGetHash(): void
+    public function testCalculateHash(): void
     {
         $build_config1 = new BuildConfig($this->config->reveal());
         $build_config1->registerWriter($this->makeWriter('.js', 'out'));
@@ -396,9 +396,9 @@ class BuildConfigTest extends TestCase
         $build_config2->registerWriter($this->makeWriter('.js', 'out'));
         $build_config2->compile();
 
-        self::assertSame($build_config1->getHash(), $build_config1->getHash());
-        self::assertSame($build_config1->getHash(), $build_config2->getHash());
-        self::assertSame($build_config2->getHash(), $build_config2->getHash());
+        self::assertSame($build_config1->calculateHash(), $build_config1->calculateHash());
+        self::assertSame($build_config1->calculateHash(), $build_config2->calculateHash());
+        self::assertSame($build_config2->calculateHash(), $build_config2->calculateHash());
     }
 
     public function testJsonSerializeForNotYetCompiled(): void
@@ -463,7 +463,7 @@ class BuildConfigTest extends TestCase
         $build_config->compile();
 
         self::assertFalse($build_config->isUpToDateWith(['checksum' => '1234']));
-        self::assertTrue($build_config->isUpToDateWith(['checksum' => $build_config->getHash()]));
+        self::assertTrue($build_config->isUpToDateWith(['checksum' => $build_config->calculateHash()]));
     }
 
     private function makeBuildStep(

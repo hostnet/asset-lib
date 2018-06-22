@@ -176,7 +176,7 @@ class BundlerTest extends TestCase
             $build_config->registerWriter(new GenericFileWriter());
 
             $fs->dumpFile(__DIR__ . '/var/build_config.json', json_encode([
-                'checksum' => $build_config->getHash(),
+                'checksum' => $build_config->calculateHash(),
                 'mapping' => ['.js' => '.js'],
             ]));
 

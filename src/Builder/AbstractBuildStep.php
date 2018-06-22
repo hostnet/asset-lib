@@ -18,8 +18,9 @@ namespace Hostnet\Component\Resolver\Builder;
  * doesn't really care about when it happens. However, there can always be only one resulting state.
  *
  * To prevent infinite build loops transitions need to occur in the order FILE_READ -> FILE_TRANSPILED -> FILE_READY
- * and for modules MODULES_COLLECTED -> MODULES_READY. This means that the resulting state can transition back to one
- * of the accepting states. Finally, each step must have an accepting file extension and a resulting one.
+ * and for modules MODULES_COLLECTED -> MODULES_READY. This means that the resulting state cannot transition back to
+ * one of the previous states (self loops are okay). Finally, each step must have an accepting file extension and a
+ * resulting one.
  *
  * There is also a build priority, this can be used to indicate a the order in which steps need to be performed if
  * multiple build can be taken. For instance, you might want to perform some module transformation over minification.

@@ -45,7 +45,7 @@ class BuildConfig implements \JsonSerializable
      *
      * @return string
      */
-    public function getHash(): string
+    public function calculateHash(): string
     {
         if (null !== $this->checksum) {
             return $this->checksum;
@@ -451,7 +451,7 @@ class BuildConfig implements \JsonSerializable
         }
 
         return [
-            'checksum' => $this->getHash(),
+            'checksum' => $this->calculateHash(),
             'mapping' => $this->extension_mapping,
             'paths' => array_map(function (string $path) {
                 return rtrim($path, '//\\') . DIRECTORY_SEPARATOR;
@@ -471,6 +471,6 @@ class BuildConfig implements \JsonSerializable
 
     public function isUpToDateWith(array $json_data): bool
     {
-        return $this->getHash() === ($json_data['checksum'] ?? '');
+        return $this->calculateHash() === ($json_data['checksum'] ?? '');
     }
 }
