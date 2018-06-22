@@ -1,20 +1,19 @@
 <?php
 /**
- * @copyright 2017 Hostnet B.V.
+ * @copyright 2017-2018 Hostnet B.V.
  */
 declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\ContentPipeline;
-use Hostnet\Component\Resolver\Bundler\PipelineBundler;
+use Hostnet\Component\Resolver\Builder\BuildConfig;
+use Hostnet\Component\Resolver\Builder\Bundler;
 use Hostnet\Component\Resolver\Cache\Cache;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
-use Hostnet\Component\Resolver\FileSystem\FileReader;
-use Hostnet\Component\Resolver\FileSystem\FileWriter;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Plugin\PluginActivator;
 use Hostnet\Component\Resolver\Plugin\PluginApi;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Simple facade that registered JS, CSS, TS and LESS compilation and runs it
@@ -27,25 +26,14 @@ final class Packer
         $cache = new Cache($config->getCacheDir() . '/dependencies');
         $cache->load();
 
-        $dispatcher = $config->getEventDispatcher();
-        $runner     = $config->getRunner();
-
         $finder = new ImportFinder($config->getProjectRoot());
 
-        $writer   = new FileWriter($dispatcher, $config->getProjectRoot());
-        $pipeline = new ContentPipeline($dispatcher, $config, $writer);
-
-        $plugin_api = new PluginApi($pipeline, $finder, $config, $cache);
+        $build_config = new BuildConfig($config);
+        $plugin_api = new PluginApi($finder, $config, $cache, $build_config);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
-        $bundler = new PipelineBundler(
-            $finder,
-            $pipeline,
-            $config,
-            $runner
-        );
-
-        $bundler->execute(new FileReader($config->getProjectRoot()), $writer);
+        $bundler = new Bundler($finder, $config);
+        $bundler->bundle($build_config);
 
         if (!$config->isDev()) {
             return;

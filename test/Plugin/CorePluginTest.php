@@ -6,56 +6,57 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
-use Hostnet\Component\Resolver\Bundler\Processor\IdentityProcessor;
-use Hostnet\Component\Resolver\Bundler\Processor\JsonProcessor;
-use Hostnet\Component\Resolver\Bundler\Processor\ModuleProcessor;
+use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\JsBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
+use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
-use Hostnet\Component\Resolver\Config\UnixSocketType;
-use Hostnet\Component\Resolver\Event\AssetEvents;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
-use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\SimpleCache\CacheInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\CorePlugin
  */
 class CorePluginTest extends TestCase
 {
-    /**
-     * @dataProvider activateProvider
-     */
-    public function testActivate(string $expected_collector_class, bool $is_dev)
+    public function testActivate()
     {
-        $event_dispatcher = new EventDispatcher();
-
-        $pipeline = $this->prophesize(MutableContentPipelineInterface::class);
-        $pipeline->addProcessor(Argument::type(IdentityProcessor::class))->shouldBeCalled();
-        $pipeline->addProcessor(Argument::type(ModuleProcessor::class))->shouldBeCalled();
-        $pipeline->addProcessor(Argument::type(JsonProcessor::class))->shouldBeCalled();
-
         $cache  = $this->prophesize(CacheInterface::class);
         $config = $this->prophesize(ConfigInterface::class);
-        $config->isDev()->willReturn($is_dev);
-        $config->getEventDispatcher()->willReturn($event_dispatcher);
-        $config->getSocketType()->willReturn(UnixSocketType::DISABLED);
-        $finder = $this->prophesize(MutableImportFinderInterface::class);
-        $finder->addCollector(Argument::type($expected_collector_class))->shouldBeCalled();
-        $plugin_api     = new PluginApi($pipeline->reveal(), $finder->reveal(), $config->reveal(), $cache->reveal());
-        $angular_plugin = new CorePlugin();
-        $angular_plugin->activate($plugin_api);
-        self::assertCount(0, $event_dispatcher->getListeners(AssetEvents::POST_PROCESS));
+        $config->isDev()->willReturn(true);
+
+        $plugin_api = $this->prophesize(PluginApi::class);
+        $plugin_api->getConfig()->willReturn($config);
+        $plugin_api->getCache()->willReturn($cache);
+        $plugin_api->addCollector(Argument::type(CachedImportCollector::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(CssBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(JsBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(ModuleBuildStep::class))->shouldBeCalled();
+        $plugin_api->addWriter(Argument::type(GenericFileWriter::class))->shouldBeCalled();
+
+        $core_plugin = new CorePlugin();
+        $core_plugin->activate($plugin_api->reveal());
     }
 
-    public function activateProvider(): array
+    public function testActivateProd()
     {
-        return [
-            [JsImportCollector::class, false],
-            [CachedImportCollector::class, true],
-        ];
+        $cache  = $this->prophesize(CacheInterface::class);
+        $config = $this->prophesize(ConfigInterface::class);
+        $config->isDev()->willReturn(false);
+
+        $plugin_api = $this->prophesize(PluginApi::class);
+        $plugin_api->getConfig()->willReturn($config);
+        $plugin_api->getCache()->willReturn($cache);
+        $plugin_api->addCollector(Argument::type(JsImportCollector::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(CssBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(JsBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(ModuleBuildStep::class))->shouldBeCalled();
+        $plugin_api->addWriter(Argument::type(GenericFileWriter::class))->shouldBeCalled();
+
+        $core_plugin = new CorePlugin();
+        $core_plugin->activate($plugin_api->reveal());
     }
 }

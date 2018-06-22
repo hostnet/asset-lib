@@ -6,18 +6,15 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Config;
 
-use Hostnet\Component\Resolver\Bundler\Runner\SingleProcessRunner;
-use Hostnet\Component\Resolver\Bundler\Runner\UnixSocketRunner;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use Hostnet\Component\Resolver\Plugin\PluginInterface;
 use Hostnet\Component\Resolver\Report\ConsoleLoggingReporter;
+use Hostnet\Component\Resolver\Report\Helper\FileSizeHelper;
 use Hostnet\Component\Resolver\Report\NullReporter;
 use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @covers \Hostnet\Component\Resolver\Config\SimpleConfig
@@ -38,7 +35,6 @@ class SimpleConfigTest extends TestCase
             'phpunit',
             'src',
             'var',
-            UnixSocketType::ALWAYS,
             $plugins,
             $nodejs
         );
@@ -52,14 +48,12 @@ class SimpleConfigTest extends TestCase
         self::assertEquals('phpunit', $config->getOutputFolder(false));
         self::assertEquals('src', $config->getSourceRoot());
         self::assertEquals('var', $config->getCacheDir());
-        self::assertInstanceOf(UnixSocketRunner::class, $config->getRunner());
         self::assertSame($plugins, $config->getPlugins());
         self::assertSame($nodejs, $config->getNodeJsExecutable());
         self::assertInstanceOf(NullLogger::class, $config->getLogger());
-        self::assertInstanceOf(EventDispatcherInterface::class, $config->getEventDispatcher());
         self::assertInstanceOf(NullReporter::class, $config->getReporter());
 
-        $reporter = new ConsoleLoggingReporter($config, new NullOutput());
+        $reporter = new ConsoleLoggingReporter($config, new NullOutput(), new FileSizeHelper());
         $old      = $config->replaceReporter($reporter);
 
         self::assertInstanceOf(NullReporter::class, $old);
@@ -77,7 +71,6 @@ class SimpleConfigTest extends TestCase
             'phpunit',
             'src',
             'var',
-            UnixSocketType::PRE_PROCESS,
             $plugins,
             $nodejs
         );
@@ -91,14 +84,11 @@ class SimpleConfigTest extends TestCase
         self::assertEquals('phpunit', $config->getOutputFolder(false));
         self::assertEquals('src', $config->getSourceRoot());
         self::assertEquals('var', $config->getCacheDir());
-        self::assertInstanceOf(UnixSocketRunner::class, $config->getRunner());
         self::assertSame($plugins, $config->getPlugins());
         self::assertSame($nodejs, $config->getNodeJsExecutable());
         self::assertInstanceOf(NullLogger::class, $config->getLogger());
-        self::assertInstanceOf(EventDispatcherInterface::class, $config->getEventDispatcher());
         self::assertInstanceOf(OneOnOneSplittingStrategy::class, $config->getSplitStrategy());
 
-        $dispatcher     = new EventDispatcher();
         $logger         = new NullLogger();
         $split_strategy = new OneOnOneSplittingStrategy();
         $config         = new SimpleConfig(
@@ -111,18 +101,14 @@ class SimpleConfigTest extends TestCase
             'phpunit',
             'src',
             'var',
-            UnixSocketType::DISABLED,
             $plugins,
             $nodejs,
-            $dispatcher,
             $logger,
             null,
             $split_strategy
         );
 
-        self::assertInstanceOf(SingleProcessRunner::class, $config->getRunner());
         self::assertSame($logger, $config->getLogger());
-        self::assertSame($dispatcher, $config->getEventDispatcher());
         self::assertSame($split_strategy, $config->getSplitStrategy());
     }
 }

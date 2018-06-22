@@ -1,0 +1,18 @@
+{
+    "checksum": "7bf5df172197e9c244b614cb7f2632cf",
+    "mapping": {
+        ".js": ".js"
+    },
+    "paths": {
+        "root": "",
+        "out": "dist\/",
+        "cache": ""
+    },
+    "build": {
+        ".js": [
+            [],
+            [],
+            []
+        ]
+    }
+}

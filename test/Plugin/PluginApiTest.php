@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Bundler\Pipeline\MutableContentPipelineInterface;
-use Hostnet\Component\Resolver\Bundler\Processor\ContentProcessorInterface;
-use Hostnet\Component\Resolver\Bundler\Runner\RunnerInterface;
+use Hostnet\Component\Resolver\Builder\AbstractBuildStep;
+use Hostnet\Component\Resolver\Builder\AbstractWriter;
+use Hostnet\Component\Resolver\Builder\BuildConfig;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
@@ -21,10 +21,10 @@ use Psr\SimpleCache\CacheInterface;
  */
 class PluginApiTest extends TestCase
 {
-    private $pipeline;
     private $finder;
     private $config;
     private $cache;
+    private $build_config;
 
     /**
      * @var PluginApi
@@ -33,16 +33,16 @@ class PluginApiTest extends TestCase
 
     protected function setUp()
     {
-        $this->pipeline = $this->prophesize(MutableContentPipelineInterface::class);
-        $this->finder   = $this->prophesize(MutableImportFinderInterface::class);
-        $this->config   = $this->prophesize(ConfigInterface::class);
-        $this->cache    = $this->prophesize(CacheInterface::class);
+        $this->finder       = $this->prophesize(MutableImportFinderInterface::class);
+        $this->config       = $this->prophesize(ConfigInterface::class);
+        $this->cache        = $this->prophesize(CacheInterface::class);
+        $this->build_config = $this->prophesize(BuildConfig::class);
 
         $this->plugin_api = new PluginApi(
-            $this->pipeline->reveal(),
             $this->finder->reveal(),
             $this->config->reveal(),
-            $this->cache->reveal()
+            $this->cache->reveal(),
+            $this->build_config->reveal()
         );
     }
 
@@ -53,11 +53,20 @@ class PluginApiTest extends TestCase
         self::assertSame($executable, $this->plugin_api->getNodeJsExecutable());
     }
 
-    public function testAddProcessor()
+    public function testAddBuildStep()
     {
-        $processor = $this->prophesize(ContentProcessorInterface::class)->reveal();
-        $this->pipeline->addProcessor($processor)->shouldBeCalled();
-        $this->plugin_api->addProcessor($processor);
+        $build_step = $this->prophesize(AbstractBuildStep::class)->reveal();
+        $this->build_config->registerStep($build_step)->shouldBeCalled();
+
+        $this->plugin_api->addBuildStep($build_step);
+    }
+
+    public function testAddWriter()
+    {
+        $writer = $this->prophesize(AbstractWriter::class)->reveal();
+        $this->build_config->registerWriter($writer)->shouldBeCalled();
+
+        $this->plugin_api->addWriter($writer);
     }
 
     public function testAddCollector()
@@ -69,14 +78,7 @@ class PluginApiTest extends TestCase
 
     public function testGetters()
     {
-        self::assertSame($this->pipeline->reveal(), $this->plugin_api->getPipeline());
-        self::assertSame($this->finder->reveal(), $this->plugin_api->getFinder());
         self::assertSame($this->config->reveal(), $this->plugin_api->getConfig());
         self::assertSame($this->cache->reveal(), $this->plugin_api->getCache());
-        self::assertSame($this->cache->reveal(), $this->plugin_api->getCache());
-
-        $runner = $this->prophesize(RunnerInterface::class);
-        $this->config->getRunner()->willReturn($runner);
-        self::assertSame($runner->reveal(), $this->plugin_api->getRunner());
     }
 }

@@ -18,6 +18,9 @@ final class CachedImportCollector implements ImportCollectorInterface
 {
     private $inner;
     private $cache;
+    /**
+     * @var \SplObjectStorage|ImportCollection[]
+     */
     private $file_cache;
 
     public function __construct(ImportCollectorInterface $inner, CacheInterface $cache)
@@ -45,9 +48,9 @@ final class CachedImportCollector implements ImportCollectorInterface
             return;
         }
 
-        $key    = $file->path . get_class($this->inner);
+        $key    = $file->path . \get_class($this->inner);
         $path   = File::makeAbsolutePath($file->path, $cwd);
-        $fmtime = filemtime($path);
+        $fmtime = file_exists($path) ? filemtime($path) : -1;
 
         if ($this->cache->has($key)) {
             $item = $this->cache->get($key);

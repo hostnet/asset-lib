@@ -2,7 +2,7 @@ describe("Require.js module register method test", function () {
     var lib;
 
     beforeEach(function () {
-        lib = require('../src/Resources/require');
+        lib = require('../src/Builder/js/require');
         spyOn(console, 'warn');
     });
 
@@ -182,5 +182,29 @@ describe("Require.js module register method test", function () {
 
         expect(lib.require('pathdeps/pathdepsfoo')).toEqual('FOO');
         expect(lib.require('pathdeps/pathdepsbar')).toEqual('BAR');
+    });
+
+    it("with define inside module with no dependencies", function() {
+        lib.register("pathdeps", function (define, require, module, exports) {
+            define('pathdeps/pathdepsfoo', function () {
+                return 'FOO';
+            });
+            define('pathdeps/pathdepsbar', ['./pathdepsfoo'], function (foo) {
+                return 'BAR';
+            });
+        });
+
+        lib.require('pathdeps');
+
+        expect(lib.require('pathdeps/pathdepsfoo')).toEqual('FOO');
+        expect(lib.require('pathdeps/pathdepsbar')).toEqual('BAR');
+    });
+
+    it("with unknown require", function() {
+        try {
+            lib.require('somemodule');
+        } catch (e) {
+            expect(e.message).toBe('Cannot find module "somemodule", did you define it?');
+        }
     });
 });

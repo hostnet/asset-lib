@@ -10,6 +10,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
+use Hostnet\Component\Resolver\Report\Helper\FileSizeHelperInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class ConsoleReporterTest extends TestCase
 {
     private $config;
+    private $helper;
 
     /**
      * @var ConsoleReporter
@@ -28,8 +30,9 @@ class ConsoleReporterTest extends TestCase
     protected function setUp()
     {
         $this->config = $this->prophesize(ConfigInterface::class);
+        $this->helper = $this->prophesize(FileSizeHelperInterface::class);
 
-        $this->console_reporter = new ConsoleReporter($this->config->reveal(), true);
+        $this->console_reporter = new ConsoleReporter($this->config->reveal(), $this->helper->reveal(), true);
     }
 
     public function testPrintReportEmpty()
@@ -55,6 +58,16 @@ class ConsoleReporterTest extends TestCase
         $root = new RootFile($file1);
         $root->addChild($dep1);
         $dep1->addChild($dep2);
+
+        $this->helper->filesize(__DIR__ . '/fixtures/a.js')->willReturn(3);
+        $this->helper->filesize(__DIR__ . '/fixtures/b.js')->willReturn(300);
+        $this->helper->filesize(__DIR__ . '/fixtures/c.js')->willReturn(12);
+        $this->helper->filesize(__DIR__ . '/fixtures/d.js')->willReturn(42);
+        $this->helper->format(3)->willReturn('3 b');
+        $this->helper->format(300)->willReturn('300 b');
+        $this->helper->format(12)->willReturn('12 b');
+        $this->helper->format(42)->willReturn('42 b');
+        $this->helper->format(1337)->willReturn('1 kb');
 
         $this->console_reporter->reportOutputFile($file1);
         $this->console_reporter->reportOutputFile($file2);

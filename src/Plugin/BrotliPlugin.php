@@ -6,8 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Event\FileEvents;
-use Hostnet\Component\Resolver\EventListener\BrotliListener;
+use Hostnet\Component\Resolver\Builder\Writer\BrotliFileWriter;
 
 /**
  * This plugin outputs a brotli-compressed file next to the output file.
@@ -19,9 +18,6 @@ class BrotliPlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
-        $config          = $plugin_api->getConfig();
-        $dispatcher      = $config->getEventDispatcher();
-        $brotli_listener = new BrotliListener($plugin_api->getRunner(), $dispatcher, $config->getProjectRoot());
-        $dispatcher->addListener(FileEvents::POST_WRITE, [$brotli_listener, 'onPostWrite']);
+        $plugin_api->addWriter(new BrotliFileWriter());
     }
 }

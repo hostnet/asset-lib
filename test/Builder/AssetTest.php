@@ -1,0 +1,66 @@
+<?php
+/**
+ * @copyright 2017 Hostnet B.V.
+ */
+declare(strict_types=1);
+
+namespace Hostnet\Component\Resolver\Builder;
+
+use Hostnet\Component\Resolver\File;
+use Hostnet\Component\Resolver\Import\Dependency;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @covers \Hostnet\Component\Resolver\Builder\Asset
+ */
+class AssetTest extends TestCase
+{
+    public function testGeneric(): void
+    {
+        $file = new File(__FILE__);
+        $dep1 = new Dependency(new File(__DIR__ . '/some.file'));
+        $dep2 = new Dependency(new File(__DIR__ . '/other.file'));
+
+        $dep = new Dependency($file);
+        $dep->addChild($dep1);
+        $dep->addChild($dep2);
+
+        $asset = new Asset($dep);
+
+        self::assertSame($file, $asset->getFile());
+        self::assertSame([$dep, $dep1, $dep2], $asset->getFiles());
+        self::assertSame('foo/bar/AssetTest.php', $asset->getAssetFile('foo/bar', __DIR__)->path);
+    }
+
+    public function testNestedUri(): void
+    {
+        $file = new File(__DIR__ . '/some/file.css');
+        $dep  = new Dependency($file);
+
+        $asset = new Asset($dep);
+
+        self::assertSame('foo/bar/some/file.css', $asset->getAssetFile('foo/bar', __DIR__)->path);
+    }
+
+    public function testInRoot(): void
+    {
+        $file = new File('file.css');
+        $dep  = new Dependency($file);
+
+        $asset = new Asset($dep);
+
+        self::assertSame('foo/bar/file.css', $asset->getAssetFile('foo/bar', '')->path);
+    }
+
+    public function testWithoutExtension(): void
+    {
+        self::assertSame(
+            'foo/bar/.test',
+            (new Asset(new Dependency(new File('.test'))))->getAssetFile('foo/bar', '')->path
+        );
+        self::assertSame(
+            'foo/bar/.foo.bar',
+            (new Asset(new Dependency(new File('.foo.bar'))))->getAssetFile('foo/bar', '')->path
+        );
+    }
+}

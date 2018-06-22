@@ -1,0 +1,31 @@
+{
+    "input": {
+        "dist\/require.js": [
+            [
+                "..\/..\/src\/Builder\/js\/require.js",
+                ".js",
+                "..\/..\/src\/Builder\/js\/require.js",
+                true,
+                true
+            ]
+        ],
+        "dist\/fixtures\/foo.js": [
+            [
+                "fixtures\/foo.js",
+                ".js",
+                "foo.js",
+                true,
+                false
+            ]
+        ],
+        "dist\/bar.js": [
+            [
+                "fixtures\/bar.js",
+                ".js",
+                "bar.js",
+                true,
+                false
+            ]
+        ]
+    }
+}
