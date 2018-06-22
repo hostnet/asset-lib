@@ -67,7 +67,7 @@ class BuildFilesTest extends TestCase
             $this->config->getSplitStrategy()->willReturn(new OneOnOneSplittingStrategy());
 
             $r1 = new RootFile(new File('fixtures/sub/bar.js'));
-            $r1->addChild(new Dependency(new File('fixtures/baz.js'), true));
+            $r1->addChild(new Dependency(new File('fixtures/fez.js'), true));
 
             $this->finder->all(new File('fixtures/foo.js'))->willReturn(new RootFile(new File('fixtures/foo.js')));
             $this->finder->all(new File('fixtures/sub/bar.js'))->willReturn($r1);
@@ -169,6 +169,7 @@ class BuildFilesTest extends TestCase
 
             $root = new RootFile(new File('fixtures/foo.js'));
             $root->addChild(new Dependency(new File('fixtures/sub/bar.js')));
+            $root->addChild(new Dependency(new File('fixtures/fez.js'), true));
 
             $this->finder->all(new File('fixtures/foo.js'))->willReturn($root);
 

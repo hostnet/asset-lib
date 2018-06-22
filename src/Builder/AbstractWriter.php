@@ -26,7 +26,8 @@ abstract class AbstractWriter
     abstract public function acceptedExtension(): string;
 
     /**
-     * Return the javascript module this writer uses.
+     * Return the javascript module this writer uses. This can be either a node modules like "@acme/my-writer" or a
+     * absolute path to a file like "/some/dir/acme/my-writer.js"
      *
      * @return string
      */

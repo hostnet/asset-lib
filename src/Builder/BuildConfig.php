@@ -13,7 +13,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
  *
  * @internal
  */
-/* final*/ class BuildConfig implements \JsonSerializable
+class BuildConfig implements \JsonSerializable
 {
     /**
      * @var AbstractBuildStep[]

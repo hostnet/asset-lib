@@ -7,6 +7,7 @@ let path = require('path'), fs = require('fs');
 
 describe("build.js", function () {
     let builder = require('../src/Builder/js/build');
+    let mockLogger;
     let remove = function(path) {
         if (fs.existsSync(path)) {
             if (fs.lstatSync(path).isDirectory()) {
@@ -20,8 +21,8 @@ describe("build.js", function () {
         }
     };
 
-    it("when nothing given", function () {
-        let mockLogger = {
+    beforeEach(() => {
+        mockLogger = {
             logs: [],
             log: function (msg) {
                 this.logs.push(['LOG', msg]);
@@ -30,7 +31,9 @@ describe("build.js", function () {
                 this.logs.push(['ERROR', msg]);
             }
         };
+    });
 
+    it("when nothing given", function () {
         return builder
             .main([], "", mockLogger)
             .then(() => fail())
@@ -38,16 +41,6 @@ describe("build.js", function () {
     });
 
     it("with bad config", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         return builder
             .main(['idonotexists'], "", mockLogger)
             .then(() => fail())
@@ -55,16 +48,6 @@ describe("build.js", function () {
     });
 
     it("with empty files", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         return builder
             .main([__dirname + '/fixtures/config.json'], "", mockLogger)
             .then(() => fail())
@@ -72,16 +55,6 @@ describe("build.js", function () {
     });
 
     it("with bad config and files", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         return builder.main(
             ['--debug', '--verbose', '--log-json', __dirname + '/fixtures/config.json', 'idonotexisits'],
             "",
@@ -90,16 +63,6 @@ describe("build.js", function () {
     });
 
     it("with empty config and files", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         return builder.main(
             [
                 '--debug',
@@ -114,16 +77,6 @@ describe("build.js", function () {
     });
 
     it("build simple file", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         let config = {
             "mapping": {
                 ".js": ".js"
@@ -191,16 +144,6 @@ describe("build.js", function () {
             );
     });
     it("build simple file but skip file steps", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         let config = {
             "mapping": {
                 ".js": ".js"
@@ -268,16 +211,6 @@ describe("build.js", function () {
     });
 
     it("build simple file with up-to-date file but no cache", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         let config = {
             "mapping": {
                 ".js": ".js"
@@ -346,16 +279,6 @@ describe("build.js", function () {
     });
 
     it("build simple file with up-to-date file with cache", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         let config = {
             "mapping": {
                 ".js": ".js"
@@ -442,16 +365,6 @@ describe("build.js", function () {
 
 
     it("build simple file quiet", function () {
-        let mockLogger = {
-            logs: [],
-            log: function (msg) {
-                this.logs.push(['LOG', msg]);
-            },
-            error: function (msg) {
-                this.logs.push(['ERROR', msg]);
-            }
-        };
-
         let config = {
             "mapping": {
                 ".js": ".js"

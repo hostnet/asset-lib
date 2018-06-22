@@ -15,9 +15,11 @@ namespace Hostnet\Component\Resolver\Builder;
  * steps.
  *
  * Each step can have different accepting states, for instance: minification can happen for any module state since it
- * doesn't really care about when it happens. However, there can always be only one resulting state. Moreover, the
- * resulting state can never be "before" one of the accepting states, otherwise this would create an infinite build
- * loop. Finally, each step must have an accepting file extension and a resulting one.
+ * doesn't really care about when it happens. However, there can always be only one resulting state.
+ *
+ * To prevent infinite build loops transitions need to occur in the order FILE_READ -> FILE_TRANSPILED -> FILE_READY
+ * and for modules MODULES_COLLECTED -> MODULES_READY. This means that the resulting state can transition back to one
+ * of the accepting states. Finally, each step must have an accepting file extension and a resulting one.
  *
  * There is also a build priority, this can be used to indicate a the order in which steps need to be performed if
  * multiple build can be taken. For instance, you might want to perform some module transformation over minification.
@@ -97,7 +99,8 @@ abstract class AbstractBuildStep
     abstract public function resultingExtension(): string;
 
     /**
-     * Return the javascript module this step uses.
+     * Return the javascript module this step uses. This can be either a node modules like "@acme/my-step" or a
+     * absolute path to a file like "/some/dir/acme/my-step.js"
      *
      * @return string
      */

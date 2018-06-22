@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-/* final */ class BuildFiles implements \JsonSerializable
+class BuildFiles implements \JsonSerializable
 {
     private $finder;
     private $extension_map;

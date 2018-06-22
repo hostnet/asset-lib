@@ -32,11 +32,7 @@ function getCachedFileLocation(cacheDir, rootDir, file) {
 }
 
 function compileFile(file, config, logger) {
-    let filePath = file[0];
-    let fileExtension = file[1];
-    let fileModuleName = file[2];
-    let fileNeedsRebuild = file[3];
-    let fileSkipFileSteps = file[4];
+    let [filePath, fileExtension, fileModuleName, fileNeedsRebuild, fileSkipFileSteps] = file;
 
     // Check if there is a cache file.
     let hasCache = false;
