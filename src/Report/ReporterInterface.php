@@ -23,6 +23,14 @@ interface ReporterInterface
     public function reportOutputFile(File $file): void;
 
     /**
+     * Report an output file which was part of another file. For instance, fonts in style sheets.
+     *
+     * @param File $file
+     * @param File $parent
+     */
+    public function reportChildOutputFile(File $file, File $parent): void;
+
+    /**
      * Report the dependencies for the given file.
      *
      * @param File  $file

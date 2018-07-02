@@ -17,6 +17,10 @@ final class NullReporter implements ReporterInterface
     {
     }
 
+    public function reportChildOutputFile(File $file, File $parent): void
+    {
+    }
+
     public function reportFileDependencies(File $file, array $dependencies): void
     {
     }

@@ -47,6 +47,9 @@ class OutputReader
             case 'FILE_INIT':
                 $this->reporter->reportFileState(new File($file), ReporterInterface::STATE_BUILT);
                 break;
+            case 'BUILD_ADDITIONAL':
+                $this->reporter->reportChildOutputFile(new File($file), new File($metadata['parent']));
+                break;
             case 'FILE_CACHE':
                 $this->reporter->reportFileState(new File($file), ReporterInterface::STATE_FROM_CACHE);
                 break;

@@ -47,6 +47,60 @@ describe("build.js", function () {
             .catch(() => expect(mockLogger.logs[0]).toEqual(['ERROR', 'Cannot read config file.']));
     });
 
+    it("with bad extension", function () {
+        let config = {
+            "mapping": {
+                ".js": ".js"
+            },
+            "paths": {
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out"),
+                "cache": path.join(__dirname, "fixtures", "var_bad")
+            },
+            "build": {
+                ".js": [
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                ]
+            }
+        };
+        let files = {
+            "input": {
+                'foo.css': [
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.css'), '.css', 'input.css', true, false]
+                ]
+            }
+        };
+        fs.writeFileSync(__dirname + "/fixtures/bad_config.json", JSON.stringify(config));
+        fs.writeFileSync(__dirname + "/fixtures/bad_files.json", JSON.stringify(files));
+
+        return builder.main(
+            [
+                __dirname + '/fixtures/bad_config.json',
+                __dirname + '/fixtures/bad_files.json'
+            ],
+            "",
+            mockLogger
+        )
+            .then(() => fail())
+            .catch((e) => {
+                expect(mockLogger.logs[0]).toEqual(['ERROR', 'No build config for extension ".css".']);
+            })
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/var_bad");
+                    remove(__dirname + "\/fixtures\/bad_files.json");
+                    remove(__dirname + "\/fixtures\/bad_config.json");
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/var_bad");
+                    remove(__dirname + "\/fixtures\/bad_files.json");
+                    remove(__dirname + "\/fixtures\/bad_config.json");
+                }
+            );
+    });
+
     it("with empty files", function () {
         return builder
             .main([__dirname + '/fixtures/config.json'], "", mockLogger)
@@ -143,6 +197,7 @@ describe("build.js", function () {
                 }
             );
     });
+
     it("build simple file but skip file steps", function () {
         let config = {
             "mapping": {
@@ -363,7 +418,6 @@ describe("build.js", function () {
             );
     });
 
-
     it("build simple file quiet", function () {
         let config = {
             "mapping": {
@@ -408,6 +462,86 @@ describe("build.js", function () {
                 () => {
                     remove(__dirname + "\/fixtures\/config5.simple.json");
                     remove(__dirname + "\/fixtures\/files5.simple.json");
+                }
+            );
+    });
+
+    it("build simple file with additional", function () {
+        let config = {
+            "mapping": {
+                ".js": ".js"
+            },
+            "paths": {
+                "root": path.join(__dirname, "fixtures"),
+                "out": path.join(__dirname, "out"),
+                "cache": path.join(__dirname, "fixtures", "var6")
+            },
+            "build": {
+                ".js": [
+                    [path.join(__dirname, 'fixtures', 'additional.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                    [path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js')],
+                ]
+            }
+        };
+        let files = {
+            "input": {
+                'foo.js': [
+                    [path.join(__dirname, 'fixtures', 'input', 'foo.js'), '.js', 'input.js', true, false]
+                ]
+            }
+        };
+        fs.writeFileSync(__dirname + "/fixtures/config6.simple.json", JSON.stringify(config));
+        fs.writeFileSync(__dirname + "/fixtures/files6.simple.json", JSON.stringify(files));
+
+        return builder.main(
+            [
+                '--debug',
+                '--verbose',
+                '--log-json',
+                __dirname + '/fixtures/config6.simple.json',
+                __dirname + '/fixtures/files6.simple.json'
+            ],
+            "",
+            mockLogger
+        )
+            .then(() => {
+                let inFile = path.join(__dirname, 'fixtures', 'input', 'foo.js');
+                let additionalFile = path.join(__dirname, 'fixtures', 'input', 'bar.js');
+                let outFile = path.join(__dirname, 'fixtures', 'foo.js');
+                let outAdditionalFile = path.join(__dirname, 'fixtures', 'bar.js');
+                let step = path.join(__dirname, '..', 'src', 'Builder', 'js', 'steps', 'identity.js');
+                let additionalStep = path.join(__dirname, 'fixtures', 'additional.js');
+
+                let json = JSON.stringify;
+
+                expect(mockLogger.logs).toEqual([
+                    [ 'LOG', json({action:"FILE_INIT", file: inFile, "metadata":{}}) ],
+                    [ 'LOG', json({action:"FILE_STEP", file: inFile , "metadata":{step: additionalStep}}) ],
+                    [ 'LOG', json({action:"BUILD_ADDITIONAL", file: outAdditionalFile , "metadata":{parent: inFile}}) ],
+                    [ 'LOG', json({action:"MODULE_INIT", file: outFile , "metadata":{}}) ],
+                    [ 'LOG', json({action:"MODULE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', json({action:"WRITE_STEP", file: outFile , "metadata":{step: step}}) ],
+                    [ 'LOG', json({action:"FILE_INIT", file: additionalFile, "metadata":{}}) ],
+                    [ 'LOG', json({action:"FILE_STEP", file: additionalFile , "metadata":{step: additionalStep}}) ],
+                    [ 'LOG', json({action:"MODULE_INIT", file: outAdditionalFile , "metadata":{}}) ],
+                    [ 'LOG', json({action:"MODULE_STEP", file: outAdditionalFile , "metadata":{step: step}}) ],
+                    [ 'LOG', json({action:"WRITE_STEP", file: outAdditionalFile , "metadata":{step: step}}) ],
+                    [ 'LOG', json({action:"WRITE", file: outAdditionalFile , "metadata":{}}) ],
+                    [ 'LOG', json({action:"WRITE", file: outFile , "metadata":{}}) ]
+                ]);
+            })
+            .catch((e) => {console.error(e); fail(e)})
+            .then(
+                () => {
+                    remove(__dirname + "\/fixtures\/var6");
+                    remove(__dirname + "\/fixtures\/config6.simple.json");
+                    remove(__dirname + "\/fixtures\/files6.simple.json");
+                },
+                () => {
+                    remove(__dirname + "\/fixtures\/var6");
+                    remove(__dirname + "\/fixtures\/config6.simple.json");
+                    remove(__dirname + "\/fixtures\/files6.simple.json");
                 }
             );
     });
