@@ -1,6 +1,6 @@
-         Asset    Size     Status       
- fixtures/a.js 1 kb -> 3 b [built]      
- fixtures/b.js    300 b    [up-to-date] 
+          Asset    Size     Status       
+  fixtures/a.js 1 kb -> 3 b [built]      
+ *fixtures/b.js    300 b    [up-to-date] 
 
  [0]  fixtures/a.js 3 b [built]         
  [1]  fixtures/c.js 12 b [built]        

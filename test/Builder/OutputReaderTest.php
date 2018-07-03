@@ -38,13 +38,15 @@ class OutputReaderTest extends TestCase
         $this->reporter->reportFileState(new File('c.js'), ReporterInterface::STATE_BUILT)->shouldBeCalled();
         $this->reporter->reportFileState(new File('d.js'), ReporterInterface::STATE_FROM_CACHE)->shouldBeCalled();
         $this->reporter->reportOutputFile(new File('a.js'))->shouldBeCalled();
+        $this->reporter->reportChildOutputFile(new File('c.js'), new File('b.js'))->shouldBeCalled();
 
         // Single
         $this->output_reader->append(json_encode(['action' => 'WRITE', 'file' => 'a.js', 'metadata' => []]) . "\n");
         // Multiple
         $this->output_reader->append(
             json_encode(['action' => 'FILE_INIT', 'file' => 'b.js', 'metadata' => []]) . "\n" .
-            json_encode(['action' => 'FILE_INIT', 'file' => 'c.js', 'metadata' => []]) . "\n"
+            json_encode(['action' => 'FILE_INIT', 'file' => 'c.js', 'metadata' => []]) . "\n" .
+            json_encode(['action' => 'BUILD_ADDITIONAL', 'file' => 'c.js', 'metadata' => ['parent' => 'b.js']]) . "\n"
         );
         // In parts
         $line = json_encode(['action' => 'FILE_CACHE', 'file' => 'd.js', 'metadata' => []]) . "\n";

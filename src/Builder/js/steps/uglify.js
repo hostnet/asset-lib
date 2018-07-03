@@ -7,5 +7,5 @@ module.exports = function (file) {
         throw result.error;
     }
 
-    return {name: file.name, module: file.module, content: result.code};
+    return file.update(Buffer.from(result.code));
 };

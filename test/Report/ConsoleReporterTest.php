@@ -71,6 +71,7 @@ class ConsoleReporterTest extends TestCase
 
         $this->console_reporter->reportOutputFile($file1);
         $this->console_reporter->reportOutputFile($file2);
+        $this->console_reporter->reportChildOutputFile($file2, $dep1->getFile());
         $this->console_reporter->reportFileState($file1, ReporterInterface::STATE_BUILT);
         $this->console_reporter->reportFileState($file2, ReporterInterface::STATE_UP_TO_DATE);
         $this->console_reporter->reportFileState($file3, ReporterInterface::STATE_BUILT);

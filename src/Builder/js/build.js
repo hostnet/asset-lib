@@ -1,22 +1,59 @@
 let path = require('path'), fs = require('fs'), crypto = require('crypto');
 
-function mkdirRecursive(rootDir, pathToCreate) {
-    try {
-        let relativePath = path.relative(rootDir, pathToCreate);
+let BuildableFile = function (filePath, extension, moduleName, needsRebuild, skipFileSteps) {
+    this.path = filePath;
+    this.extension = extension !== undefined ? extension : path.extname(filePath);
+    this.moduleName = moduleName !== undefined ? moduleName : filePath;
+    this.needsRebuild = needsRebuild !== undefined ? needsRebuild : true;
+    this.skipFileSteps = skipFileSteps !== undefined ? skipFileSteps : false;
+};
 
-        relativePath
-            .split(path.sep)
-            .reduce((currentPath, folder) => {
-                currentPath = path.join(currentPath, folder);
-                if (!fs.existsSync(currentPath)) {
-                    fs.mkdirSync(currentPath);
-                }
-                return currentPath;
-            }, rootDir);
-    } catch (e) {
+BuildableFile.fromData = function (data) {
+    return new BuildableFile(data[0], data[1], data[2], data[3], data[4])
+};
 
-        throw e;
+let File = function (name, module, content) {
+    this.name = name;
+    this.module = module;
+    this.content = content;
+    this.additionalFiles = [];
+
+    this.update = function (newContent, moduleName) {
+        if (newContent !== undefined) {
+            this.content = newContent;
+        }
+
+        if (moduleName !== undefined) {
+            this.module = moduleName;
+        }
+
+        return this;
+    };
+
+    this.addAdditionalFile = function (outputFile, inputFiles) {
+        this.additionalFiles.push({
+            outputFile: outputFile,
+            inputFiles: inputFiles.map((file) => new BuildableFile(file))
+        });
     }
+};
+
+File.fromBuildFile = function (buildFile, content) {
+    return new File(buildFile.path, buildFile.moduleName, content);
+};
+
+function mkdirRecursive(rootDir, pathToCreate) {
+    let relativePath = path.relative(rootDir, pathToCreate);
+
+    relativePath
+        .split(path.sep)
+        .reduce((currentPath, folder) => {
+            currentPath = path.join(currentPath, folder);
+            if (!fs.existsSync(currentPath)) {
+                fs.mkdirSync(currentPath);
+            }
+            return currentPath;
+        }, rootDir);
 }
 
 function getCachedFileLocation(cacheDir, rootDir, file) {
@@ -31,30 +68,24 @@ function getCachedFileLocation(cacheDir, rootDir, file) {
     return {dir: path.join(cacheDir, hash.substr(0, 2)), file: hash.substr(2)};
 }
 
-function compileFile(file, config, logger) {
-    let [filePath, fileExtension, fileModuleName, fileNeedsRebuild, fileSkipFileSteps] = file;
-
+function compileFile(buildableFile, config, logger) {
     // Check if there is a cache file.
     let hasCache = false;
     let cacheFile;
 
     // Do we want to skip the file steps and go straight to the module?
-    if (fileSkipFileSteps) {
+    if (buildableFile.skipFileSteps) {
         if (logger.isVerbose()) {
             logger.log(
-                "Skipping build file steps for  \"" + filePath + "\".",
-                {action: "FILE_INIT", file: filePath, metadata: {}}
+                "Skipping build file steps for  \"" + buildableFile.path + "\".",
+                {action: "FILE_INIT", file: buildableFile.path, metadata: {}}
             );
         }
 
         return new Promise(function (resolve, reject) {
             try {
-                fs.readFile(filePath, function (err, buffer) {
-                    if (err) reject(err); else resolve({
-                        name: filePath,
-                        module: fileModuleName,
-                        content: buffer
-                    });
+                fs.readFile(buildableFile.path, function (err, buffer) {
+                    if (err) reject(err); else resolve(File.fromBuildFile(buildableFile, buffer));
                 });
             } catch (err) {
                 reject(err);
@@ -63,29 +94,25 @@ function compileFile(file, config, logger) {
     }
 
     if (config.paths.cache !== undefined) {
-        cacheFile = getCachedFileLocation(config.paths.cache, config.paths.root, filePath);
+        cacheFile = getCachedFileLocation(config.paths.cache, config.paths.root, buildableFile.path);
         mkdirRecursive(config.paths.root, cacheFile.dir);
 
         hasCache = fs.existsSync(path.join(cacheFile.dir, cacheFile.file));
     }
 
     // Do we need a recompile or we do not have cache?
-    if (!fileNeedsRebuild && hasCache) {
+    if (!buildableFile.needsRebuild && hasCache) {
         return new Promise(function (resolve, reject) {
             try {
                 if (logger.isVerbose()) {
                     logger.log(
-                        "Reading from cache for \"" + filePath + "\".",
-                        {action: "FILE_CACHE", file: filePath, metadata: {}}
+                        "Reading from cache for \"" + buildableFile.path + "\".",
+                        {action: "FILE_CACHE", file: buildableFile.path, metadata: {}}
                     );
                 }
 
                 fs.readFile(path.join(cacheFile.dir, cacheFile.file), function (err, buffer) {
-                    if (err) reject(err); else resolve({
-                        name: filePath,
-                        module: fileModuleName,
-                        content: buffer
-                    });
+                    if (err) reject(err); else resolve(File.fromBuildFile(buildableFile, buffer));
                 });
             } catch (err) {
                 reject(err);
@@ -95,29 +122,25 @@ function compileFile(file, config, logger) {
 
     let filePromise = new Promise(function (resolve, reject) {
         try {
-            fs.readFile(filePath, function (err, buffer) {
-                if (err) reject(err); else resolve({
-                    name: filePath,
-                    module: fileModuleName,
-                    content: buffer
-                });
+            fs.readFile(buildableFile.path, function (err, buffer) {
+                if (err) reject(err); else resolve(File.fromBuildFile(buildableFile, buffer));
             });
         } catch (err) {
             reject(err);
         }
     });
 
-    if (!config.build[fileExtension]) {
-        throw new Error('No build config for extension "' + fileExtension + '".');
+    if (config.build[buildableFile.extension] === undefined) {
+        return Promise.reject('No build config for extension "' + buildableFile.extension + '".');
     }
 
-    let steps = config.build[fileExtension][0];
+    let steps = config.build[buildableFile.extension][0];
 
     if (logger.isVerbose()) {
         filePromise = filePromise.then((file) => {
             logger.log(
-                "Initializing file build steps \"" + filePath + "\".",
-                {action: "FILE_INIT", file: filePath, metadata: {}}
+                "Initializing file build steps \"" + buildableFile.path + "\".",
+                {action: "FILE_INIT", file: buildableFile.path, metadata: {}}
             );
             return file;
         });
@@ -133,7 +156,7 @@ function compileFile(file, config, logger) {
                         );
                     }
 
-                    resolve(require(steps[j])(file, (file) => compileFile(file, config, logger)));
+                    resolve(require(steps[j])(file, config, (file) => compileFile(file, config, logger)));
                 } catch (err) {
                     reject(err);
                 }
@@ -159,6 +182,101 @@ function compileFile(file, config, logger) {
     return filePromise;
 }
 
+function compileModule(outputFile, inputFiles, config, logger) {
+    let modulePromises = [];
+
+    // File steps
+    for (let i = 0; i < inputFiles.length; i++) {
+        modulePromises.push(compileFile(inputFiles[i], config, logger))
+    }
+
+    return Promise.all(modulePromises).then(function (moduleFiles) {
+        let ext = path.extname(outputFile);
+        let content = [];
+        let writerPromises = [];
+
+        for (let j = 0; j < moduleFiles.length; j++) {
+            if (content.length > 0) {
+                content.push(Buffer.from("\n"));
+            }
+
+            content.push(moduleFiles[j].content);
+
+            // Build any additional files
+            for (let k = 0; k < moduleFiles[j].additionalFiles.length; k++) {
+                let additionalFile = moduleFiles[j].additionalFiles[k];
+                if (logger.isVerbose()) {
+                    logger.log(
+                        "Compiling additional file \"" + additionalFile.outputFile + "\".",
+                        {
+                            action: "BUILD_ADDITIONAL",
+                            file: path.join(config.paths.root, additionalFile.outputFile),
+                            metadata: {parent: moduleFiles[j].name}
+                        }
+                    );
+                }
+
+                writerPromises.push(compileModule(
+                    additionalFile.outputFile,
+                    additionalFile.inputFiles,
+                    config,
+                    logger
+                ));
+            }
+        }
+
+        let steps = config.build[ext][1];
+        let writers = config.build[ext][2];
+        let moduleFile = new File(
+            path.join(config.paths.root, outputFile),
+            path.basename(outputFile, ext),
+            Buffer.concat(content)
+        );
+
+        if (logger.isVerbose()) {
+            logger.log(
+                "Initializing module build steps \"" + moduleFile.name + "\".",
+                {action: "MODULE_INIT", file: moduleFile.name, metadata: {}}
+            );
+        }
+
+        for (let j = 0; j < steps.length; j++) {
+            if (logger.isVerbose()) {
+                logger.log(
+                    "Processing \"" + moduleFile.name + "\" file with \"" + steps[j] + "\".",
+                    {action: "MODULE_STEP", file: moduleFile.name, metadata: {step: steps[j]}}
+                );
+            }
+
+            moduleFile = require(steps[j])(moduleFile, config);
+        }
+
+
+        mkdirRecursive(config.paths.root, path.dirname(moduleFile.name));
+
+        for (let j = 0; j < writers.length; j++) {
+            if (logger.isVerbose()) {
+                logger.log(
+                    "Writing \"" + moduleFile.name + "\" file with \"" + writers[j] + "\".",
+                    {action: "WRITE_STEP", file: moduleFile.name, metadata: {step: writers[j]}}
+                );
+            }
+
+            writerPromises.push(require(writers[j])(moduleFile, config));
+        }
+
+        return Promise.all(writerPromises).then(() => {
+            // Make sure to log the write when all done.
+            if (logger.isVerbose()) {
+                logger.log(
+                    "Done writing \"" + moduleFile.name + "\".",
+                    {action: "WRITE", file: moduleFile.name, metadata: {}}
+                );
+            }
+        })
+    }, (e) => { logger.error(e); return Promise.reject(e); });
+}
+
 function compile(config, files, logger) {
     let outputFilePromises = [];
 
@@ -167,73 +285,12 @@ function compile(config, files, logger) {
             continue;
         }
 
-        let modulePromises = [];
-
-        // File steps
-        for (let i = 0; i < files.input[outputFile].length; i++) {
-            modulePromises.push(compileFile(files.input[outputFile][i], config, logger))
-        }
-
-        outputFilePromises.push(Promise.all(modulePromises).then(function (moduleFiles) {
-            let ext = path.extname(outputFile);
-            let content = '';
-
-            for (let j = 0; j < moduleFiles.length; j++) {
-                content += moduleFiles[j].content + "\n";
-            }
-
-            let steps = config.build[ext][1];
-            let writers = config.build[ext][2];
-            let moduleFile = {
-                name: path.join(config.paths.root, outputFile),
-                module: path.basename(outputFile, ext),
-                content: content
-            };
-
-            if (logger.isVerbose()) {
-                logger.log(
-                    "Initializing module build steps \"" + moduleFile.name + "\".",
-                    {action: "MODULE_INIT", file: moduleFile.name, metadata: {}}
-                );
-            }
-
-            for (let j = 0; j < steps.length; j++) {
-                if (logger.isVerbose()) {
-                    logger.log(
-                        "Processing \"" + moduleFile.name + "\" file with \"" + steps[j] + "\".",
-                        {action: "MODULE_STEP", file: moduleFile.name, metadata: {step: steps[j]}}
-                    );
-                }
-
-                moduleFile = require(steps[j])(moduleFile);
-            }
-
-
-            mkdirRecursive(config.paths.root, path.dirname(moduleFile.name));
-
-            let writerPromises = [];
-
-            for (let j = 0; j < writers.length; j++) {
-                if (logger.isVerbose()) {
-                    logger.log(
-                        "Writing \"" + moduleFile.name + "\" file with \"" + writers[j] + "\".",
-                        {action: "WRITE_STEP", file: moduleFile.name, metadata: {step: writers[j]}}
-                    );
-                }
-
-                writerPromises.push(require(writers[j])(moduleFile));
-            }
-
-            return Promise.all(writerPromises).then(() => {
-                // Make sure to log the write when all done.
-                if (logger.isVerbose()) {
-                    logger.log(
-                        "Done writing \"" + moduleFile.name + "\".",
-                        {action: "WRITE", file: moduleFile.name, metadata: {}}
-                    );
-                }
-            })
-        }, (e) => { logger.error(e); return Promise.reject(e); }));
+        outputFilePromises.push(compileModule(
+            outputFile,
+            files.input[outputFile].map((file) => BuildableFile.fromData(file)),
+            config,
+            logger
+        ));
     }
 
     return Promise.all(outputFilePromises).catch((e) => { logger.error(e); return Promise.reject(e); });
@@ -293,7 +350,7 @@ function main(args, stdin, stdout) {
                     }
                 },
                 error: (e) => {
-                    stdout.error(e.stack)
+                    stdout.error(e)
                 },
                 isVerbose: () => {
                     return isVerbose;
@@ -331,7 +388,7 @@ function main(args, stdin, stdout) {
             stream.on('end', () => {
                 compile(config, JSON.parse(content), logger)
                     .then(() => resolve())
-                    .catch(() => reject());
+                    .catch((e) => reject(e));
             });
         } else {
             stdout.error("Cannot read stdin or files file.");
@@ -341,6 +398,7 @@ function main(args, stdin, stdout) {
 }
 
 exports.main = main;
+exports.File = File;
 
 // CLI entry point
 if (require.main === module) {

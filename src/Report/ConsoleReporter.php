@@ -26,6 +26,7 @@ final class ConsoleReporter implements ReporterInterface
     private $file_sizes  = [];
     private $file_states = [];
     private $output_file = [];
+    private $child_files = [];
 
     /**
      * @var DependencyNodeInterface[][]
@@ -45,6 +46,11 @@ final class ConsoleReporter implements ReporterInterface
     public function reportOutputFile(File $file): void
     {
         $this->output_file[] = $this->makeRelativeToRoot($file);
+    }
+
+    public function reportChildOutputFile(File $file, File $parent): void
+    {
+        $this->child_files[$this->makeRelativeToRoot($file)] = $this->makeRelativeToRoot($parent);
     }
 
     public function reportFileDependencies(File $file, array $dependencies): void
@@ -73,14 +79,15 @@ final class ConsoleReporter implements ReporterInterface
         $table->setColumnWidth(1, 5);
 
         foreach ($this->output_file as $file) {
-            $file_size   = $this->size_helper->filesize(
+            $file_size    = $this->size_helper->filesize(
                 File::isAbsolutePath($file) ? $file : $this->config->getProjectRoot() . '/' . $file
             );
-            $input_size  = isset($this->file_sizes[$file]) ? $this->size_helper->format($this->file_sizes[$file]) : '';
-            $output_size = $this->size_helper->format($file_size);
+            $input_size   = isset($this->file_sizes[$file]) ? $this->size_helper->format($this->file_sizes[$file]) : '';
+            $output_size  = $this->size_helper->format($file_size);
+            $child_prefix = isset($this->child_files[$file]) ? '<fg=yellow>*</>' : '';
 
             $table->addRow([
-                $file,
+                $child_prefix . $file,
                 (!empty($input_size)
                     ? ('<fg=yellow>' . $input_size . '</> -> ')
                     : ''
