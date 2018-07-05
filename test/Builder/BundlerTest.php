@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Builder;
 
-use Hostnet\Component\Resolver\Builder\Step\JsBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep;
 use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\File;
@@ -71,7 +71,7 @@ class BundlerTest extends TestCase
             $this->finder->all(new File('fixtures/bar.js'))->willReturn(new RootFile(new File('fixtures/bar.js')));
 
             $build_config = new BuildConfig($this->config->reveal());
-            $build_config->registerStep(new JsBuildStep());
+            $build_config->registerStep(new IdentityBuildStep('.js'));
             $build_config->registerWriter(new GenericFileWriter());
 
             $reporter->reportFileDependencies(Argument::any(), Argument::any())->shouldBeCalled();
@@ -121,7 +121,7 @@ class BundlerTest extends TestCase
             $this->finder->all(new File('fixtures/bar.js'))->willReturn(new RootFile(new File('fixtures/bar.js')));
 
             $build_config = new BuildConfig($this->config->reveal());
-            $build_config->registerStep(new JsBuildStep());
+            $build_config->registerStep(new IdentityBuildStep('.js'));
             $build_config->registerWriter(new GenericFileWriter());
 
             $reporter->reportFileDependencies(Argument::any(), Argument::any())->shouldBeCalled();
@@ -172,7 +172,7 @@ class BundlerTest extends TestCase
             $this->config->getNodeJsExecutable()->willReturn($node);
 
             $build_config = new BuildConfig($this->config->reveal());
-            $build_config->registerStep(new JsBuildStep());
+            $build_config->registerStep(new IdentityBuildStep('.js'));
             $build_config->registerWriter(new GenericFileWriter());
 
             $fs->dumpFile(__DIR__ . '/var/build_config.json', json_encode([
@@ -223,7 +223,7 @@ class BundlerTest extends TestCase
             $this->finder->all(new File('fixtures/bar.js'))->willReturn(new RootFile(new File('fixtures/bar.js')));
 
             $build_config = new BuildConfig($this->config->reveal());
-            $build_config->registerStep(new JsBuildStep());
+            $build_config->registerStep(new IdentityBuildStep('.js'));
             $build_config->registerWriter(new GenericFileWriter());
 
             $this->expectException(\RuntimeException::class);

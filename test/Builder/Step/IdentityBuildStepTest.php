@@ -10,13 +10,13 @@ use Hostnet\Component\Resolver\Builder\AbstractBuildStep;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Builder\Step\JsBuildStep
+ * @covers \Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep
  */
-class JsBuildStepTest extends TestCase
+class IdentityBuildStepTest extends TestCase
 {
     public function testGeneric(): void
     {
-        $step = new JsBuildStep();
+        $step = new IdentityBuildStep('.js');
 
         self::assertSame([
             AbstractBuildStep::FILE_READ,

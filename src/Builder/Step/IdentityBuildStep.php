@@ -8,8 +8,19 @@ namespace Hostnet\Component\Resolver\Builder\Step;
 
 use Hostnet\Component\Resolver\Builder\AbstractBuildStep;
 
-class JsBuildStep extends AbstractBuildStep
+/**
+ * Most generic build step which just puts the given extension to a ready state. This is useful if you are only
+ * interested in supporting an extension without actually doing anything to it. For instance, fonts or images.
+ */
+class IdentityBuildStep extends AbstractBuildStep
 {
+    private $extension;
+
+    public function __construct(string $extension)
+    {
+        $this->extension = $extension;
+    }
+
     public function acceptedStates(): array
     {
         return [self::FILE_READ, self::FILE_TRANSPILED];
@@ -22,12 +33,12 @@ class JsBuildStep extends AbstractBuildStep
 
     public function acceptedExtension(): string
     {
-        return '.js';
+        return $this->extension;
     }
 
     public function resultingExtension(): string
     {
-        return '.js';
+        return $this->extension;
     }
 
     public function getJsModule(): string
