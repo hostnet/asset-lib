@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
-use Hostnet\Component\Resolver\Builder\Step\JsBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
 use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
@@ -32,8 +32,7 @@ class CorePluginTest extends TestCase
         $plugin_api->getConfig()->willReturn($config);
         $plugin_api->getCache()->willReturn($cache);
         $plugin_api->addCollector(Argument::type(CachedImportCollector::class))->shouldBeCalled();
-        $plugin_api->addBuildStep(Argument::type(CssBuildStep::class))->shouldBeCalled();
-        $plugin_api->addBuildStep(Argument::type(JsBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(IdentityBuildStep::class))->shouldBeCalled();
         $plugin_api->addBuildStep(Argument::type(ModuleBuildStep::class))->shouldBeCalled();
         $plugin_api->addWriter(Argument::type(GenericFileWriter::class))->shouldBeCalled();
 
@@ -51,8 +50,7 @@ class CorePluginTest extends TestCase
         $plugin_api->getConfig()->willReturn($config);
         $plugin_api->getCache()->willReturn($cache);
         $plugin_api->addCollector(Argument::type(JsImportCollector::class))->shouldBeCalled();
-        $plugin_api->addBuildStep(Argument::type(CssBuildStep::class))->shouldBeCalled();
-        $plugin_api->addBuildStep(Argument::type(JsBuildStep::class))->shouldBeCalled();
+        $plugin_api->addBuildStep(Argument::type(IdentityBuildStep::class))->shouldBeCalled();
         $plugin_api->addBuildStep(Argument::type(ModuleBuildStep::class))->shouldBeCalled();
         $plugin_api->addWriter(Argument::type(GenericFileWriter::class))->shouldBeCalled();
 

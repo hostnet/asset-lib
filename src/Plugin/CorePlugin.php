@@ -6,8 +6,7 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
-use Hostnet\Component\Resolver\Builder\Step\JsBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
 use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;
 use Hostnet\Component\Resolver\Cache\CachedImportCollector;
@@ -35,8 +34,8 @@ final class CorePlugin implements PluginInterface
         $plugin_api->addCollector($js_collector);
 
         $plugin_api->addBuildStep(new ModuleBuildStep());
-        $plugin_api->addBuildStep(new JsBuildStep());
-        $plugin_api->addBuildStep(new CssBuildStep());
+        $plugin_api->addBuildStep(new IdentityBuildStep('.js'));
+        $plugin_api->addBuildStep(new IdentityBuildStep('.css'));
 
         $plugin_api->addWriter(new GenericFileWriter());
     }
