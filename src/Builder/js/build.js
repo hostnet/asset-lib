@@ -14,12 +14,14 @@ BuildableFile.fromData = function (data) {
 
 let File = function (name, module, content) {
     this.name = name;
-    this.module = module;
-    this.content = content;
     this.additionalFiles = [];
 
     this.update = function (newContent, moduleName) {
         if (newContent !== undefined) {
+            if (!Buffer.isBuffer(newContent)) {
+                throw new TypeError('content should be of type Buffer, got ' + (typeof newContent));
+            }
+
             this.content = newContent;
         }
 
@@ -35,7 +37,9 @@ let File = function (name, module, content) {
             outputFile: outputFile,
             inputFiles: inputFiles.map((file) => new BuildableFile(file))
         });
-    }
+    };
+
+    this.update(content, module);
 };
 
 File.fromBuildFile = function (buildFile, content) {
