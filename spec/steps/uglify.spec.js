@@ -6,11 +6,13 @@ describe("uglify.js", function () {
         let result = step(new builder.File(
             'foo.js',
             'foo.js',
-            'var A = /** @class */ (function () {\n' +
-            '    function A() {\n' +
-            '    }\n' +
-            '    return A;\n' +
-            '}());\n'
+            Buffer.from(
+                'var A = /** @class */ (function () {\n' +
+                '    function A() {\n' +
+                '    }\n' +
+                '    return A;\n' +
+                '}());\n'
+            )
         ));
 
         expect(result.name).toBe('foo.js');
@@ -21,7 +23,7 @@ describe("uglify.js", function () {
     it('on error', function () {
         let step = require('../../src/Builder/js/steps/uglify');
         try {
-            step(new builder.File('foo.js', 'foo.js', "{{{"));
+            step(new builder.File('foo.js', 'foo.js', Buffer.from("{{{")));
         } catch (e) {
             expect(e.message).toBe("Unexpected token: eof (undefined)");
         }
