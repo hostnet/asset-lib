@@ -15,7 +15,7 @@ module.exports = function (file, config) {
 
             file.addAdditionalFile(cssPath, [fontFile]);
 
-            return 'url(' + JSON.stringify(path.relative(config.paths.out, cssPath)) + ')';
+            return 'url(' + JSON.stringify(path.relative(path.dirname(config.paths.out + file.outputFile), cssPath)) + ')';
         });
         return '@font-face {' + rewrittenContent + '}';
     });
