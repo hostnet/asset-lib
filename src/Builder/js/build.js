@@ -12,8 +12,9 @@ BuildableFile.fromData = function (data) {
     return new BuildableFile(data[0], data[1], data[2], data[3], data[4])
 };
 
-let File = function (name, module, content) {
+let File = function (name, module, content, outputFile) {
     this.name = name;
+    this.outputFile = outputFile;
     this.additionalFiles = [];
 
     this.update = function (newContent, moduleName) {
@@ -43,7 +44,7 @@ let File = function (name, module, content) {
 };
 
 File.fromBuildFile = function (buildFile, content) {
-    return new File(buildFile.path, buildFile.moduleName, content);
+    return new File(buildFile.path, buildFile.moduleName, content, buildFile.path);
 };
 
 function mkdirRecursive(rootDir, pathToCreate) {

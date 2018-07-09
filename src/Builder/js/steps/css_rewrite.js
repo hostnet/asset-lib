@@ -10,12 +10,14 @@ module.exports = function (file, config) {
                 return match;
             }
 
-            let cssPath = config.paths.out + 'fonts/' + path.basename(originalFile);
+            let cssPath = path.join(config.paths.out, 'fonts', path.basename(originalFile));
             let fontFile = path.normalize(path.join(config.paths.root, path.dirname(file.name), originalFile));
 
             file.addAdditionalFile(cssPath, [fontFile]);
 
-            return 'url(' + JSON.stringify(path.relative(config.paths.out, cssPath)) + ')';
+            let relativePath = path.relative(path.dirname(path.join(config.paths.out, file.outputFile)), cssPath);
+
+            return 'url(' + JSON.stringify(relativePath) + ')';
         });
         return '@font-face {' + rewrittenContent + '}';
     });
