@@ -161,7 +161,11 @@ function compileFile(buildableFile, config, logger) {
                         );
                     }
 
-                    resolve(require(steps[j])(file, config, (file) => compileFile(file, config, logger)));
+                    resolve(require(steps[j])(
+                        file,
+                        config,
+                        (file) => compileFile(new BuildableFile(file), config, logger)
+                    ));
                 } catch (err) {
                     reject(err);
                 }
