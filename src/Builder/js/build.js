@@ -44,7 +44,7 @@ let File = function (name, module, content, outputFile) {
 };
 
 File.fromBuildFile = function (buildFile, content) {
-    return new File(buildFile.path, buildFile.moduleName, content, buildFile.path);
+    return new File(buildFile.path, buildFile.moduleName, content, buildFile.moduleName);
 };
 
 function mkdirRecursive(rootDir, pathToCreate) {
