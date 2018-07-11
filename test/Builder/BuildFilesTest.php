@@ -85,6 +85,7 @@ class BuildFilesTest extends TestCase
                         '../../src/Builder/js/require.js',
                         true,
                         true,
+                        '../../src/Builder/js',
                     ],
                 ],
                 'dist/fixtures/foo.js' => [
@@ -94,6 +95,7 @@ class BuildFilesTest extends TestCase
                         'foo.js',
                         true,
                         false,
+                        '',
                     ],
                 ],
                 'dist/sub/bar.js' => [
@@ -103,6 +105,7 @@ class BuildFilesTest extends TestCase
                         'sub/bar.js',
                         true,
                         false,
+                        'sub',
                     ],
                 ],
             ], $data['input']);
@@ -186,6 +189,7 @@ class BuildFilesTest extends TestCase
                         'foo.js',
                         false,
                         false,
+                        '',
                     ],
                     [
                         'fixtures/sub/bar.js',
@@ -193,6 +197,7 @@ class BuildFilesTest extends TestCase
                         'sub/bar.js',
                         false,
                         false,
+                        'sub',
                     ],
                 ],
             ], $data['input']);

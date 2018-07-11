@@ -1,20 +1,22 @@
 let path = require('path'), fs = require('fs'), crypto = require('crypto');
 
-let BuildableFile = function (filePath, extension, moduleName, needsRebuild, skipFileSteps) {
+let BuildableFile = function (filePath, extension, moduleName, needsRebuild, skipFileSteps, parentPath) {
     this.path = filePath;
     this.extension = extension !== undefined ? extension : path.extname(filePath);
     this.moduleName = moduleName !== undefined ? moduleName : filePath;
     this.needsRebuild = needsRebuild !== undefined ? needsRebuild : true;
     this.skipFileSteps = skipFileSteps !== undefined ? skipFileSteps : false;
+    this.parentPath = parentPath !== undefined ? parentPath : path.dirname(filePath);
 };
 
 BuildableFile.fromData = function (data) {
-    return new BuildableFile(data[0], data[1], data[2], data[3], data[4])
+    return new BuildableFile(data[0], data[1], data[2], data[3], data[4], data[5])
 };
 
-let File = function (name, module, content, outputFile) {
+let File = function (name, module, content, outputFile, parentPath) {
     this.name = name;
     this.outputFile = outputFile;
+    this.parentPath = parentPath;
     this.additionalFiles = [];
 
     this.update = function (newContent, moduleName) {
@@ -44,7 +46,7 @@ let File = function (name, module, content, outputFile) {
 };
 
 File.fromBuildFile = function (buildFile, content) {
-    return new File(buildFile.path, buildFile.moduleName, content, buildFile.moduleName);
+    return new File(buildFile.path, buildFile.moduleName, content, buildFile.moduleName, buildFile.parentPath);
 };
 
 function mkdirRecursive(rootDir, pathToCreate) {
@@ -161,11 +163,7 @@ function compileFile(buildableFile, config, logger) {
                         );
                     }
 
-                    resolve(require(steps[j])(
-                        file,
-                        config,
-                        (file) => compileFile(new BuildableFile(file), config, logger)
-                    ));
+                    resolve(require(steps[j])(file, config, (file) => compileFile(new BuildableFile(file), config, logger)));
                 } catch (err) {
                     reject(err);
                 }

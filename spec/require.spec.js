@@ -7,13 +7,13 @@ describe("Require.js module register method test", function () {
     });
 
     it("with jquery and a plugin", function () {
-        lib.register("jquery", function (define, require, module, exports) {
+        lib.register("jquery", "jquery", function (define, require, module, exports) {
             // jquery
             define('jquery', [], function () {
                 return {'fn' : {}};
             });
         });
-        lib.register("jplug", function (define, require, module, exports) {
+        lib.register("jplug", "jplug", function (define, require, module, exports) {
             (function (factory) {
                 if (typeof define === 'function' && define.amd) {
                     // AMD. Register as an anonymous module.
@@ -54,7 +54,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with AMD define", function() {
-        lib.register("foo", function (define, require, module, exports) {
+        lib.register("foo", "foo", function (define, require, module, exports) {
             define([], function () {
                 return 'FOO';
             });
@@ -64,7 +64,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with AMD define object", function() {
-        lib.register("foo-static", function (define, require, module, exports) {
+        lib.register("foo-static", "foo-static", function (define, require, module, exports) {
             define([], {foo: 1});
         });
 
@@ -72,13 +72,13 @@ describe("Require.js module register method test", function () {
     });
 
     it("with AMD define and reserved requirements", function() {
-        lib.register("amd_define/foo", function (define, require, module, exports) {
+        lib.register("amd_define/foo", "amd_define/foo", function(define, require, module, exports) {
             define([], function () {
                 return 'FOO';
             });
         });
 
-        lib.register("amd_define/baz", function (define, require, module, exports) {
+        lib.register("amd_define/baz", "amd_define/baz", function(define, require, module, exports) {
             define(['amd_define/foo', 'require', 'module', 'exports'], function ($, require, module, exports) {
                 return 'BAZ';
             });
@@ -88,7 +88,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with AMD define no params", function() {
-        lib.register("bar", function (define, require, module, exports) {
+        lib.register("bar", "bar", function(define, require, module, exports) {
             define(function () {
                 return 'BAR';
             });
@@ -98,7 +98,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with AMD define multiple modules", function() {
-        lib.register("hans", function (define, require, module, exports) {
+        lib.register("hans", "hans", function(define, require, module, exports) {
             define('hans_foo', [], function () {
                 return 'FOO';
             });
@@ -114,7 +114,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with CommonJS module.exports", function() {
-        lib.register("with_module_exports", function (define, require, module, exports) {
+        lib.register("with_module_exports", "with_module_exports", function(define, require, module, exports) {
             module.exports = {'Foo' : true};
         });
 
@@ -122,14 +122,14 @@ describe("Require.js module register method test", function () {
     });
 
     it("with CommonJS exports", function() {
-        lib.register("commonjs_exports/foo", function (define, require, module, exports) {
+        lib.register("commonjs_exports/foo", "commonjs_exports", function(define, require, module, exports) {
             define([], function () {
                 return 'commonjs_exports/foo';
             });
         });
 
 
-        lib.register("commonjs_exports/bar", function (define, require, module, exports) {
+        lib.register("commonjs_exports/bar", "commonjs_exports", function(define, require, module, exports) {
             var bar = require('./foo');
 
             exports.Foo = true;
@@ -139,7 +139,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with return property", function() {
-        lib.register("henk", function (define, require, module, exports) {
+        lib.register("henk", "henk", function(define, require, module, exports) {
             return 'HENK';
         });
 
@@ -147,10 +147,10 @@ describe("Require.js module register method test", function () {
     });
 
     it("with relative require paths", function() {
-        lib.register("this/is/relative/path", function (define, require, module, exports) {
+        lib.register("this/is/relative/path", "this/is/relative", function(define, require, module, exports) {
             return 'HENK';
         });
-        lib.register("this/is/spartha", function (define, require, module, exports) {
+        lib.register("this/is/spartha", "this/is", function(define, require, module, exports) {
             return require('./relative/path');
         });
 
@@ -158,10 +158,10 @@ describe("Require.js module register method test", function () {
     });
 
     it('register same module twice throws console message if console is available', function () {
-        lib.register('a', function () {
+        lib.register('a', 'a', function() {
             return {1: 'test'};
         });
-        lib.register('a', function () {
+        lib.register('a', 'a', function() {
             return {1: 'test2'};
         });
         expect(lib.require('a')).toEqual({1: 'test'});
@@ -169,7 +169,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with relative require path dependencies", function() {
-        lib.register("pathdeps", function (define, require, module, exports) {
+        lib.register("pathdeps", "pathdeps", function(define, require, module, exports) {
             define('pathdeps/pathdepsfoo', [], function () {
                 return 'FOO';
             });
@@ -185,7 +185,7 @@ describe("Require.js module register method test", function () {
     });
 
     it("with define inside module with no dependencies", function() {
-        lib.register("pathdeps", function (define, require, module, exports) {
+        lib.register("pathdeps", "pathdeps", function(define, require, module, exports) {
             define('pathdeps/pathdepsfoo', function () {
                 return 'FOO';
             });
@@ -198,6 +198,21 @@ describe("Require.js module register method test", function () {
 
         expect(lib.require('pathdeps/pathdepsfoo')).toEqual('FOO');
         expect(lib.require('pathdeps/pathdepsbar')).toEqual('BAR');
+    });
+
+    it("with relative paths", function() {
+        lib.register("relfoo/bar", "relfoo/bar", function(define, require, module, exports) {
+            define([], function () {
+                return 'BAR';
+            });
+        });
+        lib.register("relfoo", "relfoo", function(define, require, module, exports) {
+            define([], function () {
+                return require('./bar');
+            });
+        });
+
+        expect(lib.require('relfoo')).toEqual('BAR');
     });
 
     it("with unknown require", function() {

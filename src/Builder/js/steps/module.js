@@ -1,3 +1,5 @@
 module.exports = function (file) {
-    return file.update(Buffer.from("register(" + JSON.stringify(file.module) + ", function (define, require, module, exports) {\n" + file.content + "\n});\n"));
+    let content = "register(" + JSON.stringify(file.module) + ", " + JSON.stringify(file.parentPath) + ", function (define, require, module, exports) {\n" + file.content + "\n});\n";
+
+    return file.update(Buffer.from(content));
 };

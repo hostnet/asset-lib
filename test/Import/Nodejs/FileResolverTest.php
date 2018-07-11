@@ -152,11 +152,11 @@ class FileResolverTest extends TestCase
     public function testAsRequireModuleRelativeFromDifferentPath()
     {
         $parent = new Module('module_package', 'node_modules/module_package/main.js');
-        $import = $this->file_resolver->asRequire('./subpackage/main.js', $parent);
+        $import = $this->file_resolver->asRequire('./subpackage/main', $parent);
 
         self::assertInstanceOf(Module::class, $import->getImportedFile());
         self::assertSame('node_modules/module_package/subpackage/main.js', $import->getImportedFile()->path);
-        self::assertSame('module_package/subpackage', $import->getImportedFile()->getName());
+        self::assertSame('module_package/subpackage/main', $import->getImportedFile()->getName());
     }
 
     /**

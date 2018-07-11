@@ -12,6 +12,7 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\DependencyNodeInterface;
 use Hostnet\Component\Resolver\Import\ImportFinderInterface;
+use Hostnet\Component\Resolver\Module;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -144,12 +145,15 @@ class BuildFiles implements \JsonSerializable
                 $module_name = $base_dir . $file->getBaseName() . '.' . $file->extension;
             }
 
+            $parent_module = \dirname($module_name);
+
             $this->files[$output_file->getName()][] = [
                 $file->path,
                 '.' . $file->extension,
                 $module_name,
                 $force || $mtime === -1 || $this->hasUpdatedFiles($mtime, $dep),
                 $skip_file_actions,
+                $file instanceof Module ? $file->getParentName() : ($parent_module === '.' ? '' : $parent_module),
             ];
         }
     }

@@ -20,7 +20,12 @@
         var require_name = name;
 
         if (require_name.indexOf('.') === 0) {
-            var parent = parent_module.substring(0, parent_module.lastIndexOf('/'));
+            var parent;
+            if (_modules[parent_module]) {
+                parent = _modules[parent_module]._parent;
+            } else {
+                parent = parent_module.substring(0, parent_module.lastIndexOf('/'));
+            }
 
             if (require_name.indexOf('./') === 0) {
                 require_name = require_name.substr(2);
@@ -125,7 +130,7 @@
         return _modules[name]._module;
     };
 
-    window.register = function (name, initializer) {
+    window.register = function (name, parent, initializer) {
         if (_modules[name]) {
             if (typeof console !== 'undefined' && typeof console.warn === 'function') {
                 console.warn(new ModuleRedeclareError(name));
@@ -135,6 +140,7 @@
 
         _modules[name] = {
             _initializer: initializer,
+            _parent: parent,
             _module: null
         };
     };
