@@ -149,6 +149,16 @@ class FileResolverTest extends TestCase
         self::assertSame('uikit', $import->getImportedFile()->getName());
     }
 
+    public function testAsRequireModuleRelativeFromDifferentPath()
+    {
+        $parent = new Module('module_package', 'node_modules/module_package/main.js');
+        $import = $this->file_resolver->asRequire('./subpackage/main.js', $parent);
+
+        self::assertInstanceOf(Module::class, $import->getImportedFile());
+        self::assertSame('node_modules/module_package/subpackage/main.js', $import->getImportedFile()->path);
+        self::assertSame('module_package/subpackage', $import->getImportedFile()->getName());
+    }
+
     /**
      * @expectedException \Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException
      */
