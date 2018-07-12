@@ -6,7 +6,8 @@
                 ".js",
                 "..\/..\/src\/Builder\/js\/require.js",
                 true,
-                true
+                true,
+                "..\/..\/src\/Builder\/js"
             ]
         ],
         "dist\/fixtures\/foo.js": [
@@ -15,7 +16,8 @@
                 ".js",
                 "foo.js",
                 true,
-                false
+                false,
+                ""
             ]
         ],
         "dist\/bar.js": [
@@ -24,7 +26,8 @@
                 ".js",
                 "bar.js",
                 true,
-                false
+                false,
+                ""
             ]
         ]
     }

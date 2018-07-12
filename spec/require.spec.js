@@ -122,14 +122,14 @@ describe("Require.js module register method test", function () {
     });
 
     it("with CommonJS exports", function() {
-        lib.register("commonjs_exports/foo", function (define, require, module, exports) {
+        lib.register("commonjs_exports/foo", "commonjs_exports", function(define, require, module, exports) {
             define([], function () {
                 return 'commonjs_exports/foo';
             });
         });
 
 
-        lib.register("commonjs_exports/bar", function (define, require, module, exports) {
+        lib.register("commonjs_exports/bar", "commonjs_exports", function(define, require, module, exports) {
             var bar = require('./foo');
 
             exports.Foo = true;
@@ -147,10 +147,10 @@ describe("Require.js module register method test", function () {
     });
 
     it("with relative require paths", function() {
-        lib.register("this/is/relative/path", function (define, require, module, exports) {
+        lib.register("this/is/relative/path", "this/is/relative", function(define, require, module, exports) {
             return 'HENK';
         });
-        lib.register("this/is/spartha", function (define, require, module, exports) {
+        lib.register("this/is/spartha", "this/is", function(define, require, module, exports) {
             return require('./relative/path');
         });
 
@@ -198,6 +198,21 @@ describe("Require.js module register method test", function () {
 
         expect(lib.require('pathdeps/pathdepsfoo')).toEqual('FOO');
         expect(lib.require('pathdeps/pathdepsbar')).toEqual('BAR');
+    });
+
+    it("with relative paths", function() {
+        lib.register("relfoo/bar", function(define, require, module, exports) {
+            define([], function () {
+                return 'BAR';
+            });
+        });
+        lib.register("relfoo", function(define, require, module, exports) {
+            define([], function () {
+                return require('./bar');
+            });
+        });
+
+        expect(lib.require('relfoo')).toEqual('BAR');
     });
 
     it("with unknown require", function() {

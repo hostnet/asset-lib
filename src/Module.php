@@ -34,6 +34,22 @@ class Module extends File
      */
     public function getParentName(): string
     {
-        return \dirname($this->name);
+        $dir_parts = explode('/', $this->path);
+        $module_parts = explode('/', $this->name);
+        $parts = [];
+
+        for ($i = 0, $n = \count($dir_parts); $i < $n; $i++) {
+            if ($dir_parts[$i] === $module_parts[0]) {
+                break;
+            }
+
+            $parts[] = $dir_parts[$i];
+        }
+
+        if (empty($parts)) {
+            return '';
+        }
+
+        return substr(\dirname($this->path), \strlen(implode('/', $parts)) + 1) ?: $this->name;
     }
 }
