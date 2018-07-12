@@ -138,6 +138,12 @@
             return;
         }
 
+        // special case where only two arguments were given: register("jquery", function (...) {})
+        if (typeof initializer === "undefined" && typeof parent === 'function') {
+            initializer = parent;
+            parent = name;
+        }
+
         _modules[name] = {
             _initializer: initializer,
             _parent: parent,
