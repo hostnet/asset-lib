@@ -1,4 +1,5 @@
 let builder = require('../../src/Builder/js/build');
+let path = require('path');
 
 describe("css_rewrite.js", function () {
     let step = require('../../src/Builder/js/steps/css_rewrite');
@@ -16,10 +17,10 @@ describe("css_rewrite.js", function () {
         expect(result.module).toBe('foo.css');
 
         expect(result.additionalFiles.length).toBe(1);
-        expect(result.additionalFiles[0].outputFile).toBe('/foo/bar/fonts/sansation_light.woff');
+        expect(result.additionalFiles[0].outputFile).toBe('/foo/bar/fonts/sansation_light.woff'.replace(/\//g, path.sep));
         expect(result.additionalFiles[0].inputFiles.length).toBe(1);
 
-        expect(result.additionalFiles[0].inputFiles[0].path).toBe('/foo/sansation_light.woff');
+        expect(result.additionalFiles[0].inputFiles[0].path).toBe('/foo/sansation_light.woff'.replace(/\//g, path.sep));
         expect(result.additionalFiles[0].inputFiles[0].extension).toBe('.woff');
         expect(result.additionalFiles[0].inputFiles[0].needsRebuild).toBe(true);
         expect(result.additionalFiles[0].inputFiles[0].skipFileSteps).toBe(false);
@@ -42,10 +43,10 @@ describe("css_rewrite.js", function () {
         expect(result.module).toBe('foo.css');
 
         expect(result.additionalFiles.length).toBe(1);
-        expect(result.additionalFiles[0].outputFile).toBe('/foo/bar/fonts/sansation_light.woff');
+        expect(result.additionalFiles[0].outputFile).toBe('/foo/bar/fonts/sansation_light.woff'.replace(/\//g, path.sep));
         expect(result.additionalFiles[0].inputFiles.length).toBe(1);
 
-        expect(result.additionalFiles[0].inputFiles[0].path).toBe('/foo/sansation_light.woff');
+        expect(result.additionalFiles[0].inputFiles[0].path).toBe('/foo/sansation_light.woff'.replace(/\//g, path.sep));
         expect(result.additionalFiles[0].inputFiles[0].extension).toBe('.woff');
         expect(result.additionalFiles[0].inputFiles[0].needsRebuild).toBe(true);
         expect(result.additionalFiles[0].inputFiles[0].skipFileSteps).toBe(false);
@@ -68,10 +69,10 @@ describe("css_rewrite.js", function () {
         expect(result.module).toBe('assets/foo/bar.less');
 
         expect(result.additionalFiles.length).toBe(1);
-        expect(result.additionalFiles[0].outputFile).toBe('public/dev/fonts/font.woff');
+        expect(result.additionalFiles[0].outputFile).toBe('public/dev/fonts/font.woff'.replace(/\//g, path.sep));
         expect(result.additionalFiles[0].inputFiles.length).toBe(1);
 
-        expect(result.additionalFiles[0].inputFiles[0].path).toBe('/foo/bar/some/folder/fonts/font.woff');
+        expect(result.additionalFiles[0].inputFiles[0].path).toBe('/foo/bar/some/folder/fonts/font.woff'.replace(/\//g, path.sep));
         expect(result.additionalFiles[0].inputFiles[0].extension).toBe('.woff');
         expect(result.additionalFiles[0].inputFiles[0].needsRebuild).toBe(true);
         expect(result.additionalFiles[0].inputFiles[0].skipFileSteps).toBe(false);
