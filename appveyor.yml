@@ -3,6 +3,10 @@ shallow_clone: false
 platform: 'x86'
 clone_folder: C:\projects\asset-lib
 
+cache:
+  - node_modules
+  - '%LOCALAPPDATA%/Yarn'
+
 branches:
   except:
     - gh-pages
