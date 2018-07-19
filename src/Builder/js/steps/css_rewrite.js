@@ -17,6 +17,9 @@ module.exports = function (file, config) {
 
             let relativePath = path.relative(path.dirname(path.join(config.paths.out, file.outputFile)), cssPath);
 
+            // make sure to always use the '/' separator, since that is what CSS expects
+            relativePath = relativePath.replace(new RegExp('\\' + path.sep, 'g'), '/');
+
             return 'url(' + JSON.stringify(relativePath) + ')';
         });
         return '@font-face {' + rewrittenContent + '}';

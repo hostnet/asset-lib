@@ -6,6 +6,7 @@ clone_folder: C:\projects\asset-lib
 cache:
   - node_modules
   - '%LOCALAPPDATA%/Yarn'
+  - '%LOCALAPPDATA%\Composer\files'
 
 branches:
   except:
