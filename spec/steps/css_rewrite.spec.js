@@ -1,4 +1,5 @@
 let builder = require('../../src/Builder/js/build');
+let path = require('path');
 
 describe("css_rewrite.js", function () {
     let step = require('../../src/Builder/js/steps/css_rewrite');

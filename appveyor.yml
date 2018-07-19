@@ -25,6 +25,8 @@ install:
   - sc config wuauserv start= auto
   - net start wuauserv
   - ps: cinst -y php --version ((choco search php --exact --all-versions -r | Select-String -pattern $Env:PHP_VERSION | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
+  - ps: cinst node 10.4.1
+  - ps: cinst yarn 1.7.0
   - cd c:\tools\php71
   - copy php.ini-production php.ini
   - echo date.timezone="UTC" >> php.ini
@@ -40,3 +42,4 @@ install:
 test_script:
   - cd C:\projects\asset-lib
   - vendor\bin\phpunit.bat
+  - yarn test
