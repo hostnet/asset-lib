@@ -17,6 +17,7 @@ import $ from "jquery";
 import i = require("./Import");
 import Array from "./Array";
 
-export * from "./Alias";
+export {A as Alias} from "./Alias";
 export * from "./DoubleQuote";
 export * from "./Simple";
+

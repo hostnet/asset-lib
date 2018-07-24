@@ -1,22 +1,18 @@
 {
-    "checksum": "16bead9140c80ba60459e4c2e3d9031c",
+    "checksum": "64b2ce65cb4d4309f7279cacf3fc9379",
     "mapping": {
         ".js": ".js"
     },
     "paths": {
-        "root": "\/home\/hiedema\/projects\/asset-lib\/test\/Builder\/",
+        "root": "",
         "out": "dist\/",
-        "cache": "\/home\/hiedema\/projects\/asset-lib\/test\/Builder\/var-saved\/"
+        "cache": ""
     },
     "build": {
         ".js": [
-            [
-                "\/home\/hiedema\/projects\/asset-lib\/src\/Builder\/Step\/..\/js\/steps\/identity.js"
-            ],
             [],
-            [
-                "\/home\/hiedema\/projects\/asset-lib\/src\/Builder\/Writer\/..\/js\/writers\/generic.js"
-            ]
+            [],
+            []
         ]
     }
 }
