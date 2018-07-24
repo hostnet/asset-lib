@@ -16,3 +16,7 @@ import "module_package_dir";
 import $ from "jquery";
 import i = require("./Import");
 import Array from "./Array";
+
+export * from "./Alias";
+export * from "./DoubleQuote";
+export * from "./Simple";

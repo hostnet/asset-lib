@@ -215,6 +215,16 @@ describe("Require.js module register method test", function () {
         expect(lib.require('relfoo')).toEqual('BAR');
     });
 
+    it("with paths that have an index", function() {
+        lib.register("shared/multi/index", function(define, require, module, exports) {
+            define([], function () {
+                return 'BAR';
+            });
+        });
+
+        expect(lib.require('shared/multi')).toEqual('BAR');
+    });
+
     it("with unknown require", function() {
         try {
             lib.require('somemodule');

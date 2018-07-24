@@ -54,7 +54,7 @@ final class FileResolver implements FileResolverInterface
         }
 
         if ($name[0] === '.' && ($name[1] === '/' || ($name[1] === '.' && $name[2] === '/'))) {
-            // 3. If X begins with './' or '/' or '../'
+            // 3. If X begins with './' or '../'
             // a. LOAD_AS_FILE(Y + X)
             try {
                 $f = new File($this->asFile($parent->dir . '/' . $name));
@@ -120,9 +120,12 @@ final class FileResolver implements FileResolverInterface
         $path = File::makeAbsolutePath($name, $this->config->getProjectRoot());
 
         // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
-        if (is_file($path . '/index.js')) {
-            return File::clean($name . '/index.js');
+        foreach ($this->extensions as $ext) {
+            if (is_file($path . '/index' . $ext)) {
+                return File::clean($name . '/index'. $ext);
+            }
         }
+
         // 2. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
         if (is_file($path . '/index.json')) {
             return File::clean($name . '/index.json');

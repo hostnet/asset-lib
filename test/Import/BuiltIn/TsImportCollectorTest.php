@@ -82,6 +82,9 @@ class TsImportCollectorTest extends TestCase
                 new Module('module_package_dir', 'node_modules/module_package_dir/src/index.js')
             ),
             new Import('jquery', new Module('jquery', 'node_modules/jquery/jquery.js')),
+            new Import('./Alias', new File('resolver/ts/import-syntax/Alias.ts')),
+            new Import('./DoubleQuote', new File('resolver/ts/import-syntax/DoubleQuote.ts')),
+            new Import('./Simple', new File('resolver/ts/import-syntax/Simple.ts'))
         ], $imports->getImports());
 
         self::assertEquals([], $imports->getResources());
