@@ -131,6 +131,9 @@
     };
 
     window.register = function (name, parent, initializer) {
+        if (name.substr(name.length - 6) === '/index') {
+            name = name.substr(0, name.length - 6);
+        }
         if (_modules[name]) {
             if (typeof console !== 'undefined' && typeof console.warn === 'function') {
                 console.warn(new ModuleRedeclareError(name));
