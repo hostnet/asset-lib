@@ -225,14 +225,22 @@ describe("Require.js module register method test", function () {
         expect(lib.require('shared/multi')).toEqual('BAR');
     });
 
-    it("with paths that have an index", function() {
+    it("with referenced modules without extension (implicit type)", function() {
         lib.register("shared/multi/henk.js", function(define, require, module, exports) {
             define([], function () {
                 return 'BAR';
             });
         });
+        lib.register("shared/multi/with-index/index.js", function(define, require, module, exports) {
+            define([], function () {
+                return 'FOO';
+            });
+        });
 
         expect(lib.require('shared/multi/henk')).toEqual('BAR');
+        expect(lib.require('shared/multi/with-index')).toEqual('FOO');
+        expect(lib.require('shared/multi/with-index/index')).toEqual('FOO');
+        expect(lib.require('shared/multi/with-index/index.js')).toEqual('FOO');
     });
 
     it("with unknown require", function() {
