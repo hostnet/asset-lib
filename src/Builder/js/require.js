@@ -119,6 +119,14 @@
     };
 
     window.require = function (name) {
+        var i, knownSuffixes = ['', '.js', '/index', '/index.js'];
+        for (i = 0; i < knownSuffixes.length; i++) {
+            if (_modules[name + knownSuffixes[i]]) {
+                name = name + knownSuffixes[i];
+                break;
+            }
+        }
+
         if (!_modules[name]) {
             throw new RequireError(name);
         }
