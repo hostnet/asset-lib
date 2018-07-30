@@ -1,4 +1,5 @@
 let path = require('path');
+let url = require('url');
 
 module.exports = function (file, config) {
     let content = file.content.toString().replace(/@font-face\s*{([^}]+)}/g, function (match, content) {
@@ -10,8 +11,11 @@ module.exports = function (file, config) {
                 return match;
             }
 
-            let cssPath = path.join(config.paths.out, 'fonts', path.basename(originalFile));
-            let fontFile = path.normalize(path.join(config.paths.root, path.dirname(file.name), originalFile));
+            // strip away and store any query or hash stuff
+            let parsed = url.parse(originalFile);
+
+            let cssPath = path.join(config.paths.out, 'fonts', path.basename(parsed.pathname));
+            let fontFile = path.normalize(path.join(config.paths.root, path.dirname(file.name), parsed.pathname));
 
             file.addAdditionalFile(cssPath, [fontFile]);
 
@@ -19,6 +23,9 @@ module.exports = function (file, config) {
 
             // make sure to always use the '/' separator, since that is what CSS expects
             relativePath = relativePath.replace(new RegExp('\\' + path.sep, 'g'), '/');
+
+            // Add back any query and hash stuff
+            relativePath += (parsed.search || '') + (parsed.hash || '');
 
             return 'url(' + JSON.stringify(relativePath) + ')';
         });

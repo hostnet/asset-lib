@@ -25,7 +25,7 @@ class CssFontRewitePluginTest extends TestCase
         $plugin_api->addBuildStep(Argument::type(CssFontRewriteStep::class))->shouldBeCalled();
         $plugin_api->addBuildStep(Argument::that(function (AbstractBuildStep $step) {
             return $step instanceof IdentityBuildStep
-                && \in_array($step->acceptedExtension(), ['.otf', '.ttf', '.woff', '.woff2'], true);
+                && \in_array($step->acceptedExtension(), ['.otf', '.ttf', '.woff', '.woff2', '.eot', '.svg'], true);
         }))->shouldBeCalled();
 
         $css_font_rewite_plugin->activate($plugin_api->reveal());
