@@ -19,9 +19,11 @@ final class CssFontRewitePlugin implements PluginInterface
     {
         $plugin_api->addBuildStep(new CssFontRewriteStep());
 
+        $plugin_api->addBuildStep(new IdentityBuildStep('.eot'));
         $plugin_api->addBuildStep(new IdentityBuildStep('.otf'));
         $plugin_api->addBuildStep(new IdentityBuildStep('.ttf'));
         $plugin_api->addBuildStep(new IdentityBuildStep('.woff'));
         $plugin_api->addBuildStep(new IdentityBuildStep('.woff2'));
+        $plugin_api->addBuildStep(new IdentityBuildStep('.svg'));
     }
 }
