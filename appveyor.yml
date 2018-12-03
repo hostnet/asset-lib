@@ -25,13 +25,17 @@ init:
 
 ## Install PHP and composer, and run the appropriate composer command
 install:
-  - ps: cinst -y php --version ((choco search php --exact --all-versions -r | Select-String -pattern $Env:PHP_VERSION | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
-  - cd C:\tools\php71
-  - copy php.ini-production php.ini
+  - cinst -y OpenSSL.Light
+  - sc config wuauserv start= auto
+  - net start wuauserv
+  - cinst -y php
+  - cd c:\tools\php71
+  - copy php.ini-production php.ini /Y
   - echo date.timezone="UTC" >> php.ini
   - echo extension_dir=ext >> php.ini
   - echo extension=php_openssl.dll >> php.ini
   - echo extension=php_mbstring.dll >> php.ini
+  - echo extension=php_fileinfo.dll >> php.ini
   - cd C:\projects\asset-lib
   - php -r "readfile('http://getcomposer.org/installer');" | php
   - php composer.phar install --prefer-dist --no-interaction
