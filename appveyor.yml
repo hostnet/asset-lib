@@ -30,7 +30,7 @@ install:
   - sc config wuauserv start= auto
   - net start wuauserv
   - ps: Install-Product node 10
-  - ps: cinst -y php --version ((choco search php --exact --all-versions -r | Select-String -pattern $Env:PHP_VERSION | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
+  - ps: appveyor-retry cinst --ignore-checksums -y php --version ((choco search php --exact --all-versions -r | select-string -pattern $Env:PHP_VERSION | Select-Object -first 1) -replace '[php|]','')
   - cd c:\tools\php71
   - copy php.ini-production php.ini
   - echo date.timezone="UTC" >> php.ini
