@@ -24,7 +24,7 @@ install:
   - echo extension=php_mbstring.dll >> php.ini
   - echo extension=php_curl.dll >> php.ini
   - cd %APPVEYOR_BUILD_FOLDER%
-  - php composer.phar install --prefer-dist --no-interaction
+  - composer install --prefer-dist --no-interaction
   - yarn install
 
 ## Run the actual test
