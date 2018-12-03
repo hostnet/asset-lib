@@ -52,12 +52,14 @@ final class Bundler implements BundlerInterface
             return;
         }
 
-        $cmd = sprintf(
-            '%s %s --debug --log-json --stdin %s',
-            escapeshellarg($this->config->getNodeJsExecutable()->getBinary()),
-            escapeshellarg($this->build_script),
-            escapeshellarg($config_file)
-        );
+        $cmd = [
+            $this->config->getNodeJsExecutable()->getBinary(),
+            $this->build_script,
+            '--debug',
+            '--log-json',
+            '--stdin',
+            $config_file
+        ];
 
         $process = new Process($cmd, $this->config->getProjectRoot(), [
             'NODE_PATH' => $this->config->getNodeJsExecutable()->getNodeModulesLocation(),

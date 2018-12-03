@@ -1,5 +1,4 @@
 build: false
-shallow_clone: false
 platform: 'x86'
 clone_folder: C:\projects\asset-lib
 
@@ -12,39 +11,24 @@ branches:
   except:
     - gh-pages
 
-## Build matrix for lowest and highest possible targets
-environment:
-  matrix:
-    - PHP_VERSION: 7.1
-
-## Set up environment varriables
-init:
-    - SET PATH=C:\Program Files\OpenSSL;c:\tools\php71;%PATH%
-    - SET COMPOSER_NO_INTERACTION=1
-    - SET ANSICON=121x90 (121x90)
-
 ## Install PHP and composer, and run the appropriate composer command
 install:
-  - cinst -y OpenSSL.Light
-  - SET PATH=C:\Program Files\OpenSSL;%PATH%
-  - sc config wuauserv start= auto
-  - net start wuauserv
-  - ps: Install-Product node 10
-  - ps: cinst -y php --version ((choco search php --exact --all-versions -r | Select-String -pattern $Env:PHP_VERSION | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
-  - cd c:\tools\php71
-  - copy php.ini-production php.ini
+  - ps: Set-Service wuauserv -StartupType Manual
+  - cinst -y php composer
+  - refreshenv
+  - cd c:\tools\php72
+  - copy php.ini-production php.ini /Y
   - echo date.timezone="UTC" >> php.ini
   - echo extension_dir=ext >> php.ini
   - echo extension=php_openssl.dll >> php.ini
   - echo extension=php_mbstring.dll >> php.ini
-  - cd C:\projects\asset-lib
-  - SET PATH=C:\tools\php71;%PATH%
-  - php -r "readfile('http://getcomposer.org/installer');" | php
-  - php composer.phar install --prefer-dist --no-interaction
+  - echo extension=php_curl.dll >> php.ini
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - composer install --prefer-dist --no-interaction
   - yarn install
 
 ## Run the actual test
 test_script:
-  - cd C:\projects\asset-lib
+  - cd %APPVEYOR_BUILD_FOLDER%
   - vendor\bin\phpunit.bat
   - yarn test
