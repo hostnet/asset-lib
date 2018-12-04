@@ -58,7 +58,7 @@ final class Bundler implements BundlerInterface
             '--debug',
             '--log-json',
             '--stdin',
-            $config_file
+            $config_file,
         ];
 
         $process = new Process($cmd, $this->config->getProjectRoot(), [

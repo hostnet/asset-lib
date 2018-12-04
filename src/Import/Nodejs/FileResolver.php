@@ -122,7 +122,7 @@ final class FileResolver implements FileResolverInterface
         // 1. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
         foreach ($this->extensions as $ext) {
             if (is_file($path . '/index' . $ext)) {
-                return File::clean($name . '/index'. $ext);
+                return File::clean($name . '/index' . $ext);
             }
         }
 
