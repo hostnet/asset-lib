@@ -184,7 +184,7 @@ class BuildFiles implements \JsonSerializable
         if (!file_exists($sources_file)) {
             // make sure the cache dir exists
             if (!is_dir(\dirname($sources_file))) {
-                mkdir(\dirname($sources_file), 0777, true);
+                @mkdir(\dirname($sources_file), 0777, true);
             }
             file_put_contents($sources_file, serialize($input_sources));
 
