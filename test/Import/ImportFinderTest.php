@@ -29,7 +29,6 @@ class ImportFinderTest extends TestCase
         $file = new File('foo.js');
 
         $collector = new class implements ImportCollectorInterface {
-
             public function supports(File $file): bool
             {
                 return true;
