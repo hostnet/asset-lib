@@ -1,3 +1,3 @@
 module.exports = function (file) {
-    return file;
+    return Promise.resolve(file);
 };

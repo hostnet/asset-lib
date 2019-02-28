@@ -4,8 +4,10 @@ module.exports = function (file) {
     let result = UglifyJS.minify(file.content.toString());
 
     if (result.error) {
-        throw result.error;
+        return Promise.reject(result.error);
     }
 
-    return file.update(Buffer.from(result.code));
+    file.update(Buffer.from(result.code));
+
+    return Promise.resolve(file);
 };

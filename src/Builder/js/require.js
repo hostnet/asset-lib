@@ -40,11 +40,17 @@
                 }
             } else {
                 while (require_name.indexOf('../') === 0) {
+                    require_name = require_name.substr(3);
                     if (parent.indexOf('/') === -1) {
-                        return require_name.substr(3);
+                        // We seem to ran out of parent folders, but we still want to go a level up.
+                        // To resolve this, we just keep removing it.
+                        while (require_name.indexOf('../') === 0) {
+                            require_name = require_name.substr(3);
+                        }
+
+                        return require_name;
                     }
 
-                    require_name = require_name.substr(3);
                     parent = parent.substring(0, parent.lastIndexOf('/'))
                 }
             }

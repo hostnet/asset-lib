@@ -18,5 +18,7 @@ module.exports = function (file) {
     let dir = path.dirname(file.module);
     let moduleName = (dir !== '.' ? dir + '/' : '') + path.basename(file.module, path.extname(file.module));
 
-    return file.update(Buffer.from(result.outputText), moduleName);
+    file.update(Buffer.from(result.outputText), moduleName);
+
+    return Promise.resolve(file);
 };

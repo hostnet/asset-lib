@@ -157,6 +157,17 @@ describe("Require.js module register method test", function () {
         expect(lib.require('this/is/spartha')).toEqual('HENK');
     });
 
+    it("with relative require paths from outside of root", function() {
+        lib.register("absolute/path", "", function(define, require, module, exports) {
+            return 'HENK';
+        });
+        lib.register("for/the/horde", "this/is", function(define, require, module, exports) {
+            return require('../../../absolute/path');
+        });
+
+        expect(lib.require('for/the/horde')).toEqual('HENK');
+    });
+
     it('register same module twice throws console message if console is available', function () {
         lib.register('a', function () {
             return {1: 'test'};

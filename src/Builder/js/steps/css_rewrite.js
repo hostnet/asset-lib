@@ -32,5 +32,7 @@ module.exports = function (file, config) {
         return '@font-face {' + rewrittenContent + '}';
     });
 
-    return file.update(Buffer.from(content));
+    file.update(Buffer.from(content));
+
+    return Promise.resolve(file);
 };

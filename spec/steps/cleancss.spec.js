@@ -1,16 +1,16 @@
-let builder = require('../../src/Builder/js/build');
+let builder = require('../../src/Builder/js/builder');
 
 describe("cleancss.js", function () {
    it('execute', function () {
        let step = require('../../src/Builder/js/steps/cleancss');
-       let result = step(new builder.File(
+       return step(new builder.File(
            'foo.css',
            'foo.css',
            Buffer.from("body\n\n\n\n{\n    background: red;\n\n\n}\n\n")
-       ));
-
-       expect(result.name).toBe('foo.css');
-       expect(result.module).toBe('foo.css');
-       expect(result.content.toString()).toBe('body{background:red}');
+       )).then((result) => {
+           expect(result.name).toBe('foo.css');
+           expect(result.module).toBe('foo.css');
+           expect(result.content.toString()).toBe('body{background:red}');
+       });
    });
 });

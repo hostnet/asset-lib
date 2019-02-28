@@ -7,5 +7,7 @@ module.exports = function (file) {
 
     let content = "register(" + args + ", function (define, require, module, exports) {\n" + file.content + "\n});\n";
 
-    return file.update(Buffer.from(content));
+    file.update(Buffer.from(content));
+
+    return Promise.resolve(file);
 };
