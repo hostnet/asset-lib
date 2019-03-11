@@ -15,11 +15,11 @@ use Prophecy\Argument;
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\CssFontRewitePlugin
  */
-class CssFontRewitePluginTest extends TestCase
+class CssFontRewritePluginTest extends TestCase
 {
     public function testActivate()
     {
-        $css_font_rewite_plugin = new CssFontRewitePlugin();
+        $css_font_rewite_plugin = new CssFontRewritePlugin();
 
         $plugin_api = $this->prophesize(PluginApi::class);
         $plugin_api->addBuildStep(Argument::type(CssFontRewriteStep::class))->shouldBeCalled();

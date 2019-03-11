@@ -13,7 +13,7 @@ use Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep;
  * Add support for re-writing font files in .css files so they end up in the correct folder and are referenced
  * correctly.
  */
-final class CssFontRewitePlugin implements PluginInterface
+final class CssFontRewritePlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
