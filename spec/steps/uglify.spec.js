@@ -24,8 +24,9 @@ describe("uglify.js", function () {
         let step = require('../../src/Builder/js/steps/uglify');
         try {
             step(new builder.File('foo.js', 'foo.js', Buffer.from("{{{")));
+            fail();
         } catch (e) {
-            expect(e.message).toBe("Unexpected token: eof (undefined)");
+            expect(e.message).toContain("Unexpected token: eof");
         }
     });
 });
