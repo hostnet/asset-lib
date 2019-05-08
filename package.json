@@ -1,15 +1,15 @@
 {
-  "name": "resolver-lib",
-  "version": "1.0.0",
-  "description": "THIS PROJECT IS WORK IN PROGRESS, NOTHING IS FINAL! USE AT OWN RISK.",
+  "name": "asset-lib",
+  "version": "0.3.0",
+  "description": "An asset resolver inspired by webpack (WIP)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hostnet/resolver-lib.git"
+    "url": "git+https://github.com/hostnet/asset-lib.git"
   },
   "author": "Hostnet BV.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hostnet/resolver-lib/issues"
+    "url": "https://github.com/hostnet/asset-lib/issues"
   },
   "scripts": {
     "test": "node_modules/.bin/jasmine",
@@ -18,16 +18,16 @@
   },
   "dependencies": {
     "brotli": "1.3.2",
-    "clean-css": "^4.1.9",
-    "less": "^3.8.0",
+    "clean-css": "^4.2.1",
+    "less": "^3.9.0",
     "split": "^1.0.1",
     "terser": "^3.17.0",
-    "typescript": "^2.5.0"
+    "typescript": "^3.4.5"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
-    "jasmine": "^2.0.0",
+    "jasmine": "^3.4.0",
     "jasmine-promises": "^0.4.1"
   },
-  "homepage": "https://github.com/hostnet/resolver-lib#readme"
+  "homepage": "https://github.com/hostnet/asset-lib"
 }

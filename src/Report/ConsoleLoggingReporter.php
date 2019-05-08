@@ -31,7 +31,7 @@ final class ConsoleLoggingReporter implements ReporterInterface
     ) {
         $this->config         = $config;
         $this->console_output = $console_output;
-        $this->size_helper = $size_helper;
+        $this->size_helper    = $size_helper;
     }
 
     public function reportOutputFile(File $file): void
@@ -77,7 +77,7 @@ final class ConsoleLoggingReporter implements ReporterInterface
     private function makeRelativeToRoot(File $file): string
     {
         // make the output file relative to the output folder
-        $path = File::clean($file->path);
+        $path       = File::clean($file->path);
         $output_dir = $this->config->getProjectRoot() . '/';
 
         if (false !== strpos($path, $output_dir)) {

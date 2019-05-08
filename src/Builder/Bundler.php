@@ -40,7 +40,7 @@ final class Bundler implements BundlerInterface
             $filesystem->dumpFile($config_file, json_encode($build_config, JSON_PRETTY_PRINT));
 
             $new_build_config = true;
-            $extension_map = $build_config->getExtensionMap();
+            $extension_map    = $build_config->getExtensionMap();
         } else {
             $extension_map = new ExtensionMap($json_data['mapping']);
         }
@@ -68,7 +68,7 @@ final class Bundler implements BundlerInterface
 
         $reader = new OutputReader($this->config->getReporter());
 
-        $process->run(function ($type, $buffer) use ($reader) {
+        $process->run(function ($type, $buffer) use ($reader): void {
             if (Process::OUT !== $type) {
                 return;
             }

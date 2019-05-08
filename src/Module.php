@@ -34,9 +34,9 @@ class Module extends File
      */
     public function getParentName(): string
     {
-        $dir_parts = explode('/', $this->path);
+        $dir_parts    = explode('/', $this->path);
         $module_parts = explode('/', $this->name);
-        $parts = [];
+        $parts        = [];
 
         for ($i = 0, $n = \count($dir_parts); $i < $n; $i++) {
             if ($dir_parts[$i] === $module_parts[0]) {

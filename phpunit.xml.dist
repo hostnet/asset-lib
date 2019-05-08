@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true" forceCoversAnnotation="true">
+<phpunit forceCoversAnnotation="true"
+         colors="true"
+         bootstrap="vendor/autoload.php"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd">
     <testsuites>
-        <testsuite>
-            <directory>./test</directory>
+        <testsuite name="Asset Lib - Unit tests">
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 
@@ -13,6 +17,6 @@
     </filter>
 
     <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
     </listeners>
 </phpunit>
