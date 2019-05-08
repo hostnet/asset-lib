@@ -130,8 +130,8 @@ final class ConsoleReporter implements ReporterInterface
             return [];
         }
 
-        $files = array_merge(...array_values($this->dependencies));
-        $names = array_values(array_unique(array_map(function (DependencyNodeInterface $dep) {
+        $files   = array_merge(...array_values($this->dependencies));
+        $names   = array_values(array_unique(array_map(function (DependencyNodeInterface $dep) {
             return $this->makeRelativeToRoot($dep->getFile());
         }, $files)));
         $reasons = array_combine($names, array_fill(0, count($names), []));
@@ -158,7 +158,7 @@ final class ConsoleReporter implements ReporterInterface
     private function makeRelativeToRoot(File $file): string
     {
         // make the output file relative to the output folder
-        $path = File::clean($file->path);
+        $path       = File::clean($file->path);
         $output_dir = $this->config->getProjectRoot() . '/';
 
         if (false !== strpos($path, $output_dir)) {

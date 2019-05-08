@@ -18,9 +18,9 @@ class BuildConfig implements \JsonSerializable
     /**
      * @var AbstractBuildStep[]
      */
-    private $steps = [];
-    private $writers = [];
-    private $actions = [];
+    private $steps             = [];
+    private $writers           = [];
+    private $actions           = [];
     private $extension_mapping = [];
     private $paths;
     private $checksum;
@@ -103,8 +103,8 @@ class BuildConfig implements \JsonSerializable
         }
 
         $supported_extensions = [];
-        $edges = [];
-        $i = 0;
+        $edges                = [];
+        $i                    = 0;
         foreach ($this->steps as $step) {
             $ext = $step->acceptedExtension();
 
@@ -210,7 +210,7 @@ class BuildConfig implements \JsonSerializable
         $visitable_edges = array_values(array_filter($edges, function (array $edge) use ($starting_state) {
             return $edge[1] === $starting_state;
         }));
-        $seen = array_column($visitable_edges, 0);
+        $seen            = array_column($visitable_edges, 0);
 
         while (true) {
             $has_changed = false;
@@ -224,9 +224,9 @@ class BuildConfig implements \JsonSerializable
                         continue;
                     }
 
-                    $has_changed = true;
+                    $has_changed       = true;
                     $visitable_edges[] = $edge;
-                    $seen[] = $edge[0];
+                    $seen[]            = $edge[0];
                 }
             }
 
@@ -239,7 +239,7 @@ class BuildConfig implements \JsonSerializable
         $visitable_edges_r = array_values(array_filter($visitable_edges, function (array $edge) use ($ending_state) {
             return $edge[3] === $ending_state;
         }));
-        $seen = array_column($visitable_edges_r, 0);
+        $seen              = array_column($visitable_edges_r, 0);
 
         while (true) {
             $has_changed = false;
@@ -253,9 +253,9 @@ class BuildConfig implements \JsonSerializable
                         continue;
                     }
 
-                    $has_changed = true;
+                    $has_changed         = true;
                     $visitable_edges_r[] = $edge;
-                    $seen[] = $edge[0];
+                    $seen[]              = $edge[0];
                 }
             }
 
@@ -289,8 +289,8 @@ class BuildConfig implements \JsonSerializable
             $options[] = $edge;
         }
 
-        $plan = $this->makeChoices($options, $edges, $ending_state);
-        $seen_edges = array_column($options, 0);
+        $plan         = $this->makeChoices($options, $edges, $ending_state);
+        $seen_edges   = array_column($options, 0);
         $seen_actions = array_column($options, 5);
 
         if (empty($plan)) {
@@ -322,9 +322,9 @@ class BuildConfig implements \JsonSerializable
                     continue;
                 }
 
-                $has_changed = true;
-                $plan = array_merge($plan, $this->makeChoices($options, $edges, $ending_state));
-                $seen_edges = array_merge($seen_edges, array_column($options, 0));
+                $has_changed  = true;
+                $plan         = array_merge($plan, $this->makeChoices($options, $edges, $ending_state));
+                $seen_edges   = array_merge($seen_edges, array_column($options, 0));
                 $seen_actions = array_merge($seen_edges, array_column($options, 5));
             }
 

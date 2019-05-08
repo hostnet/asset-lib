@@ -1,14 +1,18 @@
-.idea/
-.vagrant/
-bin/
-vendor/
-var/
-/node_modules/
-test/fixtures/var/
-test/fixtures/web/
-package-lock.json
+# Files
 composer.lock
-yarn.lock
 composer.phar
+package-lock.json
+yarn.lock
 /test/Bundler/dev1-cache
 /test/Bundler/dev2-cache/eb43a_dev2.require.js.sources
+
+# Folders
+/.idea/
+/.vagrant/
+/bin/
+/coverage/
+/node_modules/
+/tests/fixtures/var/
+/tests/fixtures/web/
+/var/
+/vendor/

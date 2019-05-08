@@ -29,7 +29,7 @@ final class Packer
         $finder = new ImportFinder($config->getProjectRoot());
 
         $build_config = new BuildConfig($config);
-        $plugin_api = new PluginApi($finder, $config, $cache, $build_config);
+        $plugin_api   = new PluginApi($finder, $config, $cache, $build_config);
         (new PluginActivator($plugin_api))->ensurePluginsAreActivated();
 
         $bundler = new Bundler($finder, $config);

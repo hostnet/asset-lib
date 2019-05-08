@@ -28,8 +28,8 @@ class OutputReader
 
         // Now parse it line-by-line
         while (false !== ($i = strpos($this->buffer, "\n"))) {
-            $line = substr($this->buffer, 0, $i);
-            $this->buffer = substr($this->buffer, $i+1);
+            $line         = substr($this->buffer, 0, $i);
+            $this->buffer = substr($this->buffer, $i + 1);
 
             $this->parseAndReport($line);
         }

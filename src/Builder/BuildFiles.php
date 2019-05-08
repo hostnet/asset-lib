@@ -24,7 +24,7 @@ class BuildFiles implements \JsonSerializable
     private $finder;
     private $extension_map;
     private $config;
-    private $files = [];
+    private $files    = [];
     private $compiled = false;
 
     public function __construct(

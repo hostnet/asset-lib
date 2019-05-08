@@ -28,10 +28,10 @@ final class Asset
      */
     public function __construct(DependencyNodeInterface $file)
     {
-        $this->file      = $file->getFile();
-        $this->files     = [];
+        $this->file  = $file->getFile();
+        $this->files = [];
 
-        $walker = new TreeWalker(function (DependencyNodeInterface $dependency) {
+        $walker = new TreeWalker(function (DependencyNodeInterface $dependency): void {
             $this->files[] = $dependency;
         });
 

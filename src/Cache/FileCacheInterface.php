@@ -16,10 +16,10 @@ interface FileCacheInterface extends CacheInterface
     /**
      * Save the cache to disk.
      */
-    public function save();
+    public function save(): void;
 
     /**
      * Load the cache from disk.
      */
-    public function load();
+    public function load(): void;
 }
