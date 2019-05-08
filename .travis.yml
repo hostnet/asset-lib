@@ -1,9 +1,5 @@
 language: php
 
-node_js:
-  - "node"
-  - "8"
-
 sudo: false
 
 cache:
@@ -55,6 +51,6 @@ matrix:
 
     # JS tests
     - language: node_js
-      node_js: 8.5.0
+      node_js: node # Latest
       env: YARN_TEST="TRUE"
       script: npm test
