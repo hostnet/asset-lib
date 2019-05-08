@@ -1,7 +1,7 @@
-let UglifyJS = require("uglify-js");
+let Terser = require("terser");
 
 module.exports = function (file) {
-    let result = UglifyJS.minify(file.content.toString());
+    let result = Terser.minify(file.content.toString());
 
     if (result.error) {
         throw result.error;

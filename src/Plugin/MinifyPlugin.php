@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Builder\Step\CleanCssBuildStep;
-use Hostnet\Component\Resolver\Builder\Step\UglifyJsBuildStep;
+use Hostnet\Component\Resolver\Builder\Step\UglifyBuildStep;
 
 /**
  * Enables minifying for JavaScript and css.
@@ -25,7 +25,7 @@ final class MinifyPlugin implements PluginInterface
 {
     public function activate(PluginApi $plugin_api): void
     {
-        $plugin_api->addBuildStep(new UglifyJsBuildStep());
+        $plugin_api->addBuildStep(new UglifyBuildStep());
         $plugin_api->addBuildStep(new CleanCssBuildStep());
     }
 }

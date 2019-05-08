@@ -10,13 +10,13 @@ use Hostnet\Component\Resolver\Builder\AbstractBuildStep;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Hostnet\Component\Resolver\Builder\Step\UglifyJsBuildStep
+ * @covers \Hostnet\Component\Resolver\Builder\Step\UglifyBuildStep
  */
-class UglifyJsBuildStepTest extends TestCase
+class UglifyBuildStepTest extends TestCase
 {
     public function testGeneric(): void
     {
-        $step = new UglifyJsBuildStep();
+        $step = new UglifyBuildStep();
 
         self::assertSame([
             AbstractBuildStep::MODULES_COLLECTED,

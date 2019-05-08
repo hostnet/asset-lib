@@ -8,7 +8,7 @@ namespace Hostnet\Component\Resolver\Builder\Step;
 
 use Hostnet\Component\Resolver\Builder\AbstractBuildStep;
 
-class UglifyJsBuildStep extends AbstractBuildStep
+class UglifyBuildStep extends AbstractBuildStep
 {
     public function acceptedStates(): array
     {
