@@ -6,18 +6,12 @@ describe("uglify.js", function () {
         let result = step(new builder.File(
             'foo.js',
             'foo.js',
-            Buffer.from(
-                'var A = /** @class */ (function () {\n' +
-                '    function A() {\n' +
-                '    }\n' +
-                '    return A;\n' +
-                '}());\n'
-            )
+            Buffer.from('function add(first, second) { const useless = 0; return first + second; }')
         ));
 
         expect(result.name).toBe('foo.js');
         expect(result.module).toBe('foo.js');
-        expect(result.content.toString()).toBe('var A=function(){};');
+        expect(result.content.toString()).toBe('function add(n,d){return n+d}');
     });
 
     it('on error', function () {
