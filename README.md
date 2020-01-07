@@ -45,7 +45,7 @@ This will output:
 Using the following snippet to build the assets. It is recommended to add it to something like a front-controller to build every time a request comes in so once a response comes back, all your assets are ready.
 
 ```php
-use Hostnet\Component\Resolver\Config\SimpleConfig;use Hostnet\Component\Resolver\Import\Nodejs\Executable;use Hostnet\Component\Resolver\Packer;use Hostnet\Component\Resolver\Plugin\CorePlugin;use Hostnet\Component\Resolver\Plugin\LessPlugin;$config = new SimpleConfig(
+$config = new \Hostnet\Component\Resolver\Config\SimpleConfig(
     true, // is dev
     __DIR__,
     [],
@@ -56,13 +56,13 @@ use Hostnet\Component\Resolver\Config\SimpleConfig;use Hostnet\Component\Resolve
     'assets',
     __DIR__ . '/var',
     [
-        new CorePlugin(),
-        new LessPlugin(),
+        new \Hostnet\Component\Resolver\Plugin\CorePlugin(),
+        new \Hostnet\Component\Resolver\Plugin\LessPlugin(),
     ],
-    new Executable('/usr/bin/node', __DIR__ . '/node_modules/')
+    new \Hostnet\Component\Resolver\Import\Nodejs\Executable('/usr/bin/node', __DIR__ . '/node_modules/')
 );
 
-$packer = new Packer();
+$packer = new \Hostnet\Component\Resolver\Packer();
 $packer->pack($config);
 ```
 > The project root should be the folder which contains your `package.json` and `composer.json`.
