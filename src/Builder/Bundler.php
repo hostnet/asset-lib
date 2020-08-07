@@ -64,7 +64,12 @@ final class Bundler implements BundlerInterface
         $process = new Process($cmd, $this->config->getProjectRoot(), [
             'NODE_PATH' => $this->config->getNodeJsExecutable()->getNodeModulesLocation(),
         ], json_encode($build_files));
-        $process->inheritEnvironmentVariables();
+
+        // Backwards compatible with symfony before SF4.4 where this has become implicit and should not be called.
+        // https://github.com/symfony/symfony/pull/32475
+        if (\method_exists($process, 'inheritEnvironmentVariables')) {
+            $process->inheritEnvironmentVariables();
+        }
 
         $reader = new OutputReader($this->config->getReporter());
 
