@@ -165,7 +165,6 @@ describe("Require.js module register method test", function () {
             return {1: 'test2'};
         });
         expect(lib.require('a')).toEqual({1: 'test'});
-        expect(console.warn).toHaveBeenCalled();
     });
 
     it("with relative require path dependencies", function() {
