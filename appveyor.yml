@@ -14,7 +14,7 @@ branches:
 ## Install PHP and composer, and run the appropriate composer command
 install:
   - ps: Set-Service wuauserv -StartupType Manual
-  - cinst -y --params '""/InstallDir:C:\tools\php""' php 
+  - cinst -y --params '""/InstallDir:C:\tools\php""' php --version=7.4.14
   - refreshenv
   - cd c:\tools\php
   - copy php.ini-production php.ini /Y
