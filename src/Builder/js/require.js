@@ -9,12 +9,8 @@
     var RequireError = function (name) {
         this.message = 'Cannot find module "' + name + '", did you define it?';
     };
-    var ModuleRedeclareError = function (name) {
-        this.message = 'Cannot redeclare module "' + name + '".';
-    };
 
     RequireError.prototype = new Error();
-    ModuleRedeclareError.prototype = new Error();
 
     var _resolveRelativeName = function (name, parent_module) {
         var require_name = name;
@@ -143,9 +139,6 @@
             name = name.substr(0, name.length - 6);
         }
         if (_modules[name]) {
-            if (typeof console !== 'undefined' && typeof console.warn === 'function') {
-                console.warn(new ModuleRedeclareError(name));
-            }
             return;
         }
 
