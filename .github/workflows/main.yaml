@@ -1,0 +1,50 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+    test-php:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                php-versions: [ '7.2', '7.3', '7.4' ]
+        name:    PHP ${{ matrix.php-versions }}
+        steps:
+            -
+                uses: actions/checkout@v2
+            -
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-versions }}
+            -
+                name: Get composer cache directory
+                id:   composer-cache
+                run:  echo "::set-output name=dir::$(composer config cache-files-dir)"
+            -
+                uses: actions/cache@v2
+                with:
+                    path:         ${{ steps.composer-cache.outputs.dir }}
+                    key:          ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: ${{ runner.os }}-composer-
+            -
+                name: composer install
+                run:  composer install --no-progress --prefer-dist --optimize-autoloader
+            -
+                name: phpunit
+                run:  php vendor/bin/phpunit
+    test-npm:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-versions: ['10.x', '12.x', '14.x', '16.x']
+        name: Node ${{ matrix.node-versions }}
+        steps:
+            - uses: actions/checkout@v2
+            - name: Use Node.js ${{ matrix.node-versions }}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node-versions }}
+            - run: yarn
+            - run: yarn test
