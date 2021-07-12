@@ -2,8 +2,8 @@
     <img width="400" src="https://www.hostnet.nl/images/hostnet.svg">
 </a></p>
 
-[![Travis Status](https://travis-ci.org/hostnet/asset-lib.svg?branch=master)](https://travis-ci.org/hostnet/asset-lib)
-[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/hostnet/asset-lib?svg=true)](https://ci.appveyor.com/project/yannickl88/asset-lib)
+
+[![Build Status](https://github.com/hostnet/asset-lib/actions/workflows/main.yaml/badge.svg)](https://github.com/hostnet/asset-lib/actions/workflows/main.yaml)
 
 Assets can be manged in different ways. This project aims to provide a way to build assets incrementally without the need of specialized tools such as watchers and therefore requires no change in your development workflow.
 
