@@ -12,12 +12,15 @@ use Hostnet\Component\Resolver\Import\FileResolverInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Exception\FileNotFoundException;
 use Hostnet\Component\Resolver\Module;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Import\Nodejs\FileResolver
  */
 class FileResolverTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var FileResolverInterface
      */

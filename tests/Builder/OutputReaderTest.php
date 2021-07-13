@@ -9,12 +9,15 @@ namespace Hostnet\Component\Resolver\Builder;
 use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Report\ReporterInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Builder\OutputReader
  */
 class OutputReaderTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $reporter;
 
     /**

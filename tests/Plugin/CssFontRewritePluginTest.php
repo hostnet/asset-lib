@@ -11,12 +11,15 @@ use Hostnet\Component\Resolver\Builder\Step\CssFontRewriteStep;
 use Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\CssFontRewritePlugin
  */
 class CssFontRewritePluginTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testActivate(): void
     {
         $css_font_rewite_plugin = new CssFontRewritePlugin();

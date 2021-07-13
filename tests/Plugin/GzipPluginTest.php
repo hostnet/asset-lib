@@ -9,12 +9,15 @@ namespace Hostnet\Component\Resolver\Plugin;
 use Hostnet\Component\Resolver\Builder\Writer\GzipFileWriter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\GzipPlugin
  */
 class GzipPluginTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testActivate(): void
     {
         $gzip_plugin = new GzipPlugin();

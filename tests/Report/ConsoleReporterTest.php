@@ -12,6 +12,7 @@ use Hostnet\Component\Resolver\Import\Dependency;
 use Hostnet\Component\Resolver\Import\RootFile;
 use Hostnet\Component\Resolver\Report\Helper\FileSizeHelperInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
@@ -19,6 +20,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ConsoleReporterTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $config;
     private $helper;
 

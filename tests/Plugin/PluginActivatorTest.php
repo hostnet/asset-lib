@@ -8,12 +8,15 @@ namespace Hostnet\Component\Resolver\Plugin;
 
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\PluginActivator
  */
 class PluginActivatorTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testEnsurePluginsAreActivated(): void
     {
         $plugin = $this->prophesize(PluginInterface::class);

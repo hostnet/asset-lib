@@ -15,6 +15,7 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\BuiltIn\JsImportCollector;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -22,6 +23,8 @@ use Psr\SimpleCache\CacheInterface;
  */
 class CorePluginTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testActivate(): void
     {
         $cache  = $this->prophesize(CacheInterface::class);

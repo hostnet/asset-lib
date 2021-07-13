@@ -9,12 +9,15 @@ namespace Hostnet\Component\Resolver\Plugin;
 use Hostnet\Component\Resolver\Builder\Writer\BrotliFileWriter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\BrotliPlugin
  */
 class BrotliPluginTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testActivate(): void
     {
         $brotli_plugin = new BrotliPlugin();
