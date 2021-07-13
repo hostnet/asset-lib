@@ -15,12 +15,15 @@ use Hostnet\Component\Resolver\Import\Nodejs\FileResolver;
 use Hostnet\Component\Resolver\Module;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Import\BuiltIn\TsImportCollector
  */
 class TsImportCollectorTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var TsImportCollector
      */

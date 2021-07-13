@@ -10,12 +10,15 @@ use Hostnet\Component\Resolver\File;
 use Hostnet\Component\Resolver\Import\ImportCollection;
 use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Cache\CachedImportCollector
  */
 class CachedImportCollectorTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $inner;
     private $cache;
 

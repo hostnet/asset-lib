@@ -10,12 +10,15 @@ use Hostnet\Component\Resolver\Builder\Step\CleanCssBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\UglifyBuildStep;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Plugin\MinifyPlugin
  */
 class MinifyPluginTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testActivate(): void
     {
         $minify_plugin = new MinifyPlugin();

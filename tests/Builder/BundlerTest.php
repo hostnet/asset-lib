@@ -17,6 +17,7 @@ use Hostnet\Component\Resolver\Report\ReporterInterface;
 use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -24,6 +25,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class BundlerTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $finder;
     private $config;
 
@@ -183,8 +186,8 @@ class BundlerTest extends TestCase
             $this->bundler->bundle($build_config);
 
             // check the output
-            self::assertFileNotExists(__DIR__ . '/out/args.json');
-            self::assertFileNotExists(__DIR__ . '/out/stdin.json');
+            self::assertFileDoesNotExist(__DIR__ . '/out/args.json');
+            self::assertFileDoesNotExist(__DIR__ . '/out/stdin.json');
         } finally {
             $fs->remove([__DIR__ . '/var', __DIR__ . '/out', __DIR__ . '/dist']);
         }

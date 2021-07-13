@@ -13,6 +13,7 @@ use Hostnet\Component\Resolver\Report\Helper\FileSizeHelper;
 use Hostnet\Component\Resolver\Report\NullReporter;
 use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -21,6 +22,8 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class SimpleConfigTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testGeneric(): void
     {
         $plugins = [$this->prophesize(PluginInterface::class)->reveal()];

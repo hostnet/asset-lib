@@ -14,6 +14,7 @@ use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
 use Hostnet\Component\Resolver\Import\MutableImportFinderInterface;
 use Hostnet\Component\Resolver\Import\Nodejs\Executable;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -21,6 +22,8 @@ use Psr\SimpleCache\CacheInterface;
  */
 class PluginApiTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $finder;
     private $config;
     private $cache;

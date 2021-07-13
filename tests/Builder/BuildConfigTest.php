@@ -8,12 +8,15 @@ namespace Hostnet\Component\Resolver\Builder;
 
 use Hostnet\Component\Resolver\Config\ConfigInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * @covers \Hostnet\Component\Resolver\Builder\BuildConfig
  */
 class BuildConfigTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $config;
 
     protected function setUp(): void

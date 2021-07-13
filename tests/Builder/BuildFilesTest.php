@@ -15,6 +15,7 @@ use Hostnet\Component\Resolver\Report\NullReporter;
 use Hostnet\Component\Resolver\Split\EntryPointSplittingStrategyInterface;
 use Hostnet\Component\Resolver\Split\OneOnOneSplittingStrategy;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -22,6 +23,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class BuildFilesTest extends TestCase
 {
+    use ProphecyTrait;
+
     private $finder;
     private $extension_map;
     private $config;
