@@ -6,7 +6,7 @@ module.exports = function (file) {
             inlineSourceMap: false,
             skipLibCheck: true,
             importHelpers: true,
-            target: ts.ScriptTarget.ES5,
+            target: ts.ScriptTarget.ES2016,
             module: ts.ModuleKind.CommonJS,
             moduleResolution: ts.ModuleResolutionKind.NodeJs,
             emitDecoratorMetadata: true,
