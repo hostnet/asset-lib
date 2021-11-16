@@ -7,27 +7,15 @@ describe("ts.js", function () {
 
         expect(result.name).toBe('foo.ts');
         expect(result.module).toBe('foo');
-        expect(result.content.toString().replace(/[\r]/g, '')).toBe(
-            'var A = /** @class */ (function () {\n' +
-            '    function A() {\n' +
-            '    }\n' +
-            '    return A;\n' +
-            '}());\n'
-        );
+        expect(result.content.toString()).toBe('class A {\n}\n');
     });
 
     it('execute module', function () {
         let step = require('../../src/Builder/js/steps/ts');
-        let result = step(new builder.File('foo.ts', 'foo/foo.ts', Buffer.from("class A {}")));
+        let result = step(new builder.File('foo.ts', 'foo/foo.ts', Buffer.from('class A {}')));
 
         expect(result.name).toBe('foo.ts');
         expect(result.module).toBe('foo/foo');
-        expect(result.content.toString().replace(/[\r]/g, '')).toBe(
-            'var A = /** @class */ (function () {\n' +
-            '    function A() {\n' +
-            '    }\n' +
-            '    return A;\n' +
-            '}());\n'
-        );
+        expect(result.content.toString()).toBe('class A {\n}\n');
     });
 });
