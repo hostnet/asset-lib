@@ -72,7 +72,11 @@ final class ConsoleReporter implements ReporterInterface
     {
         $table = new Table($output);
         $table->setStyle('compact');
-        $table->getStyle()->setCellHeaderFormat('%s');
+        $table
+            ->getStyle()
+            ->setCellHeaderFormat('%s')
+            ->setVerticalBorderChars(' ')
+            ->setCellRowContentFormat('%s');
         $table->setHeaders(['Asset', 'Size', 'Status']);
         $table->setColumnStyle(0, (clone $table->getStyle())->setPadType(STR_PAD_LEFT));
         $table->setColumnStyle(1, (clone $table->getStyle())->setPadType(STR_PAD_BOTH));
