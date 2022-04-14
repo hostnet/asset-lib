@@ -57,8 +57,6 @@ final class EntryPoint
 
     /**
      * Return the root file for the entry point.
-     *
-     * @return File
      */
     public function getFile(): File
     {

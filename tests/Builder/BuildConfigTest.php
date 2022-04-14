@@ -37,8 +37,8 @@ class BuildConfigTest extends TestCase
         $data = $build_config->jsonSerialize();
 
         self::assertSame([
-            'root' => __DIR__ . DIRECTORY_SEPARATOR,
-            'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
+            'root'  => __DIR__ . DIRECTORY_SEPARATOR,
+            'out'   => 'foo/bar' . DIRECTORY_SEPARATOR,
             'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([], $data['mapping']);
@@ -61,7 +61,7 @@ class BuildConfigTest extends TestCase
 
         self::assertSame([
             'root' => __DIR__ . DIRECTORY_SEPARATOR,
-            'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
+            'out'  => 'foo/bar' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([], $data['mapping']);
         self::assertSame([], $data['build']);
@@ -122,8 +122,8 @@ class BuildConfigTest extends TestCase
         $data = $build_config->jsonSerialize();
 
         self::assertSame([
-            'root' => __DIR__ . DIRECTORY_SEPARATOR,
-            'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
+            'root'  => __DIR__ . DIRECTORY_SEPARATOR,
+            'out'   => 'foo/bar' . DIRECTORY_SEPARATOR,
             'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
@@ -177,8 +177,8 @@ class BuildConfigTest extends TestCase
         $data = $build_config->jsonSerialize();
 
         self::assertSame([
-            'root' => __DIR__ . DIRECTORY_SEPARATOR,
-            'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
+            'root'  => __DIR__ . DIRECTORY_SEPARATOR,
+            'out'   => 'foo/bar' . DIRECTORY_SEPARATOR,
             'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
@@ -227,8 +227,8 @@ class BuildConfigTest extends TestCase
         $data = $build_config->jsonSerialize();
 
         self::assertSame([
-            'root' => __DIR__ . DIRECTORY_SEPARATOR,
-            'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
+            'root'  => __DIR__ . DIRECTORY_SEPARATOR,
+            'out'   => 'foo/bar' . DIRECTORY_SEPARATOR,
             'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([
@@ -296,8 +296,8 @@ class BuildConfigTest extends TestCase
         $data = $build_config->jsonSerialize();
 
         self::assertSame([
-            'root' => __DIR__ . DIRECTORY_SEPARATOR,
-            'out' => 'foo/bar' . DIRECTORY_SEPARATOR,
+            'root'  => __DIR__ . DIRECTORY_SEPARATOR,
+            'out'   => 'foo/bar' . DIRECTORY_SEPARATOR,
             'cache' => '/tmp' . DIRECTORY_SEPARATOR,
         ], $data['paths']);
         self::assertSame([

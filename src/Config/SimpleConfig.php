@@ -69,9 +69,6 @@ final class SimpleConfig implements ConfigInterface
         return $this->split_strategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isDev(): bool
     {
         return $this->is_dev;
@@ -85,9 +82,6 @@ final class SimpleConfig implements ConfigInterface
         return $this->include_paths;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getProjectRoot(): string
     {
         return $this->project_root;
@@ -109,9 +103,6 @@ final class SimpleConfig implements ConfigInterface
         return $this->asset_files;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getOutputFolder(bool $include_public_folder = true): string
     {
         if (! $include_public_folder || empty($this->web_root)) {
@@ -121,17 +112,11 @@ final class SimpleConfig implements ConfigInterface
         return $this->web_root . DIRECTORY_SEPARATOR . $this->output_folder;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSourceRoot(): string
     {
         return $this->source_root;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCacheDir(): string
     {
         return $this->cache_dir;
@@ -145,25 +130,16 @@ final class SimpleConfig implements ConfigInterface
         return $this->plugins;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getNodeJsExecutable(): Executable
     {
         return $this->node_js_executable;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function replaceReporter(ReporterInterface $reporter): ReporterInterface
     {
         $previous = $this->reporter;
@@ -173,9 +149,6 @@ final class SimpleConfig implements ConfigInterface
         return $previous;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getReporter(): ReporterInterface
     {
         return $this->reporter;

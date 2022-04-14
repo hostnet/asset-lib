@@ -30,17 +30,11 @@ final class CachedImportCollector implements ImportCollectorInterface
         $this->file_cache = new \SplObjectStorage();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports(File $file): bool
     {
         return $this->inner->supports($file);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         if (isset($this->file_cache[$file])) {

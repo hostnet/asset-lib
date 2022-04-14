@@ -13,7 +13,6 @@ use Hostnet\Component\Resolver\Config\ConfigInterface;
 use Hostnet\Component\Resolver\Import\ImportFinder;
 use Hostnet\Component\Resolver\Plugin\PluginActivator;
 use Hostnet\Component\Resolver\Plugin\PluginApi;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Simple facade that registered JS, CSS, TS and LESS compilation and runs it

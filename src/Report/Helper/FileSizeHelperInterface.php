@@ -12,7 +12,6 @@ interface FileSizeHelperInterface
      * Return the file size of a file.
      *
      * @param string $file
-     * @return int
      */
     public function filesize(string $file): int;
 
@@ -20,7 +19,6 @@ interface FileSizeHelperInterface
      * Return a pretty format for file sizes. So for instance 54457 becomes:
      *
      * @param int $size
-     * @return string
      * @throws \LogicException
      */
     public function format(int $size): string;

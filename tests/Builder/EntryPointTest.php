@@ -33,7 +33,7 @@ class EntryPointTest extends TestCase
 
         self::assertEquals($file, $entry_point->getFile());
         $expected = [
-            'output/root.js' => ['root.js', 'some.file', 'node_modules/foo'],
+            'output/root.js'    => ['root.js', 'some.file', 'node_modules/foo'],
             'output/other.file' => ['other.file'],
         ];
 
@@ -84,8 +84,8 @@ class EntryPointTest extends TestCase
 
         self::assertEquals($file, $entry_point->getFile());
         $expected = [
-            'output/file1.js' => [__FILE__, 'some.file'],
-            'output/file2.js' => ['node_modules/foo'],
+            'output/file1.js'   => [__FILE__, 'some.file'],
+            'output/file2.js'   => ['node_modules/foo'],
             'output/other.file' => ['other.file'],
         ];
 
