@@ -26,5 +26,10 @@
         "psr-4": {
             "Hostnet\\Component\\Resolver\\": "tests/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "hostnet/*": true
+        }
     }
 }

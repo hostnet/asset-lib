@@ -1,18 +1,22 @@
 {
-    "checksum": "942d0cebe2044bc379a3b3d08584ac56",
+    "checksum": "bd64a41c264330fba70b7c342aa4c59d",
     "mapping": {
         ".js": ".js"
     },
     "paths": {
-        "root": "",
+        "root": "\/home\/jlam\/projects\/asset-lib.jlam\/tests\/Builder\/",
         "out": "dist\/",
-        "cache": ""
+        "cache": "\/home\/jlam\/projects\/asset-lib.jlam\/tests\/Builder\/var-saved\/"
     },
     "build": {
         ".js": [
+            [
+                "\/home\/jlam\/projects\/asset-lib.jlam\/src\/Builder\/Step\/..\/js\/steps\/identity.js"
+            ],
             [],
-            [],
-            []
+            [
+                "\/home\/jlam\/projects\/asset-lib.jlam\/src\/Builder\/Writer\/..\/js\/writers\/generic.js"
+            ]
         ]
     }
 }
