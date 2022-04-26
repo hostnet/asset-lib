@@ -80,38 +80,28 @@ abstract class AbstractBuildStep
 
     /**
      * Return the state which this step results in. This cannot be before any of accepted states.
-     *
-     * @return int
      */
     abstract public function resultingState(): int;
 
     /**
      * Return the extension this step accepts. This should include the dot. I.e., ".css" or ".js".
-     *
-     * @return string
      */
     abstract public function acceptedExtension(): string;
 
     /**
      * Return the extension this step results in. This should include the dot. I.e., ".css" or ".js".
-     *
-     * @return string
      */
     abstract public function resultingExtension(): string;
 
     /**
      * Return the javascript module this step uses. This can be either a node modules like "@acme/my-step" or a
      * absolute path to a file like "/some/dir/acme/my-step.js"
-     *
-     * @return string
      */
     abstract public function getJsModule(): string;
 
     /**
      * The lower the priority (i.e. 0 to 50) the later in the build process it
      * will be picked. The higher, the sooner. Default is 50.
-     *
-     * @return int
      */
     public function buildPriority(): int
     {
@@ -120,8 +110,6 @@ abstract class AbstractBuildStep
 
     /**
      * Calculate a unique hash for this step.
-     *
-     * @return string
      */
     final public function getHash(): string
     {

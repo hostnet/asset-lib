@@ -17,7 +17,6 @@ interface ImportCollectorInterface
      * Check if this resolver is able to find imports for this file.
      *
      * @param File $file
-     * @return bool
      */
     public function supports(File $file): bool;
 

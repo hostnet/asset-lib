@@ -27,8 +27,6 @@ final class Import
     /**
      * Return the alias that was used when importing the file. This can be the
      * module name or the relative path.
-     *
-     * @return string
      */
     public function getAs(): string
     {
@@ -37,8 +35,6 @@ final class Import
 
     /**
      * Return the imported file.
-     *
-     * @return File
      */
     public function getImportedFile(): File
     {
@@ -50,8 +46,6 @@ final class Import
      * dependency, but it should not appear in the compiled output result. This
      * is useful in cases where the transpiler in-lines the imported content
      * but you still want to track changes.
-     *
-     * @return bool
      */
     public function isVirtual(): bool
     {

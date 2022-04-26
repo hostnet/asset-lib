@@ -26,9 +26,6 @@ final class JsImportCollector implements ImportCollectorInterface
         $this->extensions      = $extensions;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports(File $file): bool
     {
         foreach ($this->extensions as $extension) {
@@ -39,9 +36,6 @@ final class JsImportCollector implements ImportCollectorInterface
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         $content = file_get_contents(File::makeAbsolutePath($file->path, $cwd));

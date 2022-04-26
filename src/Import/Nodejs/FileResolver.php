@@ -34,9 +34,6 @@ final class FileResolver implements FileResolverInterface
         $this->extensions = $extensions;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function asRequire(string $name, File $parent): Import
     {
         // 1. If X is a core module,
@@ -85,7 +82,6 @@ final class FileResolver implements FileResolverInterface
      *
      * @param string $name
      * @throws FileNotFoundException when no file could be resolved.
-     * @return string
      */
     private function asFile(string $name): string
     {
@@ -113,7 +109,6 @@ final class FileResolver implements FileResolverInterface
      *
      * @param string $name
      * @throws FileNotFoundException when no file could be resolved.
-     * @return string
      */
     private function asIndex(string $name): string
     {
@@ -144,7 +139,6 @@ final class FileResolver implements FileResolverInterface
      *
      * @param string $name
      * @throws FileNotFoundException when no file could be resolved.
-     * @return string
      */
     private function asDir(string $name): string
     {
@@ -174,7 +168,6 @@ final class FileResolver implements FileResolverInterface
      *
      * @param string $name
      * @throws FileNotFoundException when no file could be resolved.
-     * @return string
      */
     private function asModule(string $name): string
     {

@@ -8,17 +8,11 @@ namespace Hostnet\Component\Resolver\Report\Helper;
 
 final class FileSizeHelper implements FileSizeHelperInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function filesize(string $file): int
     {
         return file_exists($file) ? filesize($file) : -1;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function format(int $size): string
     {
         if ($size < 0) {

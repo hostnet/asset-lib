@@ -26,7 +26,6 @@ final class Cache implements FileCacheInterface
      * different folder should have a different key.
      *
      * @param File $file
-     * @return string
      */
     public static function createFileCacheKey(File $file): string
     {
@@ -83,17 +82,11 @@ final class Cache implements FileCacheInterface
         $this->data = [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function save(): void
     {
         file_put_contents($this->file, serialize($this->data));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function load(): void
     {
         if (!file_exists($this->file)) {

@@ -81,7 +81,7 @@ class BuildFilesTest extends TestCase
 
             self::assertTrue($this->build_files->hasFiles());
             self::assertSame([
-                'dist/require.js' => [
+                'dist/require.js'      => [
                     [
                         '../../src/Builder/js/require.js',
                         '.js',
@@ -101,7 +101,7 @@ class BuildFilesTest extends TestCase
                         '',
                     ],
                 ],
-                'dist/sub/bar.js' => [
+                'dist/sub/bar.js'      => [
                     [
                         'fixtures/sub/bar.js',
                         '.js',
