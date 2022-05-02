@@ -180,7 +180,7 @@ class BundlerTest extends TestCase
 
             $fs->dumpFile(__DIR__ . '/var/build_config.json', json_encode([
                 'checksum' => $build_config->calculateHash(),
-                'mapping' => ['.js' => '.js'],
+                'mapping'  => ['.js' => '.js'],
             ]));
 
             $this->bundler->bundle($build_config);

@@ -164,7 +164,6 @@ class BuildFiles implements \JsonSerializable
      * @param File                      $output_file
      * @param int                       $mtime
      * @param DependencyNodeInterface[] $input_files
-     * @return bool
      */
     private function checkIfAnyChanged(File $output_file, int $mtime, array $input_files): bool
     {

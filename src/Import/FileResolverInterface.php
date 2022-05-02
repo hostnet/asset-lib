@@ -21,7 +21,6 @@ interface FileResolverInterface
      * @param string $name
      * @param File   $parent
      * @throws FileNotFoundException when no file could be resolved.
-     * @return Import
      */
     public function asRequire(string $name, File $parent): Import;
 }

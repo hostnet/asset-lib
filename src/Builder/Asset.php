@@ -41,8 +41,6 @@ final class Asset
     /**
      * Return the file from which the asset needs to be created. This is the
      * source file.
-     *
-     * @return File
      */
     public function getFile(): File
     {
@@ -64,7 +62,6 @@ final class Asset
      *
      * @param string $output_folder
      * @param string $source_folder
-     * @return File
      */
     public function getAssetFile(string $output_folder, string $source_folder): File
     {

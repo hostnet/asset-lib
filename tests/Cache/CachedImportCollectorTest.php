@@ -59,9 +59,9 @@ class CachedImportCollectorTest extends TestCase
 
     public function testCollectWithCache(): void
     {
-        $file                           = new File(basename(__FILE__));
-        $imports                        = new ImportCollection();
-        $cached_imports                 = new ImportCollection();
+        $file           = new File(basename(__FILE__));
+        $imports        = new ImportCollection();
+        $cached_imports = new ImportCollection();
         $cached_imports->addResource($f = new File('bar.js'));
 
         $this->cache->set(

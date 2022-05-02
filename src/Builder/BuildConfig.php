@@ -30,7 +30,7 @@ class BuildConfig implements \JsonSerializable
     {
         $this->paths = [
             'root' => $config->getProjectRoot(),
-            'out' => $config->getOutputFolder(true),
+            'out'  => $config->getOutputFolder(true),
         ];
 
         if (!$config->isDev()) {
@@ -42,8 +42,6 @@ class BuildConfig implements \JsonSerializable
 
     /**
      * Return a unique hash for this config. If any of the steps change, this hash will change.
-     *
-     * @return string
      */
     public function calculateHash(): string
     {
@@ -179,9 +177,9 @@ class BuildConfig implements \JsonSerializable
             }
 
             $plans[$extension] = [
-                'file_actions' => array_column($file_actions, 5),
+                'file_actions'   => array_column($file_actions, 5),
                 'module_actions' => $module_actions,
-                'write_actions' => $write_actions,
+                'write_actions'  => $write_actions,
             ];
 
             if (!empty($module_actions)) {
@@ -343,7 +341,6 @@ class BuildConfig implements \JsonSerializable
      * @param array $edges
      * @param int   $ready_state
      * @param int   $c
-     * @return int
      */
     private function getMaxLengthToEnd(array $start, array $edges, int $ready_state, int $c = 0): int
     {
@@ -452,11 +449,11 @@ class BuildConfig implements \JsonSerializable
 
         return [
             'checksum' => $this->calculateHash(),
-            'mapping' => $this->extension_mapping,
-            'paths' => array_map(function (string $path) {
+            'mapping'  => $this->extension_mapping,
+            'paths'    => array_map(function (string $path) {
                 return rtrim($path, '//\\') . DIRECTORY_SEPARATOR;
             }, $this->paths),
-            'build' => $build_steps,
+            'build'    => $build_steps,
         ];
     }
 

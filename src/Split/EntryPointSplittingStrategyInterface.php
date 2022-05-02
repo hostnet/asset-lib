@@ -23,7 +23,6 @@ interface EntryPointSplittingStrategyInterface
      *
      * @param string $entry_point
      * @param DependencyNodeInterface $dependency
-     * @return null|string
      */
     public function resolveChunk(string $entry_point, DependencyNodeInterface $dependency): ?string;
 }

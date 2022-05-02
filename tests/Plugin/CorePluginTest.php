@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace Hostnet\Component\Resolver\Plugin;
 
-use Hostnet\Component\Resolver\Builder\Step\CssBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\IdentityBuildStep;
 use Hostnet\Component\Resolver\Builder\Step\ModuleBuildStep;
 use Hostnet\Component\Resolver\Builder\Writer\GenericFileWriter;

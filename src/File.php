@@ -28,8 +28,6 @@ class File
 
     /**
      * Return the name of the import. This is usually the file or module name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -38,8 +36,6 @@ class File
 
     /**
      * Return the name of the import without any extensions.
-     *
-     * @return string
      */
     public function getBaseName(): string
     {
@@ -50,7 +46,6 @@ class File
      * Check of another ImportInterface is equal to this.
      *
      * @param File $other
-     * @return bool
      */
     public function equals(File $other): bool
     {
@@ -62,7 +57,6 @@ class File
      * accordingly.
      *
      * @param string $path
-     * @return string
      */
     public static function clean(string $path): string
     {
@@ -94,7 +88,6 @@ class File
      * Check if the given path is absolute.
      *
      * @param string $path
-     * @return bool
      */
     public static function isAbsolutePath(string $path): bool
     {
@@ -112,7 +105,6 @@ class File
      *
      * @param string $path
      * @param string $cwd
-     * @return string
      */
     public static function makeAbsolutePath(string $path, string $cwd): string
     {

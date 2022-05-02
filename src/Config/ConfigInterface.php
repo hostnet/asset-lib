@@ -19,22 +19,16 @@ interface ConfigInterface
 {
     /**
      * Return if the application is running in dev.
-     *
-     * @return bool
      */
     public function isDev(): bool;
 
     /**
      * Returns a class that resolves chunk points into which output file it should be sent to.
-     *
-     * @return EntryPointSplittingStrategyInterface
      */
     public function getSplitStrategy(): EntryPointSplittingStrategyInterface;
 
     /**
      * Return the current working directory.
-     *
-     * @return string
      */
     public function getProjectRoot(): string;
 
@@ -70,35 +64,26 @@ interface ConfigInterface
      * Return the output folder in which to dump the compiled assets.
      *
      * @param bool $include_public_folder Whether to include the web/ directory
-     * @return string
      */
     public function getOutputFolder(bool $include_public_folder = true): string;
 
     /**
      * Return the source root folder in which the assets are located.
-     *
-     * @return string
      */
     public function getSourceRoot(): string;
 
     /**
      * Return the cache folder in which the temporary files can be put.
-     *
-     * @return string
      */
     public function getCacheDir(): string;
 
     /**
      * Returns configuration where to find the node.js executable and node_modules path.
-     *
-     * @return Executable
      */
     public function getNodeJsExecutable(): Executable;
 
     /**
      * Returns a logger used for debugging asset buildings.
-     *
-     * @return LoggerInterface
      */
     public function getLogger(): LoggerInterface;
 
@@ -107,14 +92,11 @@ interface ConfigInterface
      * the previous once.
      *
      * @param ReporterInterface $reporter
-     * @return ReporterInterface
      */
     public function replaceReporter(ReporterInterface $reporter): ReporterInterface;
 
     /**
      * Return the reporter.
-     *
-     * @return ReporterInterface
      */
     public function getReporter(): ReporterInterface;
 }

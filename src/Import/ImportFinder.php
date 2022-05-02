@@ -25,17 +25,11 @@ final class ImportFinder implements MutableImportFinderInterface
         $this->cwd = $cwd;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addCollector(ImportCollectorInterface $import_collector): void
     {
         $this->import_collectors[] = $import_collector;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function all(File $file): RootFile
     {
         $files = [];
@@ -98,7 +92,6 @@ final class ImportFinder implements MutableImportFinderInterface
      * Return all imports for a given file as a generator.
      *
      * @param File $file
-     * @return ImportCollection
      */
     private function findImports(File $file): ImportCollection
     {
@@ -118,7 +111,6 @@ final class ImportFinder implements MutableImportFinderInterface
     /**
      * @param File  $file
      * @param array $dependencies
-     * @return RootFile
      */
     private function toTree(File $file, array $dependencies): RootFile
     {

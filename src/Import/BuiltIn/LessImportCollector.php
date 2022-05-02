@@ -16,17 +16,11 @@ use Hostnet\Component\Resolver\Import\ImportCollectorInterface;
  */
 final class LessImportCollector implements ImportCollectorInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function supports(File $file): bool
     {
         return $file->extension === 'less';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function collect(string $cwd, File $file, ImportCollection $imports): void
     {
         $content = file_get_contents(File::makeAbsolutePath($file->path, $cwd));
